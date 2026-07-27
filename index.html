@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>运维工单系统</title>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- sql.js CDN (WebAssembly) -->
+    <script src="https://sql.js.org/dist/sql-wasm.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f5f7fb;
+            color: #1e293b;
+            padding: 16px;
+            padding-bottom: 80px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* 配置卡片 (首次使用或修改配置) */
+        .config-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+            border: 1px solid #e9eef3;
+        }
+        .config-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #0f172a;
+        }
+        .config-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .config-row input {
+            flex: 1;
+            min-width: 160px;
+            padding: 10px 14px;
+            border: 1px solid #d1d9e6;
+            border-radius: 10px;
+            font-size: 14px;
+            background: #fafcff;
+            transition: 0.2s;
+        }
+        .config-row input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+            background: #eef2f6;
+            color: #1e293b;
+        }
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        .btn-primary:hover { background: #2563eb; }
+        .btn-success {
+            background: #22c55e;
+            color: white;
+        }
+        .btn-success:hover { background: #16a34a; }
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+        .status-badge {
+            font-size: 13px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: #e9eef3;
+            color: #475569;
+        }
+        .status-badge.resolved { background: #dcfce7; color: #166534; }
+        .status-badge.pending { background: #fee2e2; color: #991b1b; }
+
+        /* 头部 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+        .sync-status {
+            font-size: 13px;
+            background: white;
+            padding: 6px 14px;
+            border-radius: 30px;
+            border: 1px solid #e9eef3;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .sync-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            background: #22c55e;
+        }
+        .sync-dot.error { background: #ef4444; }
+        .sync-dot.syncing { background: #f59e0b; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: white;
+            padding: 16px 12px;
+            border-radius: 14px;
+            border: 1px solid #e9eef3;
+            text-align: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+        .stat-card .num {
+            font-size: 28px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        .stat-card .label {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+        .stat-card.blue .num { color: #3b82f6; }
+        .stat-card.green .num { color: #22c55e; }
+        .stat-card.red .num { color: #ef4444; }
+        .stat-card.purple .num { color: #8b5cf6; }
+        .stat-card.orange .num { color: #f59e0b; }
+
+        /* 图表容器 */
+        .chart-wrapper {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid #e9eef3;
+            margin-bottom: 20px;
+            height: 180px;
+            position: relative;
+        }
+        .chart-wrapper canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* 月份切换 */
+        .month-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: white;
+            padding: 12px 16px;
+            border-radius: 14px;
+            border: 1px solid #e9eef3;
+            margin-bottom: 20px;
+        }
+        .month-nav .month-label {
+            font-weight: 600;
+            font-size: 18px;
+        }
+        .month-nav .nav-btn {
+            background: none;
+            border: 1px solid #d1d9e6;
+            border-radius: 8px;
+            padding: 4px 14px;
+            font-size: 20px;
+            cursor: pointer;
+            line-height: 1.4;
+        }
+        .month-nav .nav-btn:hover { background: #f1f5f9; }
+
+        /* 添加工单按钮 */
+        .add-btn-wrap {
+            margin-bottom: 20px;
+        }
+        .add-btn-wrap .btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 14px;
+        }
+        .add-btn-wrap .btn:hover { background: #2563eb; }
+
+        /* 每日分组 */
+        .day-group {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #e9eef3;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e9eef3;
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .day-header .day-count {
+            font-weight: 400;
+            color: #64748b;
+            font-size: 14px;
+        }
+        .ticket-item {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px 12px;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .ticket-item:last-child { border-bottom: none; }
+        .ticket-item .info {
+            flex: 1;
+            min-width: 150px;
+        }
+        .ticket-item .info .dept-name {
+            font-weight: 500;
+        }
+        .ticket-item .info .issue-text {
+            color: #475569;
+            font-size: 14px;
+            display: block;
+            margin-top: 2px;
+        }
+        .ticket-item .meta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+        }
+        .tag {
+            font-size: 12px;
+            padding: 2px 10px;
+            border-radius: 30px;
+            background: #e9eef3;
+            color: #334155;
+        }
+        .tag.software { background: #dbeafe; color: #1e40af; }
+        .tag.hardware { background: #fef3c7; color: #92400e; }
+        .tag.network { background: #e0e7ff; color: #3730a3; }
+        .tag.other { background: #f1f5f9; color: #475569; }
+
+        .ticket-item .actions {
+            display: flex;
+            gap: 6px;
+        }
+        .ticket-item .actions .btn {
+            padding: 4px 10px;
+            font-size: 12px;
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.4);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+        .modal h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        .modal label {
+            font-weight: 500;
+            font-size: 14px;
+            display: block;
+            margin-top: 12px;
+            margin-bottom: 4px;
+        }
+        .modal input, .modal select, .modal textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #d1d9e6;
+            border-radius: 10px;
+            font-size: 14px;
+            background: white;
+        }
+        .modal textarea { min-height: 70px; resize: vertical; }
+        .modal .form-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .modal .form-row > * { flex: 1; min-width: 120px; }
+        .modal .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+        .modal .modal-actions .btn { padding: 10px 24px; }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #94a3b8;
+        }
+
+        /* 响应式 */
+        @media (max-width: 600px) {
+            body { padding: 12px; }
+            .stats-grid { grid-template-columns: repeat(3, 1fr); }
+            .config-row input { min-width: 120px; }
+        }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+<div class="container" id="app">
+
+    <!-- 配置区域 -->
+    <div class="config-card" id="configCard">
+        <h3>🔐 坚果云 WebDAV 设置</h3>
+        <div class="config-row">
+            <input type="text" id="webdavUrl" placeholder="服务器地址 (如 https://dav.jianguoyun.com/dav/tickets.db)">
+            <input type="text" id="webdavUser" placeholder="账号 (坚果云邮箱/手机号)">
+            <input type="password" id="webdavPass" placeholder="应用专用密码">
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn btn-primary" id="connectBtn">连接并加载数据</button>
+            <button class="btn" id="resetConfigBtn" style="background:#f1f5f9;">重置配置</button>
+            <span style="font-size:13px; color:#64748b; align-self:center;" id="configHint">💡 首次使用需填写，配置将保存在浏览器本地</span>
+        </div>
+    </div>
+
+    <!-- 主界面 (加载数据后显示) -->
+    <div id="mainArea" class="hidden">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>📋 工单记录</h1>
+            <div class="sync-status">
+                <span class="sync-dot" id="syncDot"></span>
+                <span id="syncLabel">已同步</span>
+            </div>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card blue"><div class="num" id="totalCount">0</div><div class="label">总工单</div></div>
+            <div class="stat-card green"><div class="num" id="resolvedCount">0</div><div class="label">已解决</div></div>
+            <div class="stat-card red"><div class="num" id="pendingCount">0</div><div class="label">未解决</div></div>
+            <div class="stat-card purple"><div class="num" id="softwareCount">0</div><div class="label">软件</div></div>
+            <div class="stat-card orange"><div class="num" id="hardwareCount">0</div><div class="label">硬件</div></div>
+            <div class="stat-card" style="border-color:#c7d2fe;"><div class="num" id="networkCount" style="color:#4f46e5;">0</div><div class="label">网络</div></div>
+        </div>
+
+        <!-- 柱状图 -->
+        <div class="chart-wrapper">
+            <canvas id="monthChart"></canvas>
+        </div>
+
+        <!-- 月份导航 -->
+        <div class="month-nav">
+            <button class="nav-btn" id="prevMonth">‹</button>
+            <span class="month-label" id="currentMonthLabel">2026年7月</span>
+            <button class="nav-btn" id="nextMonth">›</button>
+        </div>
+
+        <!-- 添加工单 -->
+        <div class="add-btn-wrap">
+            <button class="btn btn-success" id="openAddModal">➕ 添加工单</button>
+        </div>
+
+        <!-- 工单列表 (按日分组) -->
+        <div id="ticketList"></div>
+    </div>
+</div>
+
+<!-- 模态框 (新增/编辑) -->
+<div class="modal-overlay" id="ticketModal">
+    <div class="modal">
+        <h2 id="modalTitle">添加工单</h2>
+        <input type="hidden" id="editId" value="">
+        <label>日期</label>
+        <input type="date" id="formDate">
+
+        <div class="form-row">
+            <div><label>部门</label><input type="text" id="formDept" placeholder="如：网络部"></div>
+            <div><label>姓名</label><input type="text" id="formName" placeholder="你的名字"></div>
+        </div>
+
+        <label>问题描述</label>
+        <textarea id="formIssue" placeholder="详细描述遇到的问题..."></textarea>
+
+        <div class="form-row">
+            <div><label>分类</label>
+                <select id="formCategory">
+                    <option value="软件">软件</option>
+                    <option value="硬件">硬件</option>
+                    <option value="网络">网络</option>
+                    <option value="其他">其他</option>
+                </select>
+            </div>
+            <div><label>状态</label>
+                <select id="formResolved">
+                    <option value="0">未解决</option>
+                    <option value="1">已解决</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn" id="modalCancel">取消</button>
+            <button class="btn btn-primary" id="modalSave">保存</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function(){
+        "use strict";
+
+        // ---------- 全局状态 ----------
+        let SQL = null;               // sql.js 实例
+        let db = null;               // 数据库连接
+        let currentMonth = new Date(); // 当前查看的月份
+        let chartInstance = null;
+        let isSyncing = false;
+
+        // WebDAV 配置 (从localStorage读取)
+        const STORAGE_KEY = 'ticket_webdav_config';
+        let config = loadConfig();
+
+        // DOM 元素
+        const $ = id => document.getElementById(id);
+        const configCard = $('configCard');
+        const mainArea = $('mainArea');
+        const connectBtn = $('connectBtn');
+        const resetConfigBtn = $('resetConfigBtn');
+        const webdavUrl = $('webdavUrl');
+        const webdavUser = $('webdavUser');
+        const webdavPass = $('webdavPass');
+        const syncDot = $('syncDot');
+        const syncLabel = $('syncLabel');
+        const totalCount = $('totalCount');
+        const resolvedCount = $('resolvedCount');
+        const pendingCount = $('pendingCount');
+        const softwareCount = $('softwareCount');
+        const hardwareCount = $('hardwareCount');
+        const networkCount = $('networkCount');
+        const currentMonthLabel = $('currentMonthLabel');
+        const prevMonthBtn = $('prevMonth');
+        const nextMonthBtn = $('nextMonth');
+        const ticketList = $('ticketList');
+        const openAddModal = $('openAddModal');
+        const modalOverlay = $('ticketModal');
+        const modalTitle = $('modalTitle');
+        const editId = $('editId');
+        const formDate = $('formDate');
+        const formDept = $('formDept');
+        const formName = $('formName');
+        const formIssue = $('formIssue');
+        const formCategory = $('formCategory');
+        const formResolved = $('formResolved');
+        const modalCancel = $('modalCancel');
+        const modalSave = $('modalSave');
+
+        // ---------- 配置管理 ----------
+        function loadConfig() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) return JSON.parse(raw);
+            } catch(e) {}
+            return { url: '', user: '', pass: '' };
+        }
+
+        function saveConfigToStorage(cfg) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
+            config = cfg;
+        }
+
+        function fillConfigForm() {
+            webdavUrl.value = config.url || '';
+            webdavUser.value = config.user || '';
+            webdavPass.value = config.pass || '';
+        }
+        fillConfigForm();
+
+        // ---------- WebDAV 核心操作 ----------
+        function getAuthHeader() {
+            const user = webdavUser.value.trim();
+            const pass = webdavPass.value.trim();
+            if (!user || !pass) return null;
+            return 'Basic ' + btoa(user + ':' + pass);
+        }
+
+        async function webdavGet(url, auth) {
+            const resp = await fetch(url, {
+                method: 'GET',
+                headers: { 'Authorization': auth, 'Accept': 'application/octet-stream' }
+            });
+            if (!resp.ok) throw new Error(`下载失败 (${resp.status})`);
+            const buffer = await resp.arrayBuffer();
+            return new Uint8Array(buffer);
+        }
+
+        async function webdavPut(url, auth, data) {
+            const resp = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': auth,
+                    'Content-Type': 'application/octet-stream'
+                },
+                body: data
+            });
+            if (!resp.ok) throw new Error(`上传失败 (${resp.status})`);
+            return resp;
+        }
+
+        // ---------- 数据库操作 ----------
+        async function initDatabase() {
+            if (!SQL) {
+                SQL = await initSqlJs({
+                    locateFile: file => `https://sql.js.org/dist/${file}`
+                });
+            }
+            // 创建内存数据库
+            db = new SQL.Database();
+            db.run(`
+                CREATE TABLE IF NOT EXISTS tickets (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    date TEXT NOT NULL,
+                    department TEXT,
+                    name TEXT,
+                    issue TEXT,
+                    category TEXT,
+                    resolved INTEGER DEFAULT 0,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            `);
+            // 为常用查询加索引
+            db.run("CREATE INDEX IF NOT EXISTS idx_date ON tickets(date)");
+            db.run("CREATE INDEX IF NOT EXISTS idx_category ON tickets(category)");
+            return db;
+        }
+
+        // 从云端加载数据库文件
+        async function loadFromCloud() {
+            const url = webdavUrl.value.trim();
+            const auth = getAuthHeader();
+            if (!url || !auth) throw new Error('请填写完整的 WebDAV 配置');
+            if (!url.startsWith('http')) throw new Error('服务器地址格式错误');
+
+            try {
+                const data = await webdavGet(url, auth);
+                // 如果文件存在，加载到内存
+                if (data && data.length > 0) {
+                    db = new SQL.Database(data);
+                    // 检查表是否存在，若不存在则创建
+                    const check = db.exec("SELECT name FROM sqlite_master WHERE type='table' AND name='tickets'");
+                    if (check.length === 0 || check[0].values.length === 0) {
+                        // 旧文件无表，重新初始化
+                        db = new SQL.Database();
+                        db.run(`
+                            CREATE TABLE tickets (
+                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                date TEXT NOT NULL,
+                                department TEXT,
+                                name TEXT,
+                                issue TEXT,
+                                category TEXT,
+                                resolved INTEGER DEFAULT 0,
+                                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                            )
+                        `);
+                        db.run("CREATE INDEX idx_date ON tickets(date)");
+                        db.run("CREATE INDEX idx_category ON tickets(category)");
+                    }
+                } else {
+                    // 空文件或不存在，初始化新库
+                    await initDatabase();
+                }
+                // 保存配置 (存下成功的账号密码)
+                saveConfigToStorage({ url, user: webdavUser.value.trim(), pass: webdavPass.value.trim() });
+                return true;
+            } catch (err) {
+                // 如果文件不存在 (404)，我们初始化一个新库
+                if (err.message.includes('404') || err.message.includes('下载失败 (404)')) {
+                    await initDatabase();
+                    // 初次创建，立即上传一次
+                    await saveToCloud();
+                    return true;
+                }
+                throw err;
+            }
+        }
+
+        // 保存当前内存数据库到云端
+        async function saveToCloud() {
+            if (!db) throw new Error('数据库未初始化');
+            const url = webdavUrl.value.trim();
+            const auth = getAuthHeader();
+            if (!url || !auth) throw new Error('请填写完整的 WebDAV 配置');
+
+            const data = db.export(); // Uint8Array
+            await webdavPut(url, auth, data);
+        }
+
+        // ---------- 业务数据操作 ----------
+        function getMonthTickets(year, month) {
+            const monthStr = `${year}-${String(month).padStart(2, '0')}`;
+            const stmt = db.prepare(`
+                SELECT * FROM tickets 
+                WHERE strftime('%Y-%m', date) = $month
+                ORDER BY date DESC, id DESC
+            `);
+            stmt.bind({ $month: monthStr });
+            const results = [];
+            while (stmt.step()) {
+                results.push(stmt.getAsObject());
+            }
+            stmt.free();
+            return results;
+        }
+
+        function getAllTickets() {
+            const stmt = db.prepare("SELECT * FROM tickets ORDER BY date DESC, id DESC");
+            const results = [];
+            while (stmt.step()) {
+                results.push(stmt.getAsObject());
+            }
+            stmt.free();
+            return results;
+        }
+
+        function addTicket(date, department, name, issue, category, resolved) {
+            const stmt = db.prepare(`
+                INSERT INTO tickets (date, department, name, issue, category, resolved)
+                VALUES ($date, $dept, $name, $issue, $cat, $res)
+            `);
+            stmt.bind({
+                $date: date,
+                $dept: department || '',
+                $name: name || '',
+                $issue: issue || '',
+                $cat: category || '其他',
+                $res: resolved ? 1 : 0
+            });
+            stmt.step();
+            stmt.free();
+            return db.exec("SELECT last_insert_rowid()")[0].values[0][0];
+        }
+
+        function updateTicket(id, date, department, name, issue, category, resolved) {
+            const stmt = db.prepare(`
+                UPDATE tickets SET 
+                    date = $date,
+                    department = $dept,
+                    name = $name,
+                    issue = $issue,
+                    category = $cat,
+                    resolved = $res
+                WHERE id = $id
+            `);
+            stmt.bind({
+                $id: id,
+                $date: date,
+                $dept: department || '',
+                $name: name || '',
+                $issue: issue || '',
+                $cat: category || '其他',
+                $res: resolved ? 1 : 0
+            });
+            stmt.step();
+            stmt.free();
+        }
+
+        function deleteTicket(id) {
+            const stmt = db.prepare("DELETE FROM tickets WHERE id = $id");
+            stmt.bind({ $id: id });
+            stmt.step();
+            stmt.free();
+        }
+
+        // ---------- UI 渲染 ----------
+        function renderStats(tickets) {
+            const total = tickets.length;
+            const resolved = tickets.filter(t => t.resolved == 1).length;
+            const pending = total - resolved;
+            const software = tickets.filter(t => t.category === '软件').length;
+            const hardware = tickets.filter(t => t.category === '硬件').length;
+            const network = tickets.filter(t => t.category === '网络').length;
+
+            totalCount.textContent = total;
+            resolvedCount.textContent = resolved;
+            pendingCount.textContent = pending;
+            softwareCount.textContent = software;
+            hardwareCount.textContent = hardware;
+            networkCount.textContent = network;
+        }
+
+        function renderMonthView() {
+            const year = currentMonth.getFullYear();
+            const month = currentMonth.getMonth() + 1;
+            currentMonthLabel.textContent = `${year}年${month}月`;
+
+            const allTickets = getMonthTickets(year, month);
+            renderStats(allTickets);
+            renderChart(allTickets, year, month);
+
+            // 按日分组
+            const groups = {};
+            allTickets.forEach(t => {
+                const d = t.date;
+                if (!groups[d]) groups[d] = [];
+                groups[d].push(t);
+            });
+            const sortedDates = Object.keys(groups).sort((a,b) => b.localeCompare(a));
+
+            if (sortedDates.length === 0) {
+                ticketList.innerHTML = `<div class="empty-state">📭 本月暂无工单记录</div>`;
+                return;
+            }
+
+            let html = '';
+            sortedDates.forEach(date => {
+                const items = groups[date];
+                html += `<div class="day-group">
+                    <div class="day-header">
+                        <span>📅 ${date}</span>
+                        <span class="day-count">${items.length} 条</span>
+                    </div>`;
+                items.forEach(t => {
+                    const resolvedText = t.resolved == 1 ? '已解决' : '未解决';
+                    const badgeCls = t.resolved == 1 ? 'resolved' : 'pending';
+                    const catCls = (t.category || '其他').toLowerCase();
+                    html += `
+                        <div class="ticket-item" data-id="${t.id}">
+                            <div class="info">
+                                <span class="dept-name">${escapeHtml(t.department || '')} ${escapeHtml(t.name || '')}</span>
+                                <span class="issue-text">${escapeHtml(t.issue || '')}</span>
+                            </div>
+                            <div class="meta">
+                                <span class="tag ${catCls}">${escapeHtml(t.category || '其他')}</span>
+                                <span class="status-badge ${badgeCls}">${resolvedText}</span>
+                            </div>
+                            <div class="actions">
+                                <button class="btn btn-sm btn-primary edit-ticket" data-id="${t.id}">编辑</button>
+                                <button class="btn btn-sm btn-danger delete-ticket" data-id="${t.id}">删除</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            });
+            ticketList.innerHTML = html;
+
+            // 绑定事件
+            document.querySelectorAll('.edit-ticket').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = parseInt(btn.dataset.id);
+                    openEditModal(id);
+                });
+            });
+            document.querySelectorAll('.delete-ticket').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = parseInt(btn.dataset.id);
+                    if (confirm('确定删除此工单吗？')) {
+                        await performDelete(id);
+                    }
+                });
+            });
+        }
+
+        function renderChart(tickets, year, month) {
+            const daysInMonth = new Date(year, month, 0).getDate();
+            const dayCounts = {};
+            for (let i=1; i<=daysInMonth; i++) {
+                const d = `${year}-${String(month).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                dayCounts[d] = 0;
+            }
+            tickets.forEach(t => {
+                if (dayCounts[t.date] !== undefined) dayCounts[t.date] += 1;
+            });
+
+            const labels = Object.keys(dayCounts).map(d => d.slice(5)); // MM-DD
+            const data = Object.values(dayCounts);
+
+            const ctx = document.getElementById('monthChart').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '工单数',
+                        data: data,
+                        backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: (ctx) => `${ctx.parsed.y} 条` } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } }, grid: { color: '#f1f5f9' } },
+                        x: { ticks: { maxRotation: 30, font: { size: 9 } }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ---------- 同步与网络操作 ----------
+        async function performSync(action = 'pull') {
+            if (isSyncing) return;
+            isSyncing = true;
+            syncDot.className = 'sync-dot syncing';
+            syncLabel.textContent = '同步中...';
+            try {
+                if (action === 'pull') {
+                    await loadFromCloud();
+                } else if (action === 'push') {
+                    await saveToCloud();
+                }
+                // 重新渲染
+                renderMonthView();
+                syncDot.className = 'sync-dot';
+                syncLabel.textContent = '已同步';
+            } catch (err) {
+                console.error(err);
+                syncDot.className = 'sync-dot error';
+                syncLabel.textContent = '同步失败: ' + err.message;
+                alert('同步失败: ' + err.message);
+            } finally {
+                isSyncing = false;
+            }
+        }
+
+        // 包装修改操作：修改后自动推送
+        async function performAdd(data) {
+            addTicket(data.date, data.department, data.name, data.issue, data.category, data.resolved);
+            await saveToCloud();
+            renderMonthView();
+            syncDot.className = 'sync-dot';
+            syncLabel.textContent = '已同步';
+        }
+
+        async function performUpdate(id, data) {
+            updateTicket(id, data.date, data.department, data.name, data.issue, data.category, data.resolved);
+            await saveToCloud();
+            renderMonthView();
+            syncDot.className = 'sync-dot';
+            syncLabel.textContent = '已同步';
+        }
+
+        async function performDelete(id) {
+            deleteTicket(id);
+            await saveToCloud();
+            renderMonthView();
+            syncDot.className = 'sync-dot';
+            syncLabel.textContent = '已同步';
+        }
+
+        // ---------- 模态框逻辑 ----------
+        function resetForm() {
+            editId.value = '';
+            modalTitle.textContent = '添加工单';
+            formDate.value = new Date().toISOString().slice(0,10);
+            formDept.value = '';
+            formName.value = '';
+            formIssue.value = '';
+            formCategory.value = '软件';
+            formResolved.value = '0';
+        }
+
+        function openEditModal(id) {
+            const tickets = getAllTickets();
+            const t = tickets.find(item => item.id == id);
+            if (!t) return;
+            editId.value = t.id;
+            modalTitle.textContent = '编辑工单';
+            formDate.value = t.date;
+            formDept.value = t.department || '';
+            formName.value = t.name || '';
+            formIssue.value = t.issue || '';
+            formCategory.value = t.category || '其他';
+            formResolved.value = t.resolved;
+            modalOverlay.classList.add('active');
+        }
+
+        // ---------- 事件绑定 ----------
+        // 连接按钮
+        connectBtn.addEventListener('click', async () => {
+            try {
+                await performSync('pull');
+                configCard.style.display = 'none';
+                mainArea.classList.remove('hidden');
+                // 提示用户配置已保存
+                $('configHint').textContent = '✅ 配置已保存，数据加载成功！';
+            } catch (err) {
+                alert('连接失败：' + err.message);
+            }
+        });
+
+        // 重置配置
+        resetConfigBtn.addEventListener('click', () => {
+            if (confirm('清除本地配置并重新设置？')) {
+                localStorage.removeItem(STORAGE_KEY);
+                config = { url: '', user: '', pass: '' };
+                fillConfigForm();
+                configCard.style.display = 'block';
+                mainArea.classList.add('hidden');
+                $('configHint').textContent = '💡 配置已清除，请重新填写';
+            }
+        });
+
+        // 如果之前有配置，自动连接
+        if (config.url && config.user && config.pass) {
+            // 自动尝试连接
+            (async function autoConnect() {
+                try {
+                    await performSync('pull');
+                    configCard.style.display = 'none';
+                    mainArea.classList.remove('hidden');
+                    $('configHint').textContent = '✅ 自动连接成功';
+                } catch (e) {
+                    // 自动连接失败，让用户手动点
+                    console.warn('自动连接失败，请检查配置或手动连接', e);
+                    configCard.style.display = 'block';
+                    $('configHint').textContent = '⚠️ 自动连接失败，请检查配置后手动点击连接';
+                }
+            })();
+        }
+
+        // 月份切换
+        prevMonthBtn.addEventListener('click', () => {
+            currentMonth.setMonth(currentMonth.getMonth() - 1);
+            renderMonthView();
+        });
+        nextMonthBtn.addEventListener('click', () => {
+            currentMonth.setMonth(currentMonth.getMonth() + 1);
+            renderMonthView();
+        });
+
+        // 打开新增模态框
+        openAddModal.addEventListener('click', () => {
+            resetForm();
+            modalOverlay.classList.add('active');
+        });
+
+        // 取消
+        modalCancel.addEventListener('click', () => {
+            modalOverlay.classList.remove('active');
+        });
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) modalOverlay.classList.remove('active');
+        });
+
+        // 保存 (新增或编辑)
+        modalSave.addEventListener('click', async () => {
+            const date = formDate.value;
+            const dept = formDept.value.trim();
+            const name = formName.value.trim();
+            const issue = formIssue.value.trim();
+            const category = formCategory.value;
+            const resolved = parseInt(formResolved.value);
+
+            if (!date) { alert('请选择日期'); return; }
+            if (!issue) { alert('请输入问题描述'); return; }
+
+            const data = { date, department: dept, name, issue, category, resolved };
+            const id = editId.value;
+
+            try {
+                if (id) {
+                    await performUpdate(parseInt(id), data);
+                } else {
+                    await performAdd(data);
+                }
+                modalOverlay.classList.remove('active');
+            } catch (err) {
+                alert('保存失败: ' + err.message);
+            }
+        });
+
+        // ---------- 前台切换自动拉取 (核心同步) ----------
+        document.addEventListener('visibilitychange', async () => {
+            if (document.visibilityState === 'visible' && !mainArea.classList.contains('hidden')) {
+                // 切回前台，自动拉取最新数据
+                try {
+                    await performSync('pull');
+                } catch (e) {
+                    // 静默失败，只改状态显示
+                    syncDot.className = 'sync-dot error';
+                    syncLabel.textContent = '拉取失败';
+                }
+            }
+        });
+
+        // 额外：页面加载时如果有配置但没显示主界面，尝试自动连
+        // 已经在上面的逻辑处理了
+
+        // 初始化日期默认值
+        resetForm();
+
+        console.log('运维工单系统已加载。配置信息存储在 localStorage。');
+    })();
+</script>
+</body>
+</html>
