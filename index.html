@@ -244,7 +244,7 @@
             color: #4f46e5;
         }
 
-        /* ===== 本周统计 ===== */
+        /* ===== 本周统计（可切换周） ===== */
         .weekly-stats {
             background: white;
             border-radius: 14px;
@@ -253,11 +253,45 @@
             margin-bottom: 20px;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
         }
+        .weekly-stats .weekly-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
         .weekly-stats .weekly-title {
             font-weight: 600;
             font-size: 15px;
             color: #0f172a;
-            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .weekly-stats .weekly-nav {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+        .weekly-stats .weekly-nav button {
+            background: none;
+            border: 1px solid #d1d9e6;
+            border-radius: 6px;
+            padding: 2px 10px;
+            font-size: 16px;
+            cursor: pointer;
+            line-height: 1.6;
+            color: #475569;
+        }
+        .weekly-stats .weekly-nav button:hover {
+            background: #f1f5f9;
+        }
+        .weekly-stats .weekly-nav .week-range {
+            font-size: 14px;
+            font-weight: 500;
+            color: #0f172a;
+            min-width: 120px;
+            text-align: center;
         }
         .weekly-stats .weekly-grid {
             display: flex;
@@ -690,6 +724,10 @@
             .weekly-stats .weekly-item .num {
                 font-size: 16px;
             }
+            .weekly-stats .weekly-nav .week-range {
+                min-width: 80px;
+                font-size: 12px;
+            }
         }
     </style>
 </head>
@@ -737,9 +775,16 @@
                 <div class="stat-card indigo"><div class="num" id="networkCount">0</div><div class="label">网络</div></div>
             </div>
 
-            <!-- ===== 本周统计（新增） ===== -->
+            <!-- ===== 周统计（可切换） ===== -->
             <div class="weekly-stats" id="weeklyStats">
-                <div class="weekly-title">📅 本周统计</div>
+                <div class="weekly-header">
+                    <div class="weekly-title">📅 周统计</div>
+                    <div class="weekly-nav">
+                        <button id="weekPrev">◀</button>
+                        <span class="week-range" id="weekRange">加载中...</span>
+                        <button id="weekNext">▶</button>
+                    </div>
+                </div>
                 <div class="weekly-grid" id="weeklyGrid">
                     <!-- 由 JS 动态渲染 -->
                 </div>
@@ -924,6 +969,9 @@
             let allTickets = [];
             let isFirebaseReady = false;
 
+            // 周切换状态
+            let currentWeekOffset = 0; // 0=本周，-1=上周，1=下周
+
             // DOM
             const $ = id => document.getElementById(id);
             const configCard = $('configCard');
@@ -954,6 +1002,9 @@
             const openYearModalBtn = $('openYearModal');
             const exportBtn = $('exportBtn');
             const weeklyGrid = $('weeklyGrid');
+            const weekRange = $('weekRange');
+            const weekPrev = $('weekPrev');
+            const weekNext = $('weekNext');
 
             const modalOverlay = $('ticketModal');
             const modalTitle = $('modalTitle');
@@ -1115,15 +1166,16 @@
             }
 
             // ============================================================
-            //  6. 本周统计（新增核心函数）
+            //  6. 周统计工具
             // ============================================================
-            function getWeekRange() {
+            function getWeekRange(offset) {
+                // offset: 0=本周, -1=上周, 1=下周
                 const now = new Date();
-                const dayOfWeek = now.getDay(); // 0=周日, 1=周一...
-                // 以周一为本周第一天
+                // 调整到本周一
+                const dayOfWeek = now.getDay();
                 const diff = (dayOfWeek === 0) ? 6 : dayOfWeek - 1;
                 const monday = new Date(now);
-                monday.setDate(now.getDate() - diff);
+                monday.setDate(now.getDate() - diff + offset * 7);
                 monday.setHours(0, 0, 0, 0);
                 const sunday = new Date(monday);
                 sunday.setDate(monday.getDate() + 6);
@@ -1140,14 +1192,15 @@
             function renderWeeklyStats() {
                 if (!allTickets || allTickets.length === 0) {
                     weeklyGrid.innerHTML = `<span style="color:#94a3b8;font-size:14px;">暂无数据</span>`;
+                    weekRange.textContent = '--';
                     return;
                 }
 
-                const { start, end } = getWeekRange();
+                const { start, end } = getWeekRange(currentWeekOffset);
                 const startStr = start.toISOString().slice(0, 10);
                 const endStr = end.toISOString().slice(0, 10);
+                weekRange.textContent = `${formatDateShort(start)} - ${formatDateShort(end)}`;
 
-                // 筛选本周工单
                 const weekTickets = allTickets.filter(t => {
                     if (!t.date) return false;
                     return t.date >= startStr && t.date <= endStr;
@@ -1161,9 +1214,7 @@
                 const network = weekTickets.filter(t => t.category === '网络').length;
                 const other = weekTickets.filter(t => t.category === '其他').length;
 
-                const label = `${formatDateShort(start)} - ${formatDateShort(end)}`;
                 weeklyGrid.innerHTML = `
-                    <span style="font-weight:500;color:#0f172a;margin-right:4px;">${label}</span>
                     <span class="weekly-item">总工单 <span class="num blue">${total}</span></span>
                     <span class="weekly-item">已解决 <span class="num green">${resolved}</span></span>
                     <span class="weekly-item">未解决 <span class="num red">${pending}</span></span>
@@ -1236,7 +1287,7 @@
                 const monthTickets = getMonthTickets(allTickets, year, month);
                 renderStats(monthTickets);
                 renderChart(monthTickets, year, month);
-                // 渲染本周统计
+                // 渲染周统计（不依赖月份）
                 renderWeeklyStats();
 
                 const groups = {};
@@ -1575,6 +1626,16 @@
                 }
             })();
 
+            // 周切换事件
+            weekPrev.addEventListener('click', function() {
+                currentWeekOffset -= 1;
+                renderWeeklyStats();
+            });
+            weekNext.addEventListener('click', function() {
+                currentWeekOffset += 1;
+                renderWeeklyStats();
+            });
+
             prevMonthBtn.addEventListener('click', () => { currentMonth.setMonth(currentMonth.getMonth() - 1);
                 renderMonthView(); });
             nextMonthBtn.addEventListener('click', () => { currentMonth.setMonth(currentMonth.getMonth() + 1);
@@ -1618,7 +1679,7 @@
             });
 
             resetForm();
-            console.log('运维工单系统 (含本周统计) 已加载。');
+            console.log('运维工单系统 (含历史周切换) 已加载。');
         })();
     </script>
 </body>
