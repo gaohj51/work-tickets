@@ -4,13 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>运维工单系统</title>
-    <!-- Chart.js 国内 CDN -->
-    <script src="https://cdn.bootcdn.net/ajax/libs/Chart.js/4.4.0/chart.umd.min.js">
+    <!-- 原版 CDN (jsdelivr + gstatic) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
     </script>
-    <!-- Firebase SDK 国内镜像 (jsdelivr) -->
-    <script src="https://cdn.jsdelivr.net/npm/firebase@10.7.1/compat/firebase-app-compat.js">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/firebase@10.7.1/compat/firebase-database-compat.js">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js">
     </script>
     <style>
         /* ===== 全局样式 ===== */
@@ -1261,8 +1260,8 @@
             let allBorrows = [];
             let isFirebaseReady = false;
             let currentWeekOffset = 0;
-            let currentTab = 'tickets'; // 'tickets' | 'borrow'
-            let borrowFilter = 'unreturned'; // 'unreturned' | 'all'
+            let currentTab = 'tickets';
+            let borrowFilter = 'unreturned';
 
             // DOM
             const $ = id => document.getElementById(id);
@@ -1484,7 +1483,7 @@
             }
 
             // ============================================================
-            //  6. 周统计工具
+            //  6. 周统计
             // ============================================================
             function getWeekRange(offset) {
                 const now = new Date();
@@ -1542,7 +1541,7 @@
             }
 
             // ============================================================
-            //  7. 主界面渲染（工单部分）
+            //  7. 工单渲染
             // ============================================================
             function getMonthTickets(tickets, year, month) {
                 const monthStr = `${year}-${String(month).padStart(2, '0')}`;
@@ -1687,7 +1686,7 @@
             }
 
             // ============================================================
-            //  8. 借出列表渲染
+            //  8. 借出渲染
             // ============================================================
             function renderBorrows() {
                 let filtered = allBorrows;
@@ -1921,7 +1920,6 @@
                     return;
                 }
 
-                // 按日期倒序排序
                 pendingTickets.sort((a, b) => (a.date < b.date ? 1 : -1));
 
                 let html = '';
@@ -2078,14 +2076,13 @@
             }
 
             // ============================================================
-            //  15. 导出功能（含借出）
+            //  15. 导出
             // ============================================================
             function exportToCSV() {
                 if (!allTickets && !allBorrows) {
                     alert('没有数据可导出。');
                     return;
                 }
-                // 导出工单
                 let csvContent = '=== 工单记录 ===\n';
                 csvContent += '日期,部门,姓名,问题描述,分类,状态\n';
                 allTickets.forEach(t => {
@@ -2116,7 +2113,6 @@
             // ============================================================
             //  16. 事件绑定
             // ============================================================
-            // 连接
             connectBtn.addEventListener('click', async () => {
                 try { initFirebase(); await refreshData();
                     configCard.style.display = 'none';
@@ -2135,7 +2131,6 @@
                 }
             });
 
-            // 自动连接
             (async function autoConnect() {
                 const cfg = loadConfig();
                 if (cfg.apiKey && cfg.databaseURL && cfg.projectId) {
@@ -2159,26 +2154,22 @@
                 }
             })();
 
-            // 周切换
             weekPrev.addEventListener('click', function() { currentWeekOffset -= 1;
                 renderWeeklyStats(); });
             weekNext.addEventListener('click', function() { currentWeekOffset += 1;
                 renderWeeklyStats(); });
 
-            // 月份切换
             prevMonthBtn.addEventListener('click', () => { currentMonth.setMonth(currentMonth.getMonth() - 1); if (currentTab ===
                     'tickets') renderTickets(); });
             nextMonthBtn.addEventListener('click', () => { currentMonth.setMonth(currentMonth.getMonth() + 1); if (currentTab ===
                     'tickets') renderTickets(); });
 
-            // Tab 切换
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     switchTab(this.dataset.tab);
                 });
             });
 
-            // 借出筛选
             document.querySelectorAll('.borrow-filter .filter-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     document.querySelectorAll('.borrow-filter .filter-btn').forEach(b => b.classList.remove(
@@ -2189,20 +2180,12 @@
                 });
             });
 
-            // 打开工单模态框
             openAddModal.addEventListener('click', () => { resetTicketForm();
                 modalOverlay.classList.add('active'); });
-
-            // 打开借出模态框
             openBorrowModalBtn.addEventListener('click', openBorrowModal);
-
-            // 年度汇总
             openYearModalBtn.addEventListener('click', openYearModal);
-
-            // 导出
             exportBtn.addEventListener('click', exportToCSV);
 
-            // 工单模态框事件
             modalCancel.addEventListener('click', () => { modalOverlay.classList.remove('active'); });
             modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) modalOverlay.classList.remove(
                     'active'); });
@@ -2223,7 +2206,6 @@
                 } catch (err) { alert('保存失败: ' + err.message); }
             });
 
-            // 借出模态框事件
             borrowModalClose.addEventListener('click', () => { borrowModal.classList.remove('active'); });
             borrowModalCancel.addEventListener('click', () => { borrowModal.classList.remove('active'); });
             borrowModal.addEventListener('click', (e) => { if (e.target === borrowModal) borrowModal.classList.remove(
@@ -2245,7 +2227,6 @@
                 } catch (err) { alert('保存失败: ' + err.message); }
             });
 
-            // 借出列表事件（委托）
             borrowItems.addEventListener('click', function(e) {
                 const target = e.target.closest('button');
                 if (!target) return;
@@ -2263,9 +2244,7 @@
                 }
             });
 
-            // 工单列表事件（委托）
             ticketList.addEventListener('click', function(e) {
-                // 折叠
                 const header = e.target.closest('.day-header');
                 if (header) {
                     const group = header.closest('.day-group');
@@ -2280,7 +2259,6 @@
                     return;
                 }
 
-                // 编辑/删除按钮
                 const target = e.target.closest('button');
                 if (!target) return;
                 const id = target.dataset.id;
@@ -2295,7 +2273,6 @@
                 }
             });
 
-            // 部门搜索（工单表单）
             formDept.addEventListener('input', function() {
                 const q = this.value || '';
                 let matched = [];
@@ -2338,28 +2315,25 @@
                 }
             });
 
-            // 年度汇总模态框事件
             yearModalClose.addEventListener('click', () => { yearModal.classList.remove('active'); });
             yearModal.addEventListener('click', (e) => { if (e.target === yearModal) yearModal.classList.remove('active'); });
             yearSelect.addEventListener('change', function() { const year = parseInt(this.value); if (!isNaN(year))
                     renderYearSummary(year); });
 
-            // 未解决卡片点击事件
+            // 未解决卡片点击
             pendingCard.addEventListener('click', openPendingModal);
             pendingModalClose.addEventListener('click', () => { pendingModal.classList.remove('active'); });
             pendingModal.addEventListener('click', (e) => { if (e.target === pendingModal) pendingModal.classList.remove(
                     'active'); });
 
-            // 前台切换自动刷新
             document.addEventListener('visibilitychange', async () => {
                 if (document.visibilityState === 'visible' && !mainArea.classList.contains('hidden') && isFirebaseReady) {
                     await refreshData();
                 }
             });
 
-            // 初始化
             resetTicketForm();
-            console.log('运维管理系统 (CDN加速 + 未解决点击查看) 已加载。');
+            console.log('运维管理系统 (稳定版 + 未解决点击查看) 已加载。');
         })();
     </script>
 </body>
