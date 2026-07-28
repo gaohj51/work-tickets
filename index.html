@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>运维工单系统</title>
-    <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+    <!-- Chart.js 国内 CDN -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/Chart.js/4.4.0/chart.umd.min.js">
     </script>
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
+    <!-- Firebase SDK 国内镜像 (jsdelivr) -->
+    <script src="https://cdn.jsdelivr.net/npm/firebase@10.7.1/compat/firebase-app-compat.js">
     </script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js">
+    <script src="https://cdn.jsdelivr.net/npm/firebase@10.7.1/compat/firebase-database-compat.js">
     </script>
     <style>
         /* ===== 全局样式 ===== */
@@ -233,6 +233,15 @@
             border: 1px solid #e9eef3;
             text-align: center;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+            cursor: default;
+            transition: 0.15s;
+        }
+        .stat-card.clickable {
+            cursor: pointer;
+        }
+        .stat-card.clickable:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
         }
         .stat-card .num {
             font-size: 28px;
@@ -647,7 +656,7 @@
             background: #f1f5f9;
         }
 
-        /* ===== 模态框 ===== */
+        /* ===== 模态框（通用） ===== */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -857,6 +866,29 @@
             background: white;
         }
 
+        /* ===== 未解决列表（模态框内） ===== */
+        .pending-item {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+        }
+        .pending-item:last-child {
+            border-bottom: none;
+        }
+        .pending-item .info {
+            flex: 1;
+            min-width: 150px;
+        }
+        .pending-item .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+        }
+
         /* ===== 空状态 ===== */
         .empty-state {
             text-align: center;
@@ -955,7 +987,8 @@
             <div class="stats-grid" id="statsGrid">
                 <div class="stat-card blue"><div class="num" id="totalCount">0</div><div class="label">总工单</div></div>
                 <div class="stat-card green"><div class="num" id="resolvedCount">0</div><div class="label">已解决</div></div>
-                <div class="stat-card red"><div class="num" id="pendingCount">0</div><div class="label">未解决</div></div>
+                <!-- 未解决卡片 增加 clickable 类 -->
+                <div class="stat-card red clickable" id="pendingCard"><div class="num" id="pendingCount">0</div><div class="label">未解决 ⏎</div></div>
                 <div class="stat-card purple"><div class="num" id="softwareCount">0</div><div class="label">软件</div></div>
                 <div class="stat-card orange"><div class="num" id="hardwareCount">0</div><div class="label">硬件</div></div>
                 <div class="stat-card indigo"><div class="num" id="networkCount">0</div><div class="label">网络</div></div>
@@ -1107,6 +1140,17 @@
         </div>
     </div>
 
+    <!-- ===== 未解决工单列表模态框（新增） ===== -->
+    <div class="modal-overlay" id="pendingModal">
+        <div class="modal">
+            <h2>
+                <span>⏳ 未解决工单 ( <span id="pendingCountTitle">0</span> 条 )</span>
+                <button class="close-btn" id="pendingModalClose">&times;</button>
+            </h2>
+            <div id="pendingList"></div>
+        </div>
+    </div>
+
     <!-- ===== 年度汇总模态框 ===== -->
     <div class="modal-overlay" id="yearModal">
         <div class="modal">
@@ -1242,6 +1286,12 @@
             const softwareCount = $('softwareCount');
             const hardwareCount = $('hardwareCount');
             const networkCount = $('networkCount');
+            const pendingCard = $('pendingCard');
+            const pendingModal = $('pendingModal');
+            const pendingModalClose = $('pendingModalClose');
+            const pendingList = $('pendingList');
+            const pendingCountTitle = $('pendingCountTitle');
+
             const currentMonthLabel = $('currentMonthLabel');
             const prevMonthBtn = $('prevMonth');
             const nextMonthBtn = $('nextMonth');
@@ -1860,7 +1910,51 @@
             }
 
             // ============================================================
-            //  13. 年度汇总
+            //  13. 未解决工单查看功能（新增）
+            // ============================================================
+            function renderPendingModal() {
+                const pendingTickets = allTickets.filter(t => t.resolved == 0);
+                pendingCountTitle.textContent = pendingTickets.length;
+
+                if (pendingTickets.length === 0) {
+                    pendingList.innerHTML = `<div class="empty-state">🎉 当前没有未解决的工单</div>`;
+                    return;
+                }
+
+                // 按日期倒序排序
+                pendingTickets.sort((a, b) => (a.date < b.date ? 1 : -1));
+
+                let html = '';
+                pendingTickets.forEach(t => {
+                    const catCls = (t.category || '其他').toLowerCase();
+                    html += `
+                        <div class="pending-item">
+                            <div class="info">
+                                <strong>${escapeHtml(t.date||'')}</strong>
+                                ${escapeHtml(t.department||'')} ${escapeHtml(t.name||'')}
+                                <span style="display:block;color:#475569;font-size:14px;">${escapeHtml(t.issue||'')}</span>
+                            </div>
+                            <div class="meta">
+                                <span class="tag ${catCls}">${escapeHtml(t.category||'其他')}</span>
+                                <span class="status-badge pending">未解决</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                pendingList.innerHTML = html;
+            }
+
+            function openPendingModal() {
+                if (!isFirebaseReady) {
+                    alert('数据未加载，请稍候。');
+                    return;
+                }
+                renderPendingModal();
+                pendingModal.classList.add('active');
+            }
+
+            // ============================================================
+            //  14. 年度汇总
             // ============================================================
             function populateYearSelect() {
                 const currentYear = new Date().getFullYear();
@@ -1984,7 +2078,7 @@
             }
 
             // ============================================================
-            //  14. 导出功能（含借出）
+            //  15. 导出功能（含借出）
             // ============================================================
             function exportToCSV() {
                 if (!allTickets && !allBorrows) {
@@ -2020,7 +2114,7 @@
             }
 
             // ============================================================
-            //  15. 事件绑定
+            //  16. 事件绑定
             // ============================================================
             // 连接
             connectBtn.addEventListener('click', async () => {
@@ -2250,6 +2344,12 @@
             yearSelect.addEventListener('change', function() { const year = parseInt(this.value); if (!isNaN(year))
                     renderYearSummary(year); });
 
+            // 未解决卡片点击事件
+            pendingCard.addEventListener('click', openPendingModal);
+            pendingModalClose.addEventListener('click', () => { pendingModal.classList.remove('active'); });
+            pendingModal.addEventListener('click', (e) => { if (e.target === pendingModal) pendingModal.classList.remove(
+                    'active'); });
+
             // 前台切换自动刷新
             document.addEventListener('visibilitychange', async () => {
                 if (document.visibilityState === 'visible' && !mainArea.classList.contains('hidden') && isFirebaseReady) {
@@ -2259,7 +2359,7 @@
 
             // 初始化
             resetTicketForm();
-            console.log('运维管理系统 (已移除借出统计卡片) 已加载。');
+            console.log('运维管理系统 (CDN加速 + 未解决点击查看) 已加载。');
         })();
     </script>
 </body>
