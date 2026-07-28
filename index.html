@@ -406,13 +406,24 @@
             border-bottom: 1px solid #e9eef3;
             font-weight: 600;
             font-size: 15px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .day-header:hover {
+            background: #f1f5f9;
         }
         .day-header .day-count {
             font-weight: 400;
             color: #64748b;
             font-size: 14px;
         }
-        /* ===== 每日分类统计（新增） ===== */
+        .day-header .toggle-icon {
+            display: inline-block;
+            margin-left: 6px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        /* 每日分类统计 */
         .day-stats {
             display: flex;
             flex-wrap: wrap;
@@ -449,6 +460,13 @@
         }
         .day-stats .stat-item .num.indigo {
             color: #4f46e5;
+        }
+        /* 工单列表容器（可折叠） */
+        .day-content {
+            /* 默认显示，由 .hidden 控制隐藏 */
+        }
+        .day-content.hidden {
+            display: none !important;
         }
         .ticket-item {
             display: flex;
@@ -1011,7 +1029,7 @@
             let yearChartInstance = null;
             let allTickets = [];
             let isFirebaseReady = false;
-            let currentWeekOffset = 0; // 周切换偏移
+            let currentWeekOffset = 0;
 
             // DOM
             const $ = id => document.getElementById(id);
@@ -1265,7 +1283,7 @@
             }
 
             // ============================================================
-            //  7. 主界面渲染（包含每日分类统计）
+            //  7. 主界面渲染（含每日折叠）
             // ============================================================
             function getMonthTickets(tickets, year, month) {
                 const monthStr = `${year}-${String(month).padStart(2, '0')}`;
@@ -1328,6 +1346,9 @@
                 renderChart(monthTickets, year, month);
                 renderWeeklyStats();
 
+                // 今天的日期字符串（用于决定默认展开）
+                const todayStr = new Date().toISOString().slice(0, 10);
+
                 // 按日分组
                 const groups = {};
                 monthTickets.forEach(t => { if (t.date) { if (!groups[t.date]) groups[t.date] = [];
@@ -1354,7 +1375,13 @@
                         else if (cat === '网络') nw++;
                         else ot++;
                     });
-                    // 构建统计行（仅显示有数据的分类）
+
+                    // 判断是否为今天，决定折叠状态
+                    const isToday = (date === todayStr);
+                    const contentHidden = isToday ? '' : ' hidden';
+                    const icon = isToday ? '▼' : '▶';
+
+                    // 构建统计行
                     let statsHtml = '';
                     if (sw > 0 || hw > 0 || nw > 0 || ot > 0) {
                         statsHtml = `<div class="day-stats">`;
@@ -1371,13 +1398,17 @@
                         statsHtml += `</div>`;
                     }
 
+                    // 日期头部（可点击）
                     html += `<div class="day-group">
-                        <div class="day-header">
+                        <div class="day-header" data-date="${date}">
                             <span>📅 ${date}</span>
-                            <span class="day-count">${items.length} 条</span>
+                            <span class="day-count">${items.length} 条 <span class="toggle-icon">${icon}</span></span>
                         </div>
                         ${statsHtml}
+                        <div class="day-content${contentHidden}">
                     `;
+
+                    // 工单列表
                     items.forEach(t => {
                         const resolvedText = t.resolved == 1 ? '已解决' : '未解决';
                         const badgeCls = t.resolved == 1 ? 'resolved' : 'pending';
@@ -1397,9 +1428,13 @@
                                 </div>
                             </div>`;
                     });
-                    html += `</div>`;
+
+                    html += `</div></div>`; // 关闭 day-content 和 day-group
                 });
+
                 ticketList.innerHTML = html;
+
+                // 绑定编辑/删除事件（与之前相同）
                 document.querySelectorAll('.edit-ticket').forEach(btn => {
                     btn.addEventListener('click', () => { openEditModal(btn.dataset.id); });
                 });
@@ -1743,14 +1778,38 @@
                 } catch (err) { alert('保存失败: ' + err.message); }
             });
 
+            // ============================================================
+            //  13. 每日折叠事件（委托，只绑定一次）
+            // ============================================================
+            ticketList.addEventListener('click', function(e) {
+                const header = e.target.closest('.day-header');
+                if (header) {
+                    const group = header.closest('.day-group');
+                    const content = group.querySelector('.day-content');
+                    if (content) {
+                        content.classList.toggle('hidden');
+                        const iconSpan = header.querySelector('.toggle-icon');
+                        if (iconSpan) {
+                            iconSpan.textContent = content.classList.contains('hidden') ? '▶' : '▼';
+                        }
+                    }
+                }
+            });
+
+            // ============================================================
+            //  14. 前台切换自动刷新
+            // ============================================================
             document.addEventListener('visibilitychange', async () => {
                 if (document.visibilityState === 'visible' && !mainArea.classList.contains('hidden') && isFirebaseReady) {
                     await refreshData();
                 }
             });
 
+            // ============================================================
+            //  15. 初始化
+            // ============================================================
             resetForm();
-            console.log('运维工单系统 (含每日分类统计) 已加载。');
+            console.log('运维工单系统 (含每日折叠) 已加载。');
         })();
     </script>
 </body>
