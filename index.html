@@ -124,6 +124,13 @@
         .btn-purple:hover {
             background: #7c3aed;
         }
+        .btn-export {
+            background: #0ea5e9;
+            color: white;
+        }
+        .btn-export:hover {
+            background: #0284c7;
+        }
         .btn-sm {
             padding: 6px 12px;
             font-size: 13px;
@@ -450,9 +457,10 @@
             gap: 12px;
             flex-wrap: wrap;
         }
-        .modal .form-row>* {
+        .modal .form-row>div {
             flex: 1;
             min-width: 120px;
+            position: relative;
         }
         .modal .modal-actions {
             display: flex;
@@ -462,6 +470,48 @@
         }
         .modal .modal-actions .btn {
             padding: 10px 24px;
+        }
+
+        /* ===== 部门搜索下拉 ===== */
+        .dept-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #d1d9e6;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            max-height: 180px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+        .dept-dropdown.show {
+            display: block;
+        }
+        .dept-dropdown .dept-item {
+            padding: 8px 14px;
+            cursor: pointer;
+            font-size: 14px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .dept-dropdown .dept-item:hover {
+            background: #f1f5f9;
+        }
+        .dept-dropdown .dept-item:last-child {
+            border-bottom: none;
+        }
+        .dept-dropdown .dept-item .highlight {
+            font-weight: 600;
+            color: #3b82f6;
+        }
+        .dept-dropdown .no-result {
+            padding: 12px 14px;
+            color: #94a3b8;
+            font-size: 14px;
+            text-align: center;
         }
 
         /* ===== 年度汇总专用样式 ===== */
@@ -608,7 +658,6 @@
 
         <!-- ===== 主界面 ===== -->
         <div id="mainArea" class="hidden">
-            <!-- 头部 -->
             <div class="header">
                 <h1>📋 工单记录</h1>
                 <div class="sync-status">
@@ -617,7 +666,6 @@
                 </div>
             </div>
 
-            <!-- 统计卡片 -->
             <div class="stats-grid" id="statsGrid">
                 <div class="stat-card blue"><div class="num" id="totalCount">0</div><div class="label">总工单</div></div>
                 <div class="stat-card green"><div class="num" id="resolvedCount">0</div><div class="label">已解决</div></div>
@@ -627,25 +675,22 @@
                 <div class="stat-card indigo"><div class="num" id="networkCount">0</div><div class="label">网络</div></div>
             </div>
 
-            <!-- 柱状图 -->
             <div class="chart-wrapper">
                 <canvas id="monthChart"></canvas>
             </div>
 
-            <!-- 月份导航 -->
             <div class="month-nav">
                 <button class="nav-btn" id="prevMonth">‹</button>
                 <span class="month-label" id="currentMonthLabel">2026年7月</span>
                 <button class="nav-btn" id="nextMonth">›</button>
             </div>
 
-            <!-- 按钮行：添加工单 + 年度汇总 -->
             <div class="action-row">
                 <button class="btn btn-success" id="openAddModal">➕ 添加工单</button>
                 <button class="btn btn-purple" id="openYearModal">📊 年度汇总</button>
+                <button class="btn btn-export" id="exportBtn">📥 导出数据</button>
             </div>
 
-            <!-- 工单列表 -->
             <div id="ticketList"></div>
         </div>
     </div>
@@ -659,8 +704,15 @@
             <input type="date" id="formDate">
 
             <div class="form-row">
-                <div><label>部门</label><input type="text" id="formDept" placeholder="如：网络部"></div>
-                <div><label>姓名</label><input type="text" id="formName" placeholder="你的名字"></div>
+                <div>
+                    <label>部门</label>
+                    <input type="text" id="formDept" placeholder="输入部门名称或拼音，如 美本、mb、meiben" autocomplete="off">
+                    <div class="dept-dropdown" id="deptDropdown"></div>
+                </div>
+                <div>
+                    <label>姓名</label>
+                    <input type="text" id="formName" placeholder="你的名字">
+                </div>
             </div>
 
             <label>问题描述</label>
@@ -701,8 +753,6 @@
                 <label for="yearSelect" style="margin:0;font-weight:500;">选择年份：</label>
                 <select id="yearSelect"></select>
             </div>
-
-            <!-- 年度统计卡片 -->
             <div class="year-stats-grid" id="yearStatsGrid">
                 <div class="stat-card blue"><div class="num" id="yearTotal">0</div><div class="label">总工单</div></div>
                 <div class="stat-card green"><div class="num" id="yearResolved">0</div><div class="label">已解决</div></div>
@@ -711,13 +761,9 @@
                 <div class="stat-card orange"><div class="num" id="yearHardware">0</div><div class="label">硬件</div></div>
                 <div class="stat-card indigo"><div class="num" id="yearNetwork">0</div><div class="label">网络</div></div>
             </div>
-
-            <!-- 月度趋势图 -->
             <div class="year-chart-wrapper">
                 <canvas id="yearChart"></canvas>
             </div>
-
-            <!-- 按月分组明细 -->
             <div id="yearMonthList"></div>
         </div>
     </div>
@@ -727,15 +773,85 @@
             "use strict";
 
             // ============================================================
-            //  1. 全局状态
+            //  0. 部门列表
+            // ============================================================
+            const DEPARTMENTS = [
+                '美本三部', '美国中学部', '美本一部', '新马港二部',
+                '美研一部', '美研二部', '就业力', '加拿大部',
+                '美本二部', '英国一部', '新马港一部', '澳新部',
+                '英国三部', '全球高端部', '学术部', '英国二部',
+                '市场部', '客服部', '人力资源部', '财务部',
+                '总经办', '国贸英国部', '国贸加拿大部', '国贸澳新部',
+                '国贸新马港部', '国贸美中部', '国贸美研部', '国贸美本部'
+            ];
+
+            // ============================================================
+            //  1. 拼音工具
+            // ============================================================
+            const PINYIN_MAP = {
+                '美': 'mei', '本': 'ben', '三': 'san', '部': 'bu',
+                '国': 'guo', '中': 'zhong', '学': 'xue', '一': 'yi',
+                '新': 'xin', '马': 'ma', '港': 'gang', '二': 'er',
+                '研': 'yan', '就': 'jiu', '业': 'ye', '力': 'li',
+                '加': 'jia', '拿': 'na', '大': 'da', '英': 'ying',
+                '澳': 'ao', '全': 'quan', '球': 'qiu', '高': 'gao',
+                '端': 'duan', '术': 'shu', '市': 'shi', '场': 'chang',
+                '客': 'ke', '服': 'fu', '人': 'ren', '资': 'zi',
+                '源': 'yuan', '财': 'cai', '务': 'wu', '总': 'zong',
+                '经': 'jing', '办': 'ban'
+            };
+
+            function getPinyin(text) {
+                if (!text) return '';
+                let full = '';
+                for (let ch of text) full += PINYIN_MAP[ch] || ch;
+                return full;
+            }
+
+            function getPinyinInitial(text) {
+                if (!text) return '';
+                let result = '';
+                for (let ch of text) {
+                    const p = PINYIN_MAP[ch];
+                    result += p ? p.charAt(0) : ch;
+                }
+                return result;
+            }
+
+            function matchDepartment(query, dept) {
+                if (!query) return true;
+                const q = query.toLowerCase().trim();
+                if (q === '') return true;
+                if (dept.includes(q)) return true;
+                const initials = getPinyinInitial(dept).toLowerCase();
+                if (initials.includes(q)) return true;
+                const fullPinyin = getPinyin(dept).toLowerCase();
+                if (fullPinyin.includes(q)) return true;
+                const hanzi = q.replace(/[a-z]/g, '');
+                const pinyinPart = q.replace(/[^a-z]/g, '');
+                if (hanzi && pinyinPart) {
+                    const idx = dept.indexOf(hanzi);
+                    if (idx !== -1) {
+                        const remaining = dept.substring(idx + hanzi.length);
+                        const remInit = getPinyinInitial(remaining).toLowerCase();
+                        if (remInit.startsWith(pinyinPart)) return true;
+                        const fullInit = getPinyinInitial(dept).toLowerCase();
+                        if (fullInit.includes(hanzi + pinyinPart)) return true;
+                    }
+                }
+                return false;
+            }
+
+            // ============================================================
+            //  2. 全局状态
             // ============================================================
             let currentMonth = new Date();
             let chartInstance = null;
             let yearChartInstance = null;
-            let allTickets = []; // 缓存所有工单数据
+            let allTickets = [];
             let isFirebaseReady = false;
 
-            // DOM 引用 (主界面)
+            // DOM
             const $ = id => document.getElementById(id);
             const configCard = $('configCard');
             const mainArea = $('mainArea');
@@ -763,8 +879,8 @@
             const ticketList = $('ticketList');
             const openAddModal = $('openAddModal');
             const openYearModalBtn = $('openYearModal');
+            const exportBtn = $('exportBtn');
 
-            // 工单编辑模态框
             const modalOverlay = $('ticketModal');
             const modalTitle = $('modalTitle');
             const editId = $('editId');
@@ -776,8 +892,8 @@
             const formResolved = $('formResolved');
             const modalCancel = $('modalCancel');
             const modalSave = $('modalSave');
+            const deptDropdown = $('deptDropdown');
 
-            // 年度汇总模态框
             const yearModal = $('yearModal');
             const yearModalClose = $('yearModalClose');
             const yearSelect = $('yearSelect');
@@ -790,21 +906,66 @@
             const yearMonthList = $('yearMonthList');
 
             // ============================================================
-            //  2. 配置管理 (localStorage)
+            //  3. 部门搜索下拉
+            // ============================================================
+            function renderDeptDropdown(query) {
+                const q = query || '';
+                let matched = [];
+                if (q.trim() === '') matched = DEPARTMENTS;
+                else matched = DEPARTMENTS.filter(d => matchDepartment(q, d));
+
+                if (matched.length === 0) {
+                    deptDropdown.innerHTML = `<div class="no-result">未找到匹配部门，可继续输入自定义名称</div>`;
+                    deptDropdown.classList.add('show');
+                    return;
+                }
+
+                let html = '';
+                matched.forEach(dept => {
+                    let display = dept;
+                    if (q.trim() !== '') {
+                        const idx = dept.indexOf(q.trim());
+                        if (idx !== -1) {
+                            display = dept.substring(0, idx) +
+                                `<span class="highlight">${dept.substring(idx, idx + q.trim().length)}</span>` +
+                                dept.substring(idx + q.trim().length);
+                        }
+                    }
+                    html += `<div class="dept-item" data-dept="${dept}">${display}</div>`;
+                });
+                deptDropdown.innerHTML = html;
+                deptDropdown.classList.add('show');
+
+                deptDropdown.querySelectorAll('.dept-item').forEach(el => {
+                    el.addEventListener('click', function() {
+                        formDept.value = this.dataset.dept;
+                        deptDropdown.classList.remove('show');
+                    });
+                });
+            }
+
+            formDept.addEventListener('input', function() { renderDeptDropdown(this.value); });
+            formDept.addEventListener('focus', function() { renderDeptDropdown(this.value); });
+            formDept.addEventListener('blur', function() {
+                setTimeout(() => { deptDropdown.classList.remove('show'); }, 200);
+            });
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('#formDept') && !e.target.closest('#deptDropdown')) {
+                    deptDropdown.classList.remove('show');
+                }
+            });
+
+            // ============================================================
+            //  4. 配置管理
             // ============================================================
             const CONFIG_KEY = 'firebase_ticket_config';
 
             function loadConfig() {
-                try {
-                    const raw = localStorage.getItem(CONFIG_KEY);
-                    if (raw) return JSON.parse(raw);
-                } catch (e) {}
+                try { const raw = localStorage.getItem(CONFIG_KEY); if (raw) return JSON.parse(raw); } catch (e) {}
                 return {};
             }
 
-            function saveConfig(cfg) {
-                localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg));
-            }
+            function saveConfig(cfg) { localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg)); }
 
             function fillConfigForm() {
                 const cfg = loadConfig();
@@ -818,7 +979,7 @@
             fillConfigForm();
 
             // ============================================================
-            //  3. Firebase 初始化
+            //  5. Firebase
             // ============================================================
             function initFirebase() {
                 const config = {
@@ -829,13 +990,10 @@
                     storageBucket: fbStorageBucket.value.trim(),
                     appId: fbAppId.value.trim()
                 };
-
                 if (!config.apiKey || !config.databaseURL || !config.projectId) {
                     throw new Error('请至少填写 apiKey、databaseURL 和 projectId');
                 }
-
                 saveConfig(config);
-
                 if (!firebase.apps.length) {
                     firebase.initializeApp(config);
                 } else {
@@ -845,71 +1003,45 @@
                         firebase.initializeApp(config);
                     }
                 }
-
                 isFirebaseReady = true;
                 return firebase.database();
             }
 
-            // ============================================================
-            //  4. 数据操作 (Firebase Realtime Database)
-            // ============================================================
-            function getTicketsRef() {
-                return firebase.database().ref('tickets');
-            }
+            function getTicketsRef() { return firebase.database().ref('tickets'); }
 
             function fetchAllTickets() {
                 return new Promise((resolve, reject) => {
                     getTicketsRef().once('value', (snapshot) => {
                         const data = snapshot.val();
-                        if (!data) {
-                            resolve([]);
-                            return;
-                        }
-                        const tickets = Object.keys(data).map(key => {
-                            return { id: key, ...data[key] };
-                        });
-                        tickets.sort((a, b) => {
-                            if (a.date < b.date) return 1;
-                            if (a.date > b.date) return -1;
-                            return 0;
-                        });
+                        if (!data) { resolve([]); return; }
+                        const tickets = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+                        tickets.sort((a, b) => (a.date < b.date ? 1 : -1));
                         resolve(tickets);
-                    }, (error) => {
-                        reject(error);
-                    });
+                    }, reject);
                 });
             }
 
             function addTicketToFirebase(ticket) {
                 return new Promise((resolve, reject) => {
                     const newRef = getTicketsRef().push();
-                    newRef.set(ticket, (error) => {
-                        if (error) reject(error);
-                        else resolve(newRef.key);
-                    });
+                    newRef.set(ticket, err => err ? reject(err) : resolve(newRef.key));
                 });
             }
 
             function updateTicketInFirebase(id, ticket) {
                 return new Promise((resolve, reject) => {
-                    getTicketsRef().child(id).update(ticket, (error) => {
-                        if (error) reject(error);
-                        else resolve();
-                    });
+                    getTicketsRef().child(id).update(ticket, err => err ? reject(err) : resolve());
                 });
             }
 
             function deleteTicketFromFirebase(id) {
                 return new Promise((resolve, reject) => {
-                    getTicketsRef().child(id).remove((error) => {
-                        if (error) reject(error);
-                        else resolve();
-                    });
+                    getTicketsRef().child(id).remove(err => err ? reject(err) : resolve());
                 });
             }
 
             // ============================================================
-            //  5. 业务逻辑 & UI 渲染 (主界面)
+            //  6. 主界面渲染
             // ============================================================
             function getMonthTickets(tickets, year, month) {
                 const monthStr = `${year}-${String(month).padStart(2, '0')}`;
@@ -923,7 +1055,6 @@
                 const software = tickets.filter(t => t.category === '软件').length;
                 const hardware = tickets.filter(t => t.category === '硬件').length;
                 const network = tickets.filter(t => t.category === '网络').length;
-
                 totalCount.textContent = total;
                 resolvedCount.textContent = resolved;
                 pendingCount.textContent = pending;
@@ -939,38 +1070,20 @@
                     const d = `${year}-${String(month).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
                     dayCounts[d] = 0;
                 }
-                tickets.forEach(t => {
-                    if (t.date && dayCounts[t.date] !== undefined) {
-                        dayCounts[t.date] += 1;
-                    }
-                });
-
+                tickets.forEach(t => { if (t.date && dayCounts[t.date] !== undefined) dayCounts[t.date] += 1; });
                 const labels = Object.keys(dayCounts).map(d => d.slice(5));
                 const data = Object.values(dayCounts);
-
                 const ctx = document.getElementById('monthChart').getContext('2d');
                 if (chartInstance) chartInstance.destroy();
-
                 chartInstance = new Chart(ctx, {
                     type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: '工单数',
-                            data: data,
-                            backgroundColor: 'rgba(59, 130, 246, 0.6)',
-                            borderColor: 'rgba(59, 130, 246, 1)',
-                            borderWidth: 1,
-                            borderRadius: 4,
-                        }]
-                    },
+                    data: { labels, datasets: [{ label: '工单数', data, backgroundColor: 'rgba(59,130,246,0.6)',
+                            borderColor: 'rgba(59,130,246,1)', borderWidth: 1, borderRadius: 4 }] },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { callbacks: { label: (ctx) => `${ctx.parsed.y} 条` } }
-                        },
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx =>
+                                    `${ctx.parsed.y} 条` } } },
                         scales: {
                             y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } }, grid: { color: '#f1f5f9' } },
                             x: { ticks: { maxRotation: 30, font: { size: 9 } }, grid: { display: false } }
@@ -979,88 +1092,62 @@
                 });
             }
 
-            function escapeHtml(text) {
-                if (!text) return '';
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            }
+            function escapeHtml(text) { if (!text) return ''; const d = document.createElement('div');
+                d.textContent = text; return d.innerHTML; }
 
             function renderMonthView() {
-                const year = currentMonth.getFullYear();
-                const month = currentMonth.getMonth() + 1;
+                const year = currentMonth.getFullYear(),
+                    month = currentMonth.getMonth() + 1;
                 currentMonthLabel.textContent = `${year}年${month}月`;
-
                 const monthTickets = getMonthTickets(allTickets, year, month);
                 renderStats(monthTickets);
                 renderChart(monthTickets, year, month);
-
-                // 按日分组
                 const groups = {};
-                monthTickets.forEach(t => {
-                    const d = t.date;
-                    if (!groups[d]) groups[d] = [];
-                    groups[d].push(t);
-                });
+                monthTickets.forEach(t => { if (t.date) { if (!groups[t.date]) groups[t.date] = [];
+                        groups[t.date].push(t); } });
                 const sortedDates = Object.keys(groups).sort((a, b) => b.localeCompare(a));
-
                 if (sortedDates.length === 0) {
                     ticketList.innerHTML = `<div class="empty-state">📭 本月暂无工单记录</div>`;
                     return;
                 }
-
                 let html = '';
                 sortedDates.forEach(date => {
                     const items = groups[date];
-                    html += `<div class="day-group">
-                        <div class="day-header">
-                            <span>📅 ${date}</span>
-                            <span class="day-count">${items.length} 条</span>
-                        </div>`;
+                    html += `<div class="day-group"><div class="day-header"><span>📅 ${date}</span><span class="day-count">${items.length} 条</span></div>`;
                     items.forEach(t => {
                         const resolvedText = t.resolved == 1 ? '已解决' : '未解决';
                         const badgeCls = t.resolved == 1 ? 'resolved' : 'pending';
                         const catCls = (t.category || '其他').toLowerCase();
-                        html += `
-                            <div class="ticket-item" data-id="${t.id}">
+                        html += `<div class="ticket-item" data-id="${t.id}">
                                 <div class="info">
-                                    <span class="dept-name">${escapeHtml(t.department || '')} ${escapeHtml(t.name || '')}</span>
-                                    <span class="issue-text">${escapeHtml(t.issue || '')}</span>
+                                    <span class="dept-name">${escapeHtml(t.department||'')} ${escapeHtml(t.name||'')}</span>
+                                    <span class="issue-text">${escapeHtml(t.issue||'')}</span>
                                 </div>
                                 <div class="meta">
-                                    <span class="tag ${catCls}">${escapeHtml(t.category || '其他')}</span>
+                                    <span class="tag ${catCls}">${escapeHtml(t.category||'其他')}</span>
                                     <span class="status-badge ${badgeCls}">${resolvedText}</span>
                                 </div>
                                 <div class="actions">
                                     <button class="btn btn-sm btn-primary edit-ticket" data-id="${t.id}">编辑</button>
                                     <button class="btn btn-sm btn-danger delete-ticket" data-id="${t.id}">删除</button>
                                 </div>
-                            </div>
-                        `;
+                            </div>`;
                     });
                     html += `</div>`;
                 });
                 ticketList.innerHTML = html;
-
-                // 绑定事件
                 document.querySelectorAll('.edit-ticket').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const id = btn.dataset.id;
-                        openEditModal(id);
-                    });
+                    btn.addEventListener('click', () => { openEditModal(btn.dataset.id); });
                 });
                 document.querySelectorAll('.delete-ticket').forEach(btn => {
-                    btn.addEventListener('click', async (e) => {
-                        const id = btn.dataset.id;
-                        if (confirm('确定删除此工单吗？')) {
-                            await performDelete(id);
-                        }
+                    btn.addEventListener('click', async () => {
+                        if (confirm('确定删除此工单吗？')) await performDelete(btn.dataset.id);
                     });
                 });
             }
 
             // ============================================================
-            //  6. 核心操作 (带 Firebase 同步)
+            //  7. 核心操作
             // ============================================================
             async function refreshData() {
                 if (!isFirebaseReady) return;
@@ -1121,7 +1208,7 @@
             }
 
             // ============================================================
-            //  7. 工单编辑模态框
+            //  8. 模态框
             // ============================================================
             function resetForm() {
                 editId.value = '';
@@ -1132,6 +1219,7 @@
                 formIssue.value = '';
                 formCategory.value = '软件';
                 formResolved.value = '0';
+                deptDropdown.classList.remove('show');
             }
 
             function openEditModal(id) {
@@ -1146,23 +1234,18 @@
                 formCategory.value = ticket.category || '其他';
                 formResolved.value = ticket.resolved || 0;
                 modalOverlay.classList.add('active');
+                deptDropdown.classList.remove('show');
             }
 
             // ============================================================
-            //  8. 年度汇总看板
+            //  9. 年度汇总
             // ============================================================
             function populateYearSelect() {
                 const currentYear = new Date().getFullYear();
                 yearSelect.innerHTML = '';
-                // 从最早年份到当前年份
                 let minYear = currentYear;
-                allTickets.forEach(t => {
-                    if (t.date) {
-                        const y = parseInt(t.date.substring(0, 4));
-                        if (!isNaN(y) && y < minYear) minYear = y;
-                    }
-                });
-                // 至少显示当前年份
+                allTickets.forEach(t => { if (t.date) { const y = parseInt(t.date.substring(0, 4)); if (!isNaN(y) && y <
+                            minYear) minYear = y; } });
                 if (minYear > currentYear) minYear = currentYear;
                 for (let y = currentYear; y >= minYear; y--) {
                     const opt = document.createElement('option');
@@ -1174,20 +1257,13 @@
             }
 
             function renderYearSummary(year) {
-                // 过滤该年的工单
-                const yearTickets = allTickets.filter(t => {
-                    if (!t.date) return false;
-                    return t.date.startsWith(String(year));
-                });
-
-                // 统计卡片
+                const yearTickets = allTickets.filter(t => t.date && t.date.startsWith(String(year)));
                 const total = yearTickets.length;
                 const resolved = yearTickets.filter(t => t.resolved == 1).length;
                 const pending = total - resolved;
                 const software = yearTickets.filter(t => t.category === '软件').length;
                 const hardware = yearTickets.filter(t => t.category === '硬件').length;
                 const network = yearTickets.filter(t => t.category === '网络').length;
-
                 yearTotal.textContent = total;
                 yearResolved.textContent = resolved;
                 yearPending.textContent = pending;
@@ -1195,46 +1271,24 @@
                 yearHardware.textContent = hardware;
                 yearNetwork.textContent = network;
 
-                // 月度趋势图
                 const monthCounts = {};
-                for (let m = 1; m <= 12; m++) {
-                    const mStr = `${year}-${String(m).padStart(2, '0')}`;
-                    monthCounts[mStr] = 0;
-                }
-                yearTickets.forEach(t => {
-                    if (t.date) {
-                        const prefix = t.date.substring(0, 7);
-                        if (monthCounts[prefix] !== undefined) {
-                            monthCounts[prefix] += 1;
-                        }
-                    }
-                });
-
+                for (let m = 1; m <= 12; m++) { const mStr = `${year}-${String(m).padStart(2,'0')}`;
+                    monthCounts[mStr] = 0; }
+                yearTickets.forEach(t => { if (t.date) { const prefix = t.date.substring(0, 7); if (monthCounts[prefix] !==
+                            undefined) monthCounts[prefix] += 1; } });
                 const labels = Object.keys(monthCounts).map(k => k.substring(5) + '月');
                 const data = Object.values(monthCounts);
-
                 const ctx = document.getElementById('yearChart').getContext('2d');
                 if (yearChartInstance) yearChartInstance.destroy();
                 yearChartInstance = new Chart(ctx, {
                     type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: '工单数',
-                            data: data,
-                            backgroundColor: 'rgba(139, 92, 246, 0.6)',
-                            borderColor: 'rgba(139, 92, 246, 1)',
-                            borderWidth: 1,
-                            borderRadius: 4,
-                        }]
-                    },
+                    data: { labels, datasets: [{ label: '工单数', data, backgroundColor: 'rgba(139,92,246,0.6)',
+                            borderColor: 'rgba(139,92,246,1)', borderWidth: 1, borderRadius: 4 }] },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { callbacks: { label: (ctx) => `${ctx.parsed.y} 条` } }
-                        },
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx =>
+                                    `${ctx.parsed.y} 条` } } },
                         scales: {
                             y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } }, grid: { color: '#f1f5f9' } },
                             x: { ticks: { maxRotation: 30, font: { size: 10 } }, grid: { display: false } }
@@ -1242,76 +1296,57 @@
                     }
                 });
 
-                // 按月分组明细
                 const groups = {};
-                yearTickets.forEach(t => {
-                    const m = t.date ? t.date.substring(0, 7) : '未知';
-                    if (!groups[m]) groups[m] = [];
-                    groups[m].push(t);
-                });
+                yearTickets.forEach(t => { const m = t.date ? t.date.substring(0, 7) : '未知'; if (!groups[m]) groups[m] =
+                    [];
+                    groups[m].push(t); });
                 const sortedMonths = Object.keys(groups).sort();
-
                 if (sortedMonths.length === 0) {
                     yearMonthList.innerHTML = `<div class="empty-state">📭 该年度暂无工单记录</div>`;
                     return;
                 }
-
                 let html = '';
                 sortedMonths.forEach(monthKey => {
                     const items = groups[monthKey];
-                    const monthDisplay = monthKey.substring(5) + '月';
-                    html += `
-                        <div class="year-month-group">
+                    html += `<div class="year-month-group">
                             <div class="year-month-header" data-target="month-${monthKey}">
                                 <span>📅 ${monthKey} (${items.length} 条)</span>
                                 <span class="arrow">▼</span>
                             </div>
-                            <div class="year-month-details" id="month-${monthKey}">
-                    `;
+                            <div class="year-month-details" id="month-${monthKey}">`;
                     items.forEach(t => {
                         const resolvedText = t.resolved == 1 ? '已解决' : '未解决';
                         const badgeCls = t.resolved == 1 ? 'resolved' : 'pending';
                         const catCls = (t.category || '其他').toLowerCase();
-                        html += `
-                            <div class="year-ticket-item">
-                                <div class="info">
-                                    <strong>${escapeHtml(t.date || '')}</strong>
-                                    ${escapeHtml(t.department || '')} ${escapeHtml(t.name || '')}
-                                    <span style="color:#475569;display:block;">${escapeHtml(t.issue || '')}</span>
-                                </div>
-                                <div class="meta">
-                                    <span class="tag ${catCls}">${escapeHtml(t.category || '其他')}</span>
-                                    <span class="status-badge ${badgeCls}">${resolvedText}</span>
-                                </div>
-                            </div>
-                        `;
+                        html += `<div class="year-ticket-item">
+                                    <div class="info">
+                                        <strong>${escapeHtml(t.date||'')}</strong>
+                                        ${escapeHtml(t.department||'')} ${escapeHtml(t.name||'')}
+                                        <span style="color:#475569;display:block;">${escapeHtml(t.issue||'')}</span>
+                                    </div>
+                                    <div class="meta">
+                                        <span class="tag ${catCls}">${escapeHtml(t.category||'其他')}</span>
+                                        <span class="status-badge ${badgeCls}">${resolvedText}</span>
+                                    </div>
+                                </div>`;
                     });
                     html += `</div></div>`;
                 });
                 yearMonthList.innerHTML = html;
-
-                // 折叠展开功能
                 document.querySelectorAll('.year-month-header').forEach(header => {
                     header.addEventListener('click', function() {
                         const targetId = this.dataset.target;
                         const details = document.getElementById(targetId);
-                        if (details) {
-                            details.classList.toggle('hidden');
-                            const arrow = this.querySelector('.arrow');
-                            if (arrow) arrow.classList.toggle('collapsed');
-                        }
+                        if (details) { details.classList.toggle('hidden'); const arrow = this.querySelector(
+                                '.arrow'); if (arrow) arrow.classList.toggle('collapsed'); }
                     });
                 });
-                // 默认展开第一个月
                 const firstHeader = document.querySelector('.year-month-header');
                 if (firstHeader) {
                     const targetId = firstHeader.dataset.target;
                     const details = document.getElementById(targetId);
-                    if (details) {
-                        details.classList.remove('hidden');
-                        const arrow = firstHeader.querySelector('.arrow');
-                        if (arrow) arrow.classList.remove('collapsed');
-                    }
+                    if (details) { details.classList.remove('hidden'); const arrow = firstHeader.querySelector(
+                            '.arrow'); if (arrow) arrow.classList.remove('collapsed'); }
                 }
             }
 
@@ -1327,22 +1362,65 @@
             }
 
             // ============================================================
-            //  9. 事件绑定
+            //  10. 导出功能 (新增)
             // ============================================================
-            // 连接按钮
+            function exportToCSV() {
+                if (!allTickets || allTickets.length === 0) {
+                    alert('当前没有工单数据可导出。');
+                    return;
+                }
+
+                // 定义列头
+                const headers = ['日期', '部门', '姓名', '问题描述', '分类', '状态'];
+                // 生成数据行
+                const rows = allTickets.map(t => {
+                    const status = t.resolved == 1 ? '已解决' : '未解决';
+                    return [
+                        t.date || '',
+                        t.department || '',
+                        t.name || '',
+                        t.issue || '',
+                        t.category || '其他',
+                        status
+                    ];
+                });
+
+                // 组装 CSV 内容（用逗号分隔，处理可能包含逗号的字段）
+                const escapeCSV = (cell) => {
+                    if (typeof cell === 'string' && (cell.includes(',') || cell.includes('"') || cell.includes('\n'))) {
+                        return `"${cell.replace(/"/g, '""')}"`;
+                    }
+                    return cell;
+                };
+
+                let csvContent = headers.map(h => escapeCSV(h)).join(',') + '\n';
+                rows.forEach(row => {
+                    csvContent += row.map(cell => escapeCSV(cell)).join(',') + '\n';
+                });
+
+                // 添加 BOM 以便 Excel 正确识别 UTF-8
+                const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const now = new Date();
+                const dateStr = now.toISOString().slice(0, 10);
+                link.href = URL.createObjectURL(blob);
+                link.download = `工单数据_${dateStr}.csv`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+            }
+
+            // ============================================================
+            //  11. 事件绑定
+            // ============================================================
             connectBtn.addEventListener('click', async () => {
-                try {
-                    initFirebase();
-                    await refreshData();
+                try { initFirebase(); await refreshData();
                     configCard.style.display = 'none';
                     mainArea.classList.remove('hidden');
-                    $('configHint').textContent = '✅ 连接成功！数据已加载。';
-                } catch (err) {
-                    alert('连接失败：' + err.message);
-                }
+                    $('configHint').textContent = '✅ 连接成功！数据已加载。'; } catch (err) { alert('连接失败：' + err.message); }
             });
 
-            // 重置配置
             resetConfigBtn.addEventListener('click', () => {
                 if (confirm('清除本地配置并重新设置？')) {
                     localStorage.removeItem(CONFIG_KEY);
@@ -1354,7 +1432,6 @@
                 }
             });
 
-            // 自动连接
             (async function autoConnect() {
                 const cfg = loadConfig();
                 if (cfg.apiKey && cfg.databaseURL && cfg.projectId) {
@@ -1378,48 +1455,25 @@
                 }
             })();
 
-            // 月份切换
-            prevMonthBtn.addEventListener('click', () => {
-                currentMonth.setMonth(currentMonth.getMonth() - 1);
-                renderMonthView();
-            });
-            nextMonthBtn.addEventListener('click', () => {
-                currentMonth.setMonth(currentMonth.getMonth() + 1);
-                renderMonthView();
-            });
+            prevMonthBtn.addEventListener('click', () => { currentMonth.setMonth(currentMonth.getMonth() - 1);
+                renderMonthView(); });
+            nextMonthBtn.addEventListener('click', () => { currentMonth.setMonth(currentMonth.getMonth() + 1);
+                renderMonthView(); });
 
-            // 添加工单按钮
-            openAddModal.addEventListener('click', () => {
-                resetForm();
-                modalOverlay.classList.add('active');
-            });
-
-            // 年度汇总按钮
+            openAddModal.addEventListener('click', () => { resetForm();
+                modalOverlay.classList.add('active'); });
             openYearModalBtn.addEventListener('click', openYearModal);
+            exportBtn.addEventListener('click', exportToCSV);   // 导出按钮事件
 
-            // 年度汇总模态框关闭
-            yearModalClose.addEventListener('click', () => {
-                yearModal.classList.remove('active');
-            });
-            yearModal.addEventListener('click', (e) => {
-                if (e.target === yearModal) yearModal.classList.remove('active');
-            });
+            yearModalClose.addEventListener('click', () => { yearModal.classList.remove('active'); });
+            yearModal.addEventListener('click', (e) => { if (e.target === yearModal) yearModal.classList.remove('active'); });
+            yearSelect.addEventListener('change', function() { const year = parseInt(this.value); if (!isNaN(year))
+                    renderYearSummary(year); });
 
-            // 年度汇总年份切换
-            yearSelect.addEventListener('change', function() {
-                const year = parseInt(this.value);
-                if (!isNaN(year)) renderYearSummary(year);
-            });
+            modalCancel.addEventListener('click', () => { modalOverlay.classList.remove('active'); });
+            modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) modalOverlay.classList.remove(
+                    'active'); });
 
-            // 工单模态框取消
-            modalCancel.addEventListener('click', () => {
-                modalOverlay.classList.remove('active');
-            });
-            modalOverlay.addEventListener('click', (e) => {
-                if (e.target === modalOverlay) modalOverlay.classList.remove('active');
-            });
-
-            // 工单保存
             modalSave.addEventListener('click', async () => {
                 const date = formDate.value;
                 const dept = formDept.value.trim();
@@ -1427,40 +1481,24 @@
                 const issue = formIssue.value.trim();
                 const category = formCategory.value;
                 const resolved = parseInt(formResolved.value);
-
                 if (!date) { alert('请选择日期'); return; }
                 if (!issue) { alert('请输入问题描述'); return; }
-
                 const data = { date, department: dept, name, issue, category, resolved };
                 const id = editId.value;
-
                 try {
-                    if (id) {
-                        await performUpdate(id, data);
-                    } else {
-                        await performAdd(data);
-                    }
+                    if (id) { await performUpdate(id, data); } else { await performAdd(data); }
                     modalOverlay.classList.remove('active');
-                } catch (err) {
-                    alert('保存失败: ' + err.message);
-                }
+                } catch (err) { alert('保存失败: ' + err.message); }
             });
 
-            // ============================================================
-            //  10. 前台切换自动刷新
-            // ============================================================
             document.addEventListener('visibilitychange', async () => {
                 if (document.visibilityState === 'visible' && !mainArea.classList.contains('hidden') && isFirebaseReady) {
                     await refreshData();
                 }
             });
 
-            // ============================================================
-            //  11. 初始化
-            // ============================================================
             resetForm();
-            console.log('运维工单系统 (Firebase + 年度汇总) 已加载。');
-
+            console.log('运维工单系统 (Firebase + 部门搜索 + 导出) 已加载。');
         })();
     </script>
 </body>
