@@ -131,9 +131,20 @@
         .btn-export:hover {
             background: #0284c7;
         }
+        .btn-borrow {
+            background: #f472b6;
+            color: white;
+        }
+        .btn-borrow:hover {
+            background: #ec4899;
+        }
         .btn-sm {
             padding: 6px 12px;
             font-size: 13px;
+        }
+        .btn-xs {
+            padding: 2px 10px;
+            font-size: 12px;
         }
         .status-badge {
             font-size: 13px;
@@ -149,6 +160,14 @@
         .status-badge.pending {
             background: #fee2e2;
             color: #991b1b;
+        }
+        .status-badge.borrowed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .status-badge.returned {
+            background: #dcfce7;
+            color: #166534;
         }
 
         /* ===== 头部 ===== */
@@ -242,6 +261,21 @@
         }
         .stat-card.indigo .num {
             color: #4f46e5;
+        }
+        .stat-card.pink .num {
+            color: #ec4899;
+        }
+
+        /* ===== 借出统计 ===== */
+        .borrow-stats-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .borrow-stats-row .stat-card {
+            flex: 1;
+            min-width: 100px;
         }
 
         /* ===== 周统计 ===== */
@@ -382,11 +416,41 @@
         }
         .action-row .btn {
             flex: 1;
-            min-width: 140px;
+            min-width: 120px;
             padding: 14px;
             font-size: 16px;
             border-radius: 14px;
             text-align: center;
+        }
+
+        /* ===== 标签切换（工单/借出） ===== */
+        .tab-row {
+            display: flex;
+            gap: 4px;
+            background: #e9eef3;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 20px;
+        }
+        .tab-row .tab-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            background: transparent;
+            color: #64748b;
+            transition: 0.2s;
+        }
+        .tab-row .tab-btn.active {
+            background: white;
+            color: #0f172a;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+        }
+        .tab-row .tab-btn:hover:not(.active) {
+            color: #0f172a;
         }
 
         /* ===== 每日分组 ===== */
@@ -423,7 +487,6 @@
             font-size: 12px;
             color: #94a3b8;
         }
-        /* 每日分类统计 */
         .day-stats {
             display: flex;
             flex-wrap: wrap;
@@ -460,10 +523,6 @@
         }
         .day-stats .stat-item .num.indigo {
             color: #4f46e5;
-        }
-        /* 工单列表容器（可折叠） */
-        .day-content {
-            /* 默认显示，由 .hidden 控制隐藏 */
         }
         .day-content.hidden {
             display: none !important;
@@ -530,7 +589,80 @@
             font-size: 12px;
         }
 
-        /* ===== 模态框（通用） ===== */
+        /* ===== 借出列表 ===== */
+        .borrow-item {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px 12px;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            background: white;
+        }
+        .borrow-item:last-child {
+            border-bottom: none;
+        }
+        .borrow-item .info {
+            flex: 1;
+            min-width: 150px;
+        }
+        .borrow-item .info .borrow-device {
+            font-weight: 500;
+        }
+        .borrow-item .info .borrow-detail {
+            color: #475569;
+            font-size: 14px;
+            display: block;
+            margin-top: 2px;
+        }
+        .borrow-item .meta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+        }
+        .borrow-item .actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        /* ===== 筛选器 ===== */
+        .borrow-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 14px;
+            border: 1px solid #e9eef3;
+            margin-bottom: 16px;
+        }
+        .borrow-filter .filter-label {
+            font-weight: 500;
+            font-size: 14px;
+            color: #475569;
+        }
+        .borrow-filter .filter-btn {
+            padding: 6px 16px;
+            border: 1px solid #d1d9e6;
+            border-radius: 20px;
+            background: white;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #475569;
+        }
+        .borrow-filter .filter-btn.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        .borrow-filter .filter-btn:hover:not(.active) {
+            background: #f1f5f9;
+        }
+
+        /* ===== 模态框 ===== */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -591,7 +723,7 @@
             background: white;
         }
         .modal textarea {
-            min-height: 70px;
+            min-height: 60px;
             resize: vertical;
         }
         .modal .form-row {
@@ -760,11 +892,14 @@
             .stats-grid {
                 grid-template-columns: repeat(3, 1fr);
             }
+            .borrow-stats-row .stat-card {
+                min-width: 80px;
+            }
             .config-row input {
                 min-width: 120px;
             }
             .action-row .btn {
-                min-width: 100px;
+                min-width: 80px;
                 font-size: 14px;
                 padding: 12px;
             }
@@ -788,6 +923,14 @@
                 gap: 8px 14px;
                 font-size: 12px;
                 padding: 4px 16px 8px 16px;
+            }
+            .borrow-filter {
+                padding: 10px 14px;
+                gap: 6px;
+            }
+            .borrow-filter .filter-btn {
+                padding: 4px 12px;
+                font-size: 12px;
             }
         }
     </style>
@@ -819,14 +962,14 @@
         <!-- ===== 主界面 ===== -->
         <div id="mainArea" class="hidden">
             <div class="header">
-                <h1>📋 工单记录</h1>
+                <h1>📋 运维管理系统</h1>
                 <div class="sync-status">
                     <span class="sync-dot" id="syncDot"></span>
                     <span id="syncLabel">已连接</span>
                 </div>
             </div>
 
-            <!-- 月度统计 -->
+            <!-- 月度统计（工单） -->
             <div class="stats-grid" id="statsGrid">
                 <div class="stat-card blue"><div class="num" id="totalCount">0</div><div class="label">总工单</div></div>
                 <div class="stat-card green"><div class="num" id="resolvedCount">0</div><div class="label">已解决</div></div>
@@ -834,6 +977,13 @@
                 <div class="stat-card purple"><div class="num" id="softwareCount">0</div><div class="label">软件</div></div>
                 <div class="stat-card orange"><div class="num" id="hardwareCount">0</div><div class="label">硬件</div></div>
                 <div class="stat-card indigo"><div class="num" id="networkCount">0</div><div class="label">网络</div></div>
+            </div>
+
+            <!-- 借出统计 -->
+            <div class="borrow-stats-row" id="borrowStatsRow">
+                <div class="stat-card pink"><div class="num" id="borrowTotalCount">0</div><div class="label">借出总数</div></div>
+                <div class="stat-card red"><div class="num" id="borrowUnreturnedCount">0</div><div class="label">未归还</div></div>
+                <div class="stat-card green"><div class="num" id="borrowReturnedCount">0</div><div class="label">已归还</div></div>
             </div>
 
             <!-- 周统计 -->
@@ -866,11 +1016,29 @@
             <!-- 按钮行 -->
             <div class="action-row">
                 <button class="btn btn-success" id="openAddModal">➕ 添加工单</button>
+                <button class="btn btn-borrow" id="openBorrowModal">📦 设备借出</button>
                 <button class="btn btn-purple" id="openYearModal">📊 年度汇总</button>
                 <button class="btn btn-export" id="exportBtn">📥 导出数据</button>
             </div>
 
+            <!-- Tab 切换 -->
+            <div class="tab-row">
+                <button class="tab-btn active" data-tab="tickets">📋 工单记录</button>
+                <button class="tab-btn" data-tab="borrow">📦 借出记录</button>
+            </div>
+
+            <!-- 工单列表 -->
             <div id="ticketList"></div>
+
+            <!-- 借出列表 -->
+            <div id="borrowList" class="hidden">
+                <div class="borrow-filter">
+                    <span class="filter-label">筛选：</span>
+                    <button class="filter-btn active" data-filter="unreturned">未归还</button>
+                    <button class="filter-btn" data-filter="all">全部</button>
+                </div>
+                <div id="borrowItems"></div>
+            </div>
         </div>
     </div>
 
@@ -885,7 +1053,7 @@
             <div class="form-row">
                 <div>
                     <label>部门</label>
-                    <input type="text" id="formDept" placeholder="输入部门名称或拼音，如 美本、mb、meiben" autocomplete="off">
+                    <input type="text" id="formDept" placeholder="输入部门名称或拼音" autocomplete="off">
                     <div class="dept-dropdown" id="deptDropdown"></div>
                 </div>
                 <div>
@@ -917,6 +1085,49 @@
             <div class="modal-actions">
                 <button class="btn" id="modalCancel">取消</button>
                 <button class="btn btn-primary" id="modalSave">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 设备借出模态框 ===== -->
+    <div class="modal-overlay" id="borrowModal">
+        <div class="modal">
+            <h2>
+                <span>📦 设备借出</span>
+                <button class="close-btn" id="borrowModalClose">&times;</button>
+            </h2>
+            <input type="hidden" id="borrowEditId" value="">
+
+            <div class="form-row">
+                <div>
+                    <label>部门</label>
+                    <select id="borrowDept">
+                        <option value="">请选择部门</option>
+                    </select>
+                </div>
+                <div>
+                    <label>姓名</label>
+                    <input type="text" id="borrowName" placeholder="借用人姓名">
+                </div>
+            </div>
+
+            <label>借用设备</label>
+            <input type="text" id="borrowDevice" placeholder="如：笔记本电脑、投影仪、网线钳...">
+
+            <div class="form-row">
+                <div>
+                    <label>借用时间</label>
+                    <input type="date" id="borrowDate">
+                </div>
+                <div>
+                    <label>备注</label>
+                    <input type="text" id="borrowNote" placeholder="选填">
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn" id="borrowModalCancel">取消</button>
+                <button class="btn btn-primary" id="borrowModalSave">保存</button>
             </div>
         </div>
     </div>
@@ -1028,8 +1239,11 @@
             let chartInstance = null;
             let yearChartInstance = null;
             let allTickets = [];
+            let allBorrows = [];
             let isFirebaseReady = false;
             let currentWeekOffset = 0;
+            let currentTab = 'tickets'; // 'tickets' | 'borrow'
+            let borrowFilter = 'unreturned'; // 'unreturned' | 'all'
 
             // DOM
             const $ = id => document.getElementById(id);
@@ -1053,11 +1267,17 @@
             const softwareCount = $('softwareCount');
             const hardwareCount = $('hardwareCount');
             const networkCount = $('networkCount');
+            const borrowTotalCount = $('borrowTotalCount');
+            const borrowUnreturnedCount = $('borrowUnreturnedCount');
+            const borrowReturnedCount = $('borrowReturnedCount');
             const currentMonthLabel = $('currentMonthLabel');
             const prevMonthBtn = $('prevMonth');
             const nextMonthBtn = $('nextMonth');
             const ticketList = $('ticketList');
+            const borrowList = $('borrowList');
+            const borrowItems = $('borrowItems');
             const openAddModal = $('openAddModal');
+            const openBorrowModalBtn = $('openBorrowModal');
             const openYearModalBtn = $('openYearModal');
             const exportBtn = $('exportBtn');
             const weeklyGrid = $('weeklyGrid');
@@ -1065,6 +1285,7 @@
             const weekPrev = $('weekPrev');
             const weekNext = $('weekNext');
 
+            // 工单模态框
             const modalOverlay = $('ticketModal');
             const modalTitle = $('modalTitle');
             const editId = $('editId');
@@ -1078,6 +1299,19 @@
             const modalSave = $('modalSave');
             const deptDropdown = $('deptDropdown');
 
+            // 借出模态框
+            const borrowModal = $('borrowModal');
+            const borrowModalClose = $('borrowModalClose');
+            const borrowEditId = $('borrowEditId');
+            const borrowDept = $('borrowDept');
+            const borrowName = $('borrowName');
+            const borrowDevice = $('borrowDevice');
+            const borrowDate = $('borrowDate');
+            const borrowNote = $('borrowNote');
+            const borrowModalCancel = $('borrowModalCancel');
+            const borrowModalSave = $('borrowModalSave');
+
+            // 年度汇总
             const yearModal = $('yearModal');
             const yearModalClose = $('yearModalClose');
             const yearSelect = $('yearSelect');
@@ -1090,54 +1324,18 @@
             const yearMonthList = $('yearMonthList');
 
             // ============================================================
-            //  3. 部门搜索下拉
+            //  3. 部门下拉（用于借出表单）
             // ============================================================
-            function renderDeptDropdown(query) {
-                const q = query || '';
-                let matched = [];
-                if (q.trim() === '') matched = DEPARTMENTS;
-                else matched = DEPARTMENTS.filter(d => matchDepartment(q, d));
-
-                if (matched.length === 0) {
-                    deptDropdown.innerHTML = `<div class="no-result">未找到匹配部门，可继续输入自定义名称</div>`;
-                    deptDropdown.classList.add('show');
-                    return;
-                }
-
-                let html = '';
-                matched.forEach(dept => {
-                    let display = dept;
-                    if (q.trim() !== '') {
-                        const idx = dept.indexOf(q.trim());
-                        if (idx !== -1) {
-                            display = dept.substring(0, idx) +
-                                `<span class="highlight">${dept.substring(idx, idx + q.trim().length)}</span>` +
-                                dept.substring(idx + q.trim().length);
-                        }
-                    }
-                    html += `<div class="dept-item" data-dept="${dept}">${display}</div>`;
-                });
-                deptDropdown.innerHTML = html;
-                deptDropdown.classList.add('show');
-
-                deptDropdown.querySelectorAll('.dept-item').forEach(el => {
-                    el.addEventListener('click', function() {
-                        formDept.value = this.dataset.dept;
-                        deptDropdown.classList.remove('show');
-                    });
+            function populateBorrowDeptSelect() {
+                borrowDept.innerHTML = '<option value="">请选择部门</option>';
+                DEPARTMENTS.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d;
+                    opt.textContent = d;
+                    borrowDept.appendChild(opt);
                 });
             }
-
-            formDept.addEventListener('input', function() { renderDeptDropdown(this.value); });
-            formDept.addEventListener('focus', function() { renderDeptDropdown(this.value); });
-            formDept.addEventListener('blur', function() {
-                setTimeout(() => { deptDropdown.classList.remove('show'); }, 200);
-            });
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('#formDept') && !e.target.closest('#deptDropdown')) {
-                    deptDropdown.classList.remove('show');
-                }
-            });
+            populateBorrowDeptSelect();
 
             // ============================================================
             //  4. 配置管理
@@ -1193,6 +1391,9 @@
 
             function getTicketsRef() { return firebase.database().ref('tickets'); }
 
+            function getBorrowRef() { return firebase.database().ref('borrow_records'); }
+
+            // ===== 工单操作 =====
             function fetchAllTickets() {
                 return new Promise((resolve, reject) => {
                     getTicketsRef().once('value', (snapshot) => {
@@ -1221,6 +1422,42 @@
             function deleteTicketFromFirebase(id) {
                 return new Promise((resolve, reject) => {
                     getTicketsRef().child(id).remove(err => err ? reject(err) : resolve());
+                });
+            }
+
+            // ===== 借出操作 =====
+            function fetchAllBorrows() {
+                return new Promise((resolve, reject) => {
+                    getBorrowRef().once('value', (snapshot) => {
+                        const data = snapshot.val();
+                        if (!data) { resolve([]); return; }
+                        const borrows = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+                        borrows.sort((a, b) => {
+                            if (a.borrowDate < b.borrowDate) return 1;
+                            if (a.borrowDate > b.borrowDate) return -1;
+                            return 0;
+                        });
+                        resolve(borrows);
+                    }, reject);
+                });
+            }
+
+            function addBorrowToFirebase(record) {
+                return new Promise((resolve, reject) => {
+                    const newRef = getBorrowRef().push();
+                    newRef.set(record, err => err ? reject(err) : resolve(newRef.key));
+                });
+            }
+
+            function updateBorrowInFirebase(id, record) {
+                return new Promise((resolve, reject) => {
+                    getBorrowRef().child(id).update(record, err => err ? reject(err) : resolve());
+                });
+            }
+
+            function deleteBorrowFromFirebase(id) {
+                return new Promise((resolve, reject) => {
+                    getBorrowRef().child(id).remove(err => err ? reject(err) : resolve());
                 });
             }
 
@@ -1283,7 +1520,19 @@
             }
 
             // ============================================================
-            //  7. 主界面渲染（含每日折叠）
+            //  7. 借出统计
+            // ============================================================
+            function renderBorrowStats() {
+                const total = allBorrows.length;
+                const unreturned = allBorrows.filter(b => b.status !== '已归还').length;
+                const returned = total - unreturned;
+                borrowTotalCount.textContent = total;
+                borrowUnreturnedCount.textContent = unreturned;
+                borrowReturnedCount.textContent = returned;
+            }
+
+            // ============================================================
+            //  8. 主界面渲染（工单部分）
             // ============================================================
             function getMonthTickets(tickets, year, month) {
                 const monthStr = `${year}-${String(month).padStart(2, '0')}`;
@@ -1337,7 +1586,7 @@
             function escapeHtml(text) { if (!text) return ''; const d = document.createElement('div');
                 d.textContent = text; return d.innerHTML; }
 
-            function renderMonthView() {
+            function renderTickets() {
                 const year = currentMonth.getFullYear(),
                     month = currentMonth.getMonth() + 1;
                 currentMonthLabel.textContent = `${year}年${month}月`;
@@ -1346,10 +1595,7 @@
                 renderChart(monthTickets, year, month);
                 renderWeeklyStats();
 
-                // 今天的日期字符串（用于决定默认展开）
                 const todayStr = new Date().toISOString().slice(0, 10);
-
-                // 按日分组
                 const groups = {};
                 monthTickets.forEach(t => { if (t.date) { if (!groups[t.date]) groups[t.date] = [];
                         groups[t.date].push(t); } });
@@ -1363,7 +1609,6 @@
                 let html = '';
                 sortedDates.forEach(date => {
                     const items = groups[date];
-                    // 统计当天各分类数量
                     let sw = 0,
                         hw = 0,
                         nw = 0,
@@ -1376,12 +1621,10 @@
                         else ot++;
                     });
 
-                    // 判断是否为今天，决定折叠状态
                     const isToday = (date === todayStr);
                     const contentHidden = isToday ? '' : ' hidden';
                     const icon = isToday ? '▼' : '▶';
 
-                    // 构建统计行
                     let statsHtml = '';
                     if (sw > 0 || hw > 0 || nw > 0 || ot > 0) {
                         statsHtml = `<div class="day-stats">`;
@@ -1398,7 +1641,6 @@
                         statsHtml += `</div>`;
                     }
 
-                    // 日期头部（可点击）
                     html += `<div class="day-group">
                         <div class="day-header" data-date="${date}">
                             <span>📅 ${date}</span>
@@ -1408,7 +1650,6 @@
                         <div class="day-content${contentHidden}">
                     `;
 
-                    // 工单列表
                     items.forEach(t => {
                         const resolvedText = t.resolved == 1 ? '已解决' : '未解决';
                         const badgeCls = t.resolved == 1 ? 'resolved' : 'pending';
@@ -1429,32 +1670,93 @@
                             </div>`;
                     });
 
-                    html += `</div></div>`; // 关闭 day-content 和 day-group
+                    html += `</div></div>`;
                 });
 
                 ticketList.innerHTML = html;
-
-                // 绑定编辑/删除事件（与之前相同）
-                document.querySelectorAll('.edit-ticket').forEach(btn => {
-                    btn.addEventListener('click', () => { openEditModal(btn.dataset.id); });
-                });
-                document.querySelectorAll('.delete-ticket').forEach(btn => {
-                    btn.addEventListener('click', async () => {
-                        if (confirm('确定删除此工单吗？')) await performDelete(btn.dataset.id);
-                    });
-                });
             }
 
             // ============================================================
-            //  8. 核心操作
+            //  9. 借出列表渲染
+            // ============================================================
+            function renderBorrows() {
+                let filtered = allBorrows;
+                if (borrowFilter === 'unreturned') {
+                    filtered = allBorrows.filter(b => b.status !== '已归还');
+                }
+
+                if (filtered.length === 0) {
+                    borrowItems.innerHTML = `<div class="empty-state">📦 暂无借出记录</div>`;
+                    return;
+                }
+
+                let html = '';
+                filtered.forEach(b => {
+                    const status = b.status || '未归还';
+                    const badgeCls = status === '已归还' ? 'returned' : 'borrowed';
+                    const returnDateHtml = b.returnDate ?
+                        `<span style="font-size:13px;color:#64748b;">归还: ${b.returnDate}</span>` :
+                        '';
+
+                    html += `
+                        <div class="borrow-item" data-id="${b.id}">
+                            <div class="info">
+                                <span class="borrow-device">${escapeHtml(b.device||'')}</span>
+                                <span class="borrow-detail">${escapeHtml(b.department||'')} ${escapeHtml(b.name||'')}  |  借出: ${escapeHtml(b.borrowDate||'')}${b.note ? `  |  备注: ${escapeHtml(b.note)}` : ''}</span>
+                            </div>
+                            <div class="meta">
+                                <span class="status-badge ${badgeCls}">${status}</span>
+                                ${returnDateHtml}
+                            </div>
+                            <div class="actions">
+                                ${status !== '已归还' ? `<button class="btn btn-sm btn-success return-borrow" data-id="${b.id}">归还</button>` : ''}
+                                <button class="btn btn-sm btn-danger delete-borrow" data-id="${b.id}">删除</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                borrowItems.innerHTML = html;
+            }
+
+            // ============================================================
+            //  10. 切换 Tab
+            // ============================================================
+            function switchTab(tab) {
+                currentTab = tab;
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.tab === tab);
+                });
+                if (tab === 'tickets') {
+                    ticketList.classList.remove('hidden');
+                    borrowList.classList.add('hidden');
+                    renderTickets();
+                } else {
+                    ticketList.classList.add('hidden');
+                    borrowList.classList.remove('hidden');
+                    renderBorrows();
+                }
+            }
+
+            // ============================================================
+            //  11. 核心操作
             // ============================================================
             async function refreshData() {
                 if (!isFirebaseReady) return;
                 try {
                     syncDot.className = 'sync-dot syncing';
                     syncLabel.textContent = '加载中...';
-                    allTickets = await fetchAllTickets();
-                    renderMonthView();
+                    const [tickets, borrows] = await Promise.all([
+                        fetchAllTickets(),
+                        fetchAllBorrows()
+                    ]);
+                    allTickets = tickets;
+                    allBorrows = borrows;
+                    renderBorrowStats();
+                    if (currentTab === 'tickets') {
+                        renderTickets();
+                    } else {
+                        renderBorrows();
+                    }
                     syncDot.className = 'sync-dot';
                     syncLabel.textContent = '已同步';
                 } catch (err) {
@@ -1464,7 +1766,8 @@
                 }
             }
 
-            async function performAdd(data) {
+            // ===== 工单操作 =====
+            async function performAddTicket(data) {
                 if (!isFirebaseReady) throw new Error('Firebase 未就绪');
                 syncDot.className = 'sync-dot syncing';
                 syncLabel.textContent = '保存中...';
@@ -1478,7 +1781,7 @@
                 }
             }
 
-            async function performUpdate(id, data) {
+            async function performUpdateTicket(id, data) {
                 if (!isFirebaseReady) throw new Error('Firebase 未就绪');
                 syncDot.className = 'sync-dot syncing';
                 syncLabel.textContent = '更新中...';
@@ -1492,7 +1795,7 @@
                 }
             }
 
-            async function performDelete(id) {
+            async function performDeleteTicket(id) {
                 if (!isFirebaseReady) throw new Error('Firebase 未就绪');
                 syncDot.className = 'sync-dot syncing';
                 syncLabel.textContent = '删除中...';
@@ -1506,10 +1809,54 @@
                 }
             }
 
+            // ===== 借出操作 =====
+            async function performAddBorrow(data) {
+                if (!isFirebaseReady) throw new Error('Firebase 未就绪');
+                syncDot.className = 'sync-dot syncing';
+                syncLabel.textContent = '保存中...';
+                try {
+                    await addBorrowToFirebase(data);
+                    await refreshData();
+                } catch (err) {
+                    syncDot.className = 'sync-dot error';
+                    syncLabel.textContent = '保存失败';
+                    throw err;
+                }
+            }
+
+            async function performReturnBorrow(id) {
+                if (!isFirebaseReady) throw new Error('Firebase 未就绪');
+                syncDot.className = 'sync-dot syncing';
+                syncLabel.textContent = '更新中...';
+                try {
+                    const today = new Date().toISOString().slice(0, 10);
+                    await updateBorrowInFirebase(id, { status: '已归还', returnDate: today });
+                    await refreshData();
+                } catch (err) {
+                    syncDot.className = 'sync-dot error';
+                    syncLabel.textContent = '更新失败';
+                    throw err;
+                }
+            }
+
+            async function performDeleteBorrow(id) {
+                if (!isFirebaseReady) throw new Error('Firebase 未就绪');
+                syncDot.className = 'sync-dot syncing';
+                syncLabel.textContent = '删除中...';
+                try {
+                    await deleteBorrowFromFirebase(id);
+                    await refreshData();
+                } catch (err) {
+                    syncDot.className = 'sync-dot error';
+                    syncLabel.textContent = '删除失败';
+                    throw err;
+                }
+            }
+
             // ============================================================
-            //  9. 模态框
+            //  12. 工单模态框
             // ============================================================
-            function resetForm() {
+            function resetTicketForm() {
                 editId.value = '';
                 modalTitle.textContent = '添加工单';
                 formDate.value = new Date().toISOString().slice(0, 10);
@@ -1521,7 +1868,7 @@
                 deptDropdown.classList.remove('show');
             }
 
-            function openEditModal(id) {
+            function openEditTicketModal(id) {
                 const ticket = allTickets.find(t => t.id === id);
                 if (!ticket) return;
                 editId.value = ticket.id;
@@ -1537,7 +1884,24 @@
             }
 
             // ============================================================
-            //  10. 年度汇总
+            //  13. 借出模态框
+            // ============================================================
+            function resetBorrowForm() {
+                borrowEditId.value = '';
+                borrowDept.value = '';
+                borrowName.value = '';
+                borrowDevice.value = '';
+                borrowDate.value = new Date().toISOString().slice(0, 10);
+                borrowNote.value = '';
+            }
+
+            function openBorrowModal() {
+                resetBorrowForm();
+                borrowModal.classList.add('active');
+            }
+
+            // ============================================================
+            //  14. 年度汇总
             // ============================================================
             function populateYearSelect() {
                 const currentYear = new Date().getFullYear();
@@ -1651,7 +2015,7 @@
 
             function openYearModal() {
                 if (!isFirebaseReady || allTickets.length === 0) {
-                    alert('暂无数据，请先添加工单。');
+                    alert('暂无工单数据。');
                     return;
                 }
                 populateYearSelect();
@@ -1661,32 +2025,35 @@
             }
 
             // ============================================================
-            //  11. 导出
+            //  15. 导出功能（含借出）
             // ============================================================
             function exportToCSV() {
-                if (!allTickets || allTickets.length === 0) {
-                    alert('当前没有工单数据可导出。');
+                if (!allTickets && !allBorrows) {
+                    alert('没有数据可导出。');
                     return;
                 }
-                const headers = ['日期', '部门', '姓名', '问题描述', '分类', '状态'];
-                const rows = allTickets.map(t => {
+                // 导出工单
+                let csvContent = '=== 工单记录 ===\n';
+                csvContent += '日期,部门,姓名,问题描述,分类,状态\n';
+                allTickets.forEach(t => {
                     const status = t.resolved == 1 ? '已解决' : '未解决';
-                    return [t.date || '', t.department || '', t.name || '', t.issue || '', t.category || '其他', status];
+                    csvContent +=
+                        `${t.date||''},${t.department||''},${t.name||''},${t.issue||''},${t.category||'其他'},${status}\n`;
                 });
-                const escapeCSV = (cell) => {
-                    if (typeof cell === 'string' && (cell.includes(',') || cell.includes('"') || cell.includes('\n'))) {
-                        return `"${cell.replace(/"/g, '""')}"`;
-                    }
-                    return cell;
-                };
-                let csvContent = headers.map(h => escapeCSV(h)).join(',') + '\n';
-                rows.forEach(row => { csvContent += row.map(cell => escapeCSV(cell)).join(',') + '\n'; });
+
+                csvContent += '\n=== 设备借出记录 ===\n';
+                csvContent += '部门,姓名,设备,借出日期,状态,归还日期,备注\n';
+                allBorrows.forEach(b => {
+                    csvContent +=
+                        `${b.department||''},${b.name||''},${b.device||''},${b.borrowDate||''},${b.status||'未归还'},${b.returnDate||''},${b.note||''}\n`;
+                });
+
                 const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement('a');
                 const now = new Date();
                 const dateStr = now.toISOString().slice(0, 10);
                 link.href = URL.createObjectURL(blob);
-                link.download = `工单数据_${dateStr}.csv`;
+                link.download = `运维数据_${dateStr}.csv`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -1694,8 +2061,9 @@
             }
 
             // ============================================================
-            //  12. 事件绑定
+            //  16. 事件绑定
             // ============================================================
+            // 连接
             connectBtn.addEventListener('click', async () => {
                 try { initFirebase(); await refreshData();
                     configCard.style.display = 'none';
@@ -1714,6 +2082,7 @@
                 }
             });
 
+            // 自动连接
             (async function autoConnect() {
                 const cfg = loadConfig();
                 if (cfg.apiKey && cfg.databaseURL && cfg.projectId) {
@@ -1737,30 +2106,53 @@
                 }
             })();
 
+            // 周切换
             weekPrev.addEventListener('click', function() { currentWeekOffset -= 1;
                 renderWeeklyStats(); });
             weekNext.addEventListener('click', function() { currentWeekOffset += 1;
                 renderWeeklyStats(); });
 
-            prevMonthBtn.addEventListener('click', () => { currentMonth.setMonth(currentMonth.getMonth() - 1);
-                renderMonthView(); });
-            nextMonthBtn.addEventListener('click', () => { currentMonth.setMonth(currentMonth.getMonth() + 1);
-                renderMonthView(); });
+            // 月份切换
+            prevMonthBtn.addEventListener('click', () => { currentMonth.setMonth(currentMonth.getMonth() - 1); if (currentTab ===
+                    'tickets') renderTickets(); });
+            nextMonthBtn.addEventListener('click', () => { currentMonth.setMonth(currentMonth.getMonth() + 1); if (currentTab ===
+                    'tickets') renderTickets(); });
 
-            openAddModal.addEventListener('click', () => { resetForm();
+            // Tab 切换
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    switchTab(this.dataset.tab);
+                });
+            });
+
+            // 借出筛选
+            document.querySelectorAll('.borrow-filter .filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.borrow-filter .filter-btn').forEach(b => b.classList.remove(
+                    'active'));
+                    this.classList.add('active');
+                    borrowFilter = this.dataset.filter;
+                    renderBorrows();
+                });
+            });
+
+            // 打开工单模态框
+            openAddModal.addEventListener('click', () => { resetTicketForm();
                 modalOverlay.classList.add('active'); });
+
+            // 打开借出模态框
+            openBorrowModalBtn.addEventListener('click', openBorrowModal);
+
+            // 年度汇总
             openYearModalBtn.addEventListener('click', openYearModal);
+
+            // 导出
             exportBtn.addEventListener('click', exportToCSV);
 
-            yearModalClose.addEventListener('click', () => { yearModal.classList.remove('active'); });
-            yearModal.addEventListener('click', (e) => { if (e.target === yearModal) yearModal.classList.remove('active'); });
-            yearSelect.addEventListener('change', function() { const year = parseInt(this.value); if (!isNaN(year))
-                    renderYearSummary(year); });
-
+            // 工单模态框事件
             modalCancel.addEventListener('click', () => { modalOverlay.classList.remove('active'); });
             modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) modalOverlay.classList.remove(
                     'active'); });
-
             modalSave.addEventListener('click', async () => {
                 const date = formDate.value;
                 const dept = formDept.value.trim();
@@ -1773,15 +2165,54 @@
                 const data = { date, department: dept, name, issue, category, resolved };
                 const id = editId.value;
                 try {
-                    if (id) { await performUpdate(id, data); } else { await performAdd(data); }
+                    if (id) { await performUpdateTicket(id, data); } else { await performAddTicket(data); }
                     modalOverlay.classList.remove('active');
                 } catch (err) { alert('保存失败: ' + err.message); }
             });
 
-            // ============================================================
-            //  13. 每日折叠事件（委托，只绑定一次）
-            // ============================================================
+            // 借出模态框事件
+            borrowModalClose.addEventListener('click', () => { borrowModal.classList.remove('active'); });
+            borrowModalCancel.addEventListener('click', () => { borrowModal.classList.remove('active'); });
+            borrowModal.addEventListener('click', (e) => { if (e.target === borrowModal) borrowModal.classList.remove(
+                    'active'); });
+            borrowModalSave.addEventListener('click', async () => {
+                const dept = borrowDept.value;
+                const name = borrowName.value.trim();
+                const device = borrowDevice.value.trim();
+                const date = borrowDate.value;
+                const note = borrowNote.value.trim();
+                if (!dept) { alert('请选择部门'); return; }
+                if (!name) { alert('请输入借用人姓名'); return; }
+                if (!device) { alert('请输入借用设备'); return; }
+                if (!date) { alert('请选择借用日期'); return; }
+                const data = { department: dept, name, device, borrowDate: date, note, status: '未归还' };
+                try {
+                    await performAddBorrow(data);
+                    borrowModal.classList.remove('active');
+                } catch (err) { alert('保存失败: ' + err.message); }
+            });
+
+            // 借出列表事件（委托）
+            borrowItems.addEventListener('click', function(e) {
+                const target = e.target.closest('button');
+                if (!target) return;
+                const id = target.dataset.id;
+                if (!id) return;
+
+                if (target.classList.contains('return-borrow')) {
+                    if (confirm('确认此设备已归还？')) {
+                        performReturnBorrow(id);
+                    }
+                } else if (target.classList.contains('delete-borrow')) {
+                    if (confirm('确定删除此借出记录吗？')) {
+                        performDeleteBorrow(id);
+                    }
+                }
+            });
+
+            // 工单列表事件（委托）
             ticketList.addEventListener('click', function(e) {
+                // 折叠
                 const header = e.target.closest('.day-header');
                 if (header) {
                     const group = header.closest('.day-group');
@@ -1793,23 +2224,83 @@
                             iconSpan.textContent = content.classList.contains('hidden') ? '▶' : '▼';
                         }
                     }
+                    return;
+                }
+
+                // 编辑/删除按钮
+                const target = e.target.closest('button');
+                if (!target) return;
+                const id = target.dataset.id;
+                if (!id) return;
+
+                if (target.classList.contains('edit-ticket')) {
+                    openEditTicketModal(id);
+                } else if (target.classList.contains('delete-ticket')) {
+                    if (confirm('确定删除此工单吗？')) {
+                        performDeleteTicket(id);
+                    }
                 }
             });
 
-            // ============================================================
-            //  14. 前台切换自动刷新
-            // ============================================================
+            // 部门搜索（工单表单）
+            formDept.addEventListener('input', function() {
+                const q = this.value || '';
+                let matched = [];
+                if (q.trim() === '') matched = DEPARTMENTS;
+                else matched = DEPARTMENTS.filter(d => matchDepartment(q, d));
+                if (matched.length === 0) {
+                    deptDropdown.innerHTML = `<div class="no-result">未找到匹配部门，可继续输入自定义名称</div>`;
+                    deptDropdown.classList.add('show');
+                    return;
+                }
+                let html = '';
+                matched.forEach(dept => {
+                    let display = dept;
+                    if (q.trim() !== '') {
+                        const idx = dept.indexOf(q.trim());
+                        if (idx !== -1) {
+                            display = dept.substring(0, idx) +
+                                `<span class="highlight">${dept.substring(idx, idx + q.trim().length)}</span>` +
+                                dept.substring(idx + q.trim().length);
+                        }
+                    }
+                    html += `<div class="dept-item" data-dept="${dept}">${display}</div>`;
+                });
+                deptDropdown.innerHTML = html;
+                deptDropdown.classList.add('show');
+                deptDropdown.querySelectorAll('.dept-item').forEach(el => {
+                    el.addEventListener('click', function() {
+                        formDept.value = this.dataset.dept;
+                        deptDropdown.classList.remove('show');
+                    });
+                });
+            });
+            formDept.addEventListener('focus', function() { this.dispatchEvent(new Event('input')); });
+            formDept.addEventListener('blur', function() {
+                setTimeout(() => { deptDropdown.classList.remove('show'); }, 200);
+            });
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('#formDept') && !e.target.closest('#deptDropdown')) {
+                    deptDropdown.classList.remove('show');
+                }
+            });
+
+            // 年度汇总模态框事件
+            yearModalClose.addEventListener('click', () => { yearModal.classList.remove('active'); });
+            yearModal.addEventListener('click', (e) => { if (e.target === yearModal) yearModal.classList.remove('active'); });
+            yearSelect.addEventListener('change', function() { const year = parseInt(this.value); if (!isNaN(year))
+                    renderYearSummary(year); });
+
+            // 前台切换自动刷新
             document.addEventListener('visibilitychange', async () => {
                 if (document.visibilityState === 'visible' && !mainArea.classList.contains('hidden') && isFirebaseReady) {
                     await refreshData();
                 }
             });
 
-            // ============================================================
-            //  15. 初始化
-            // ============================================================
-            resetForm();
-            console.log('运维工单系统 (含每日折叠) 已加载。');
+            // 初始化
+            resetTicketForm();
+            console.log('运维管理系统 (含设备借出) 已加载。');
         })();
     </script>
 </body>
