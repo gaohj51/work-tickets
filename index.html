@@ -200,12 +200,12 @@
             }
         }
 
-        /* ===== 统计卡片 ===== */
+        /* ===== 统计卡片（月度） ===== */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
             gap: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
         .stat-card {
             background: white;
@@ -241,6 +241,58 @@
             color: #f59e0b;
         }
         .stat-card.indigo .num {
+            color: #4f46e5;
+        }
+
+        /* ===== 本周统计 ===== */
+        .weekly-stats {
+            background: white;
+            border-radius: 14px;
+            border: 1px solid #e9eef3;
+            padding: 14px 18px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+        }
+        .weekly-stats .weekly-title {
+            font-weight: 600;
+            font-size: 15px;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+        .weekly-stats .weekly-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px 28px;
+            align-items: center;
+        }
+        .weekly-stats .weekly-item {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+            font-size: 14px;
+            color: #475569;
+        }
+        .weekly-stats .weekly-item .num {
+            font-weight: 700;
+            font-size: 18px;
+            color: #0f172a;
+        }
+        .weekly-stats .weekly-item .num.blue {
+            color: #3b82f6;
+        }
+        .weekly-stats .weekly-item .num.green {
+            color: #22c55e;
+        }
+        .weekly-stats .weekly-item .num.red {
+            color: #ef4444;
+        }
+        .weekly-stats .weekly-item .num.purple {
+            color: #8b5cf6;
+        }
+        .weekly-stats .weekly-item .num.orange {
+            color: #f59e0b;
+        }
+        .weekly-stats .weekly-item .num.indigo {
             color: #4f46e5;
         }
 
@@ -629,6 +681,15 @@
             .modal {
                 padding: 16px;
             }
+            .weekly-stats .weekly-grid {
+                gap: 10px 16px;
+            }
+            .weekly-stats .weekly-item {
+                font-size: 13px;
+            }
+            .weekly-stats .weekly-item .num {
+                font-size: 16px;
+            }
         }
     </style>
 </head>
@@ -666,6 +727,7 @@
                 </div>
             </div>
 
+            <!-- 月度统计 -->
             <div class="stats-grid" id="statsGrid">
                 <div class="stat-card blue"><div class="num" id="totalCount">0</div><div class="label">总工单</div></div>
                 <div class="stat-card green"><div class="num" id="resolvedCount">0</div><div class="label">已解决</div></div>
@@ -675,16 +737,27 @@
                 <div class="stat-card indigo"><div class="num" id="networkCount">0</div><div class="label">网络</div></div>
             </div>
 
+            <!-- ===== 本周统计（新增） ===== -->
+            <div class="weekly-stats" id="weeklyStats">
+                <div class="weekly-title">📅 本周统计</div>
+                <div class="weekly-grid" id="weeklyGrid">
+                    <!-- 由 JS 动态渲染 -->
+                </div>
+            </div>
+
+            <!-- 柱状图 -->
             <div class="chart-wrapper">
                 <canvas id="monthChart"></canvas>
             </div>
 
+            <!-- 月份导航 -->
             <div class="month-nav">
                 <button class="nav-btn" id="prevMonth">‹</button>
                 <span class="month-label" id="currentMonthLabel">2026年7月</span>
                 <button class="nav-btn" id="nextMonth">›</button>
             </div>
 
+            <!-- 按钮行 -->
             <div class="action-row">
                 <button class="btn btn-success" id="openAddModal">➕ 添加工单</button>
                 <button class="btn btn-purple" id="openYearModal">📊 年度汇总</button>
@@ -880,6 +953,7 @@
             const openAddModal = $('openAddModal');
             const openYearModalBtn = $('openYearModal');
             const exportBtn = $('exportBtn');
+            const weeklyGrid = $('weeklyGrid');
 
             const modalOverlay = $('ticketModal');
             const modalTitle = $('modalTitle');
@@ -1041,7 +1115,67 @@
             }
 
             // ============================================================
-            //  6. 主界面渲染
+            //  6. 本周统计（新增核心函数）
+            // ============================================================
+            function getWeekRange() {
+                const now = new Date();
+                const dayOfWeek = now.getDay(); // 0=周日, 1=周一...
+                // 以周一为本周第一天
+                const diff = (dayOfWeek === 0) ? 6 : dayOfWeek - 1;
+                const monday = new Date(now);
+                monday.setDate(now.getDate() - diff);
+                monday.setHours(0, 0, 0, 0);
+                const sunday = new Date(monday);
+                sunday.setDate(monday.getDate() + 6);
+                sunday.setHours(23, 59, 59, 999);
+                return { start: monday, end: sunday };
+            }
+
+            function formatDateShort(d) {
+                const m = d.getMonth() + 1;
+                const day = d.getDate();
+                return `${m}/${day}`;
+            }
+
+            function renderWeeklyStats() {
+                if (!allTickets || allTickets.length === 0) {
+                    weeklyGrid.innerHTML = `<span style="color:#94a3b8;font-size:14px;">暂无数据</span>`;
+                    return;
+                }
+
+                const { start, end } = getWeekRange();
+                const startStr = start.toISOString().slice(0, 10);
+                const endStr = end.toISOString().slice(0, 10);
+
+                // 筛选本周工单
+                const weekTickets = allTickets.filter(t => {
+                    if (!t.date) return false;
+                    return t.date >= startStr && t.date <= endStr;
+                });
+
+                const total = weekTickets.length;
+                const resolved = weekTickets.filter(t => t.resolved == 1).length;
+                const pending = total - resolved;
+                const software = weekTickets.filter(t => t.category === '软件').length;
+                const hardware = weekTickets.filter(t => t.category === '硬件').length;
+                const network = weekTickets.filter(t => t.category === '网络').length;
+                const other = weekTickets.filter(t => t.category === '其他').length;
+
+                const label = `${formatDateShort(start)} - ${formatDateShort(end)}`;
+                weeklyGrid.innerHTML = `
+                    <span style="font-weight:500;color:#0f172a;margin-right:4px;">${label}</span>
+                    <span class="weekly-item">总工单 <span class="num blue">${total}</span></span>
+                    <span class="weekly-item">已解决 <span class="num green">${resolved}</span></span>
+                    <span class="weekly-item">未解决 <span class="num red">${pending}</span></span>
+                    <span class="weekly-item">软件 <span class="num purple">${software}</span></span>
+                    <span class="weekly-item">硬件 <span class="num orange">${hardware}</span></span>
+                    <span class="weekly-item">网络 <span class="num indigo">${network}</span></span>
+                    ${other > 0 ? `<span class="weekly-item">其他 <span class="num" style="color:#64748b;">${other}</span></span>` : ''}
+                `;
+            }
+
+            // ============================================================
+            //  7. 主界面渲染
             // ============================================================
             function getMonthTickets(tickets, year, month) {
                 const monthStr = `${year}-${String(month).padStart(2, '0')}`;
@@ -1102,6 +1236,9 @@
                 const monthTickets = getMonthTickets(allTickets, year, month);
                 renderStats(monthTickets);
                 renderChart(monthTickets, year, month);
+                // 渲染本周统计
+                renderWeeklyStats();
+
                 const groups = {};
                 monthTickets.forEach(t => { if (t.date) { if (!groups[t.date]) groups[t.date] = [];
                         groups[t.date].push(t); } });
@@ -1147,7 +1284,7 @@
             }
 
             // ============================================================
-            //  7. 核心操作
+            //  8. 核心操作
             // ============================================================
             async function refreshData() {
                 if (!isFirebaseReady) return;
@@ -1208,7 +1345,7 @@
             }
 
             // ============================================================
-            //  8. 模态框
+            //  9. 模态框
             // ============================================================
             function resetForm() {
                 editId.value = '';
@@ -1238,7 +1375,7 @@
             }
 
             // ============================================================
-            //  9. 年度汇总
+            //  10. 年度汇总
             // ============================================================
             function populateYearSelect() {
                 const currentYear = new Date().getFullYear();
@@ -1362,43 +1499,26 @@
             }
 
             // ============================================================
-            //  10. 导出功能 (新增)
+            //  11. 导出
             // ============================================================
             function exportToCSV() {
                 if (!allTickets || allTickets.length === 0) {
                     alert('当前没有工单数据可导出。');
                     return;
                 }
-
-                // 定义列头
                 const headers = ['日期', '部门', '姓名', '问题描述', '分类', '状态'];
-                // 生成数据行
                 const rows = allTickets.map(t => {
                     const status = t.resolved == 1 ? '已解决' : '未解决';
-                    return [
-                        t.date || '',
-                        t.department || '',
-                        t.name || '',
-                        t.issue || '',
-                        t.category || '其他',
-                        status
-                    ];
+                    return [t.date || '', t.department || '', t.name || '', t.issue || '', t.category || '其他', status];
                 });
-
-                // 组装 CSV 内容（用逗号分隔，处理可能包含逗号的字段）
                 const escapeCSV = (cell) => {
                     if (typeof cell === 'string' && (cell.includes(',') || cell.includes('"') || cell.includes('\n'))) {
                         return `"${cell.replace(/"/g, '""')}"`;
                     }
                     return cell;
                 };
-
                 let csvContent = headers.map(h => escapeCSV(h)).join(',') + '\n';
-                rows.forEach(row => {
-                    csvContent += row.map(cell => escapeCSV(cell)).join(',') + '\n';
-                });
-
-                // 添加 BOM 以便 Excel 正确识别 UTF-8
+                rows.forEach(row => { csvContent += row.map(cell => escapeCSV(cell)).join(',') + '\n'; });
                 const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement('a');
                 const now = new Date();
@@ -1412,7 +1532,7 @@
             }
 
             // ============================================================
-            //  11. 事件绑定
+            //  12. 事件绑定
             // ============================================================
             connectBtn.addEventListener('click', async () => {
                 try { initFirebase(); await refreshData();
@@ -1463,7 +1583,7 @@
             openAddModal.addEventListener('click', () => { resetForm();
                 modalOverlay.classList.add('active'); });
             openYearModalBtn.addEventListener('click', openYearModal);
-            exportBtn.addEventListener('click', exportToCSV);   // 导出按钮事件
+            exportBtn.addEventListener('click', exportToCSV);
 
             yearModalClose.addEventListener('click', () => { yearModal.classList.remove('active'); });
             yearModal.addEventListener('click', (e) => { if (e.target === yearModal) yearModal.classList.remove('active'); });
@@ -1498,7 +1618,7 @@
             });
 
             resetForm();
-            console.log('运维工单系统 (Firebase + 部门搜索 + 导出) 已加载。');
+            console.log('运维工单系统 (含本周统计) 已加载。');
         })();
     </script>
 </body>
