@@ -262,21 +262,6 @@
         .stat-card.indigo .num {
             color: #4f46e5;
         }
-        .stat-card.pink .num {
-            color: #ec4899;
-        }
-
-        /* ===== 借出统计 ===== */
-        .borrow-stats-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-        .borrow-stats-row .stat-card {
-            flex: 1;
-            min-width: 100px;
-        }
 
         /* ===== 周统计 ===== */
         .weekly-stats {
@@ -892,9 +877,6 @@
             .stats-grid {
                 grid-template-columns: repeat(3, 1fr);
             }
-            .borrow-stats-row .stat-card {
-                min-width: 80px;
-            }
             .config-row input {
                 min-width: 120px;
             }
@@ -977,13 +959,6 @@
                 <div class="stat-card purple"><div class="num" id="softwareCount">0</div><div class="label">软件</div></div>
                 <div class="stat-card orange"><div class="num" id="hardwareCount">0</div><div class="label">硬件</div></div>
                 <div class="stat-card indigo"><div class="num" id="networkCount">0</div><div class="label">网络</div></div>
-            </div>
-
-            <!-- 借出统计 -->
-            <div class="borrow-stats-row" id="borrowStatsRow">
-                <div class="stat-card pink"><div class="num" id="borrowTotalCount">0</div><div class="label">借出总数</div></div>
-                <div class="stat-card red"><div class="num" id="borrowUnreturnedCount">0</div><div class="label">未归还</div></div>
-                <div class="stat-card green"><div class="num" id="borrowReturnedCount">0</div><div class="label">已归还</div></div>
             </div>
 
             <!-- 周统计 -->
@@ -1267,9 +1242,6 @@
             const softwareCount = $('softwareCount');
             const hardwareCount = $('hardwareCount');
             const networkCount = $('networkCount');
-            const borrowTotalCount = $('borrowTotalCount');
-            const borrowUnreturnedCount = $('borrowUnreturnedCount');
-            const borrowReturnedCount = $('borrowReturnedCount');
             const currentMonthLabel = $('currentMonthLabel');
             const prevMonthBtn = $('prevMonth');
             const nextMonthBtn = $('nextMonth');
@@ -1520,19 +1492,7 @@
             }
 
             // ============================================================
-            //  7. 借出统计
-            // ============================================================
-            function renderBorrowStats() {
-                const total = allBorrows.length;
-                const unreturned = allBorrows.filter(b => b.status !== '已归还').length;
-                const returned = total - unreturned;
-                borrowTotalCount.textContent = total;
-                borrowUnreturnedCount.textContent = unreturned;
-                borrowReturnedCount.textContent = returned;
-            }
-
-            // ============================================================
-            //  8. 主界面渲染（工单部分）
+            //  7. 主界面渲染（工单部分）
             // ============================================================
             function getMonthTickets(tickets, year, month) {
                 const monthStr = `${year}-${String(month).padStart(2, '0')}`;
@@ -1677,7 +1637,7 @@
             }
 
             // ============================================================
-            //  9. 借出列表渲染
+            //  8. 借出列表渲染
             // ============================================================
             function renderBorrows() {
                 let filtered = allBorrows;
@@ -1719,7 +1679,7 @@
             }
 
             // ============================================================
-            //  10. 切换 Tab
+            //  9. 切换 Tab
             // ============================================================
             function switchTab(tab) {
                 currentTab = tab;
@@ -1738,7 +1698,7 @@
             }
 
             // ============================================================
-            //  11. 核心操作
+            //  10. 核心操作
             // ============================================================
             async function refreshData() {
                 if (!isFirebaseReady) return;
@@ -1751,7 +1711,6 @@
                     ]);
                     allTickets = tickets;
                     allBorrows = borrows;
-                    renderBorrowStats();
                     if (currentTab === 'tickets') {
                         renderTickets();
                     } else {
@@ -1854,7 +1813,7 @@
             }
 
             // ============================================================
-            //  12. 工单模态框
+            //  11. 工单模态框
             // ============================================================
             function resetTicketForm() {
                 editId.value = '';
@@ -1884,7 +1843,7 @@
             }
 
             // ============================================================
-            //  13. 借出模态框
+            //  12. 借出模态框
             // ============================================================
             function resetBorrowForm() {
                 borrowEditId.value = '';
@@ -1901,7 +1860,7 @@
             }
 
             // ============================================================
-            //  14. 年度汇总
+            //  13. 年度汇总
             // ============================================================
             function populateYearSelect() {
                 const currentYear = new Date().getFullYear();
@@ -2025,7 +1984,7 @@
             }
 
             // ============================================================
-            //  15. 导出功能（含借出）
+            //  14. 导出功能（含借出）
             // ============================================================
             function exportToCSV() {
                 if (!allTickets && !allBorrows) {
@@ -2061,7 +2020,7 @@
             }
 
             // ============================================================
-            //  16. 事件绑定
+            //  15. 事件绑定
             // ============================================================
             // 连接
             connectBtn.addEventListener('click', async () => {
@@ -2300,7 +2259,7 @@
 
             // 初始化
             resetTicketForm();
-            console.log('运维管理系统 (含设备借出) 已加载。');
+            console.log('运维管理系统 (已移除借出统计卡片) 已加载。');
         })();
     </script>
 </body>
