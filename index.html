@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>运维工单系统</title>
-    <!-- 原版 CDN (jsdelivr + gstatic) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
     </script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
@@ -12,7 +11,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js">
     </script>
     <style>
-        /* ===== 全局样式 ===== */
+        /* ===== 全局 ===== */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -23,7 +22,7 @@
             background: #f5f7fb;
             color: #1e293b;
             padding: 16px;
-            padding-bottom: 80px;
+            padding-bottom: 100px;
             min-height: 100vh;
         }
         .container {
@@ -87,6 +86,7 @@
             transition: 0.2s;
             background: #eef2f6;
             color: #1e293b;
+            white-space: nowrap;
         }
         .btn-primary {
             background: #3b82f6;
@@ -142,9 +142,24 @@
             font-size: 13px;
         }
         .btn-xs {
-            padding: 2px 10px;
+            padding: 4px 10px;
             font-size: 12px;
         }
+        .btn-resolve {
+            background: #22c55e;
+            color: white;
+            padding: 4px 10px;
+            font-size: 12px;
+            border-radius: 20px;
+        }
+        .btn-resolve:hover {
+            background: #16a34a;
+        }
+        .btn-resolve:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         .status-badge {
             font-size: 13px;
             padding: 4px 10px;
@@ -218,7 +233,7 @@
             }
         }
 
-        /* ===== 统计卡片（月度） ===== */
+        /* ===== 统计卡片 ===== */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
@@ -400,7 +415,44 @@
             background: #f1f5f9;
         }
 
-        /* ===== 按钮行 ===== */
+        /* ===== 筛选栏（新增） ===== */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            background: white;
+            padding: 12px 16px;
+            border-radius: 14px;
+            border: 1px solid #e9eef3;
+            margin-bottom: 20px;
+        }
+        .filter-bar .filter-label {
+            font-weight: 500;
+            font-size: 14px;
+            color: #475569;
+        }
+        .filter-bar select {
+            padding: 6px 12px;
+            border: 1px solid #d1d9e6;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            min-width: 120px;
+        }
+        .filter-bar .clear-filter {
+            color: #3b82f6;
+            font-size: 13px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-weight: 500;
+        }
+        .filter-bar .clear-filter:hover {
+            text-decoration: underline;
+        }
+
+        /* ===== 顶部按钮行（电脑端） ===== */
         .action-row {
             display: flex;
             flex-wrap: wrap;
@@ -416,7 +468,43 @@
             text-align: center;
         }
 
-        /* ===== 标签切换（工单/借出） ===== */
+        /* ===== 底部固定操作栏（手机端） ===== */
+        .bottom-actions {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 10px 16px;
+            padding-bottom: max(10px, env(safe-area-inset-bottom));
+            border-top: 1px solid #e9eef3;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.06);
+            z-index: 100;
+            gap: 8px;
+            justify-content: space-around;
+        }
+        .bottom-actions .btn {
+            flex: 1;
+            padding: 10px 6px;
+            font-size: 13px;
+            border-radius: 12px;
+            text-align: center;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            line-height: 1.2;
+        }
+        .bottom-actions .btn .icon {
+            font-size: 20px;
+        }
+        .bottom-actions .btn .label {
+            font-size: 11px;
+        }
+
+        /* ===== Tab 切换 ===== */
         .tab-row {
             display: flex;
             gap: 4px;
@@ -533,7 +621,7 @@
         }
         .ticket-item .info {
             flex: 1;
-            min-width: 150px;
+            min-width: 140px;
         }
         .ticket-item .info .dept-name {
             font-weight: 500;
@@ -575,11 +663,9 @@
         }
         .ticket-item .actions {
             display: flex;
-            gap: 6px;
-        }
-        .ticket-item .actions .btn {
-            padding: 4px 10px;
-            font-size: 12px;
+            flex-wrap: wrap;
+            gap: 4px;
+            align-items: center;
         }
 
         /* ===== 借出列表 ===== */
@@ -619,7 +705,7 @@
             gap: 6px;
         }
 
-        /* ===== 筛选器 ===== */
+        /* ===== 借出筛选 ===== */
         .borrow-filter {
             display: flex;
             flex-wrap: wrap;
@@ -655,7 +741,7 @@
             background: #f1f5f9;
         }
 
-        /* ===== 模态框（通用） ===== */
+        /* ===== 模态框 ===== */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -739,7 +825,7 @@
             padding: 10px 24px;
         }
 
-        /* ===== 部门搜索下拉 ===== */
+        /* ===== 部门下拉 ===== */
         .dept-dropdown {
             position: absolute;
             top: 100%;
@@ -781,7 +867,7 @@
             text-align: center;
         }
 
-        /* ===== 年度汇总专用样式 ===== */
+        /* ===== 年度汇总 ===== */
         .year-stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
@@ -865,7 +951,7 @@
             background: white;
         }
 
-        /* ===== 未解决列表（模态框内） ===== */
+        /* ===== 未解决列表 ===== */
         .pending-item {
             display: flex;
             flex-wrap: wrap;
@@ -904,17 +990,26 @@
         @media (max-width: 600px) {
             body {
                 padding: 12px;
+                padding-bottom: 90px;
             }
             .stats-grid {
                 grid-template-columns: repeat(3, 1fr);
             }
+            .stat-card .num {
+                font-size: 22px;
+            }
+            .stat-card .label {
+                font-size: 11px;
+            }
             .config-row input {
                 min-width: 120px;
             }
-            .action-row .btn {
-                min-width: 80px;
-                font-size: 14px;
-                padding: 12px;
+            /* 顶部按钮行在手机上隐藏，改用底部栏 */
+            .action-row {
+                display: none !important;
+            }
+            .bottom-actions {
+                display: flex;
             }
             .modal {
                 padding: 16px;
@@ -945,13 +1040,41 @@
                 padding: 4px 12px;
                 font-size: 12px;
             }
+            .filter-bar {
+                padding: 10px 14px;
+                gap: 8px;
+            }
+            .filter-bar select {
+                min-width: 80px;
+                font-size: 13px;
+                padding: 4px 8px;
+            }
+            .ticket-item .info {
+                min-width: 100px;
+            }
+            .ticket-item .actions .btn {
+                font-size: 11px;
+                padding: 3px 8px;
+            }
+            .btn-resolve {
+                font-size: 11px;
+                padding: 3px 8px;
+            }
+        }
+        @media (min-width: 601px) {
+            .bottom-actions {
+                display: none !important;
+            }
+            .action-row {
+                display: flex !important;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container" id="app">
 
-        <!-- ===== 配置区域 ===== -->
+        <!-- ===== 配置 ===== -->
         <div class="config-card" id="configCard">
             <h3>🔥 Firebase 配置</h3>
             <p>在 Firebase 控制台 → 项目设置 → 您的应用 → 配置 中复制以下信息：</p>
@@ -982,15 +1105,14 @@
                 </div>
             </div>
 
-            <!-- 月度统计（工单） -->
+            <!-- 统计 -->
             <div class="stats-grid" id="statsGrid">
                 <div class="stat-card blue"><div class="num" id="totalCount">0</div><div class="label">总工单</div></div>
                 <div class="stat-card green"><div class="num" id="resolvedCount">0</div><div class="label">已解决</div></div>
-                <!-- 未解决卡片 增加 clickable 类 -->
                 <div class="stat-card red clickable" id="pendingCard"><div class="num" id="pendingCount">0</div><div class="label">未解决 ⏎</div></div>
-                <div class="stat-card purple"><div class="num" id="softwareCount">0</div><div class="label">软件</div></div>
-                <div class="stat-card orange"><div class="num" id="hardwareCount">0</div><div class="label">硬件</div></div>
-                <div class="stat-card indigo"><div class="num" id="networkCount">0</div><div class="label">网络</div></div>
+                <div class="stat-card purple"><div class="num" id="softwareCount">0</div><div class="label">💻 软件</div></div>
+                <div class="stat-card orange"><div class="num" id="hardwareCount">0</div><div class="label">🖨️ 硬件</div></div>
+                <div class="stat-card indigo"><div class="num" id="networkCount">0</div><div class="label">🌐 网络</div></div>
             </div>
 
             <!-- 周统计 -->
@@ -1003,12 +1125,10 @@
                         <button id="weekNext">▶</button>
                     </div>
                 </div>
-                <div class="weekly-grid" id="weeklyGrid">
-                    <!-- 由 JS 动态渲染 -->
-                </div>
+                <div class="weekly-grid" id="weeklyGrid"></div>
             </div>
 
-            <!-- 柱状图 -->
+            <!-- 图表 -->
             <div class="chart-wrapper">
                 <canvas id="monthChart"></canvas>
             </div>
@@ -1020,8 +1140,8 @@
                 <button class="nav-btn" id="nextMonth">›</button>
             </div>
 
-            <!-- 按钮行 -->
-            <div class="action-row">
+            <!-- 顶部按钮行（电脑端） -->
+            <div class="action-row" id="topActionRow">
                 <button class="btn btn-success" id="openAddModal">➕ 添加工单</button>
                 <button class="btn btn-borrow" id="openBorrowModal">📦 设备借出</button>
                 <button class="btn btn-purple" id="openYearModal">📊 年度汇总</button>
@@ -1032,6 +1152,22 @@
             <div class="tab-row">
                 <button class="tab-btn active" data-tab="tickets">📋 工单记录</button>
                 <button class="tab-btn" data-tab="borrow">📦 借出记录</button>
+            </div>
+
+            <!-- ===== 筛选栏（新增） ===== -->
+            <div class="filter-bar" id="filterBar">
+                <span class="filter-label">筛选：</span>
+                <select id="filterDept">
+                    <option value="all">全部部门</option>
+                </select>
+                <select id="filterCategory">
+                    <option value="all">全部分类</option>
+                    <option value="软件">💻 软件</option>
+                    <option value="硬件">🖨️ 硬件</option>
+                    <option value="网络">🌐 网络</option>
+                    <option value="其他">📦 其他</option>
+                </select>
+                <button class="clear-filter" id="clearFilter">清除筛选</button>
             </div>
 
             <!-- 工单列表 -->
@@ -1049,14 +1185,21 @@
         </div>
     </div>
 
-    <!-- ===== 工单编辑模态框 ===== -->
+    <!-- ===== 底部固定操作栏（手机端） ===== -->
+    <div class="bottom-actions" id="bottomActions">
+        <button class="btn btn-success" id="bottomAddModal"><span class="icon">➕</span><span class="label">工单</span></button>
+        <button class="btn btn-borrow" id="bottomBorrowModal"><span class="icon">📦</span><span class="label">借出</span></button>
+        <button class="btn btn-purple" id="bottomYearModal"><span class="icon">📊</span><span class="label">汇总</span></button>
+        <button class="btn btn-export" id="bottomExportBtn"><span class="icon">📥</span><span class="label">导出</span></button>
+    </div>
+
+    <!-- ===== 工单模态框 ===== -->
     <div class="modal-overlay" id="ticketModal">
         <div class="modal">
             <h2 id="modalTitle">添加工单</h2>
             <input type="hidden" id="editId" value="">
             <label>日期</label>
             <input type="date" id="formDate">
-
             <div class="form-row">
                 <div>
                     <label>部门</label>
@@ -1068,17 +1211,15 @@
                     <input type="text" id="formName" placeholder="你的名字">
                 </div>
             </div>
-
             <label>问题描述</label>
             <textarea id="formIssue" placeholder="详细描述遇到的问题..."></textarea>
-
             <div class="form-row">
                 <div><label>分类</label>
                     <select id="formCategory">
-                        <option value="软件">软件</option>
-                        <option value="硬件">硬件</option>
-                        <option value="网络">网络</option>
-                        <option value="其他">其他</option>
+                        <option value="软件">💻 软件</option>
+                        <option value="硬件">🖨️ 硬件</option>
+                        <option value="网络">🌐 网络</option>
+                        <option value="其他">📦 其他</option>
                     </select>
                 </div>
                 <div><label>状态</label>
@@ -1088,7 +1229,6 @@
                     </select>
                 </div>
             </div>
-
             <div class="modal-actions">
                 <button class="btn" id="modalCancel">取消</button>
                 <button class="btn btn-primary" id="modalSave">保存</button>
@@ -1096,31 +1236,23 @@
         </div>
     </div>
 
-    <!-- ===== 设备借出模态框 ===== -->
+    <!-- ===== 借出模态框 ===== -->
     <div class="modal-overlay" id="borrowModal">
         <div class="modal">
-            <h2>
-                <span>📦 设备借出</span>
-                <button class="close-btn" id="borrowModalClose">&times;</button>
-            </h2>
+            <h2><span>📦 设备借出</span><button class="close-btn" id="borrowModalClose">&times;</button></h2>
             <input type="hidden" id="borrowEditId" value="">
-
             <div class="form-row">
                 <div>
                     <label>部门</label>
-                    <select id="borrowDept">
-                        <option value="">请选择部门</option>
-                    </select>
+                    <select id="borrowDept"><option value="">请选择部门</option></select>
                 </div>
                 <div>
                     <label>姓名</label>
                     <input type="text" id="borrowName" placeholder="借用人姓名">
                 </div>
             </div>
-
             <label>借用设备</label>
-            <input type="text" id="borrowDevice" placeholder="如：笔记本电脑、投影仪、网线钳...">
-
+            <input type="text" id="borrowDevice" placeholder="如：笔记本电脑、投影仪...">
             <div class="form-row">
                 <div>
                     <label>借用时间</label>
@@ -1131,7 +1263,6 @@
                     <input type="text" id="borrowNote" placeholder="选填">
                 </div>
             </div>
-
             <div class="modal-actions">
                 <button class="btn" id="borrowModalCancel">取消</button>
                 <button class="btn btn-primary" id="borrowModalSave">保存</button>
@@ -1139,24 +1270,18 @@
         </div>
     </div>
 
-    <!-- ===== 未解决工单列表模态框（新增） ===== -->
+    <!-- ===== 未解决模态框 ===== -->
     <div class="modal-overlay" id="pendingModal">
         <div class="modal">
-            <h2>
-                <span>⏳ 未解决工单 ( <span id="pendingCountTitle">0</span> 条 )</span>
-                <button class="close-btn" id="pendingModalClose">&times;</button>
-            </h2>
+            <h2><span>⏳ 未解决工单 ( <span id="pendingCountTitle">0</span> 条 )</span><button class="close-btn" id="pendingModalClose">&times;</button></h2>
             <div id="pendingList"></div>
         </div>
     </div>
 
-    <!-- ===== 年度汇总模态框 ===== -->
+    <!-- ===== 年度汇总 ===== -->
     <div class="modal-overlay" id="yearModal">
         <div class="modal">
-            <h2>
-                <span>📊 年度汇总</span>
-                <button class="close-btn" id="yearModalClose">&times;</button>
-            </h2>
+            <h2><span>📊 年度汇总</span><button class="close-btn" id="yearModalClose">&times;</button></h2>
             <div class="year-selector">
                 <label for="yearSelect" style="margin:0;font-weight:500;">选择年份：</label>
                 <select id="yearSelect"></select>
@@ -1165,13 +1290,11 @@
                 <div class="stat-card blue"><div class="num" id="yearTotal">0</div><div class="label">总工单</div></div>
                 <div class="stat-card green"><div class="num" id="yearResolved">0</div><div class="label">已解决</div></div>
                 <div class="stat-card red"><div class="num" id="yearPending">0</div><div class="label">未解决</div></div>
-                <div class="stat-card purple"><div class="num" id="yearSoftware">0</div><div class="label">软件</div></div>
-                <div class="stat-card orange"><div class="num" id="yearHardware">0</div><div class="label">硬件</div></div>
-                <div class="stat-card indigo"><div class="num" id="yearNetwork">0</div><div class="label">网络</div></div>
+                <div class="stat-card purple"><div class="num" id="yearSoftware">0</div><div class="label">💻 软件</div></div>
+                <div class="stat-card orange"><div class="num" id="yearHardware">0</div><div class="label">🖨️ 硬件</div></div>
+                <div class="stat-card indigo"><div class="num" id="yearNetwork">0</div><div class="label">🌐 网络</div></div>
             </div>
-            <div class="year-chart-wrapper">
-                <canvas id="yearChart"></canvas>
-            </div>
+            <div class="year-chart-wrapper"><canvas id="yearChart"></canvas></div>
             <div id="yearMonthList"></div>
         </div>
     </div>
@@ -1181,7 +1304,7 @@
             "use strict";
 
             // ============================================================
-            //  0. 部门列表
+            //  部门列表
             // ============================================================
             const DEPARTMENTS = [
                 '美本三部', '美国中学部', '美本一部', '新马港二部',
@@ -1194,7 +1317,7 @@
             ];
 
             // ============================================================
-            //  1. 拼音工具
+            //  拼音工具
             // ============================================================
             const PINYIN_MAP = {
                 '美': 'mei', '本': 'ben', '三': 'san', '部': 'bu',
@@ -1251,7 +1374,7 @@
             }
 
             // ============================================================
-            //  2. 全局状态
+            //  全局状态
             // ============================================================
             let currentMonth = new Date();
             let chartInstance = null;
@@ -1262,8 +1385,9 @@
             let currentWeekOffset = 0;
             let currentTab = 'tickets';
             let borrowFilter = 'unreturned';
+            let filterDept = 'all';
+            let filterCategory = 'all';
 
-            // DOM
             const $ = id => document.getElementById(id);
             const configCard = $('configCard');
             const mainArea = $('mainArea');
@@ -1306,6 +1430,17 @@
             const weekPrev = $('weekPrev');
             const weekNext = $('weekNext');
 
+            // 底部按钮
+            const bottomAddModal = $('bottomAddModal');
+            const bottomBorrowModal = $('bottomBorrowModal');
+            const bottomYearModal = $('bottomYearModal');
+            const bottomExportBtn = $('bottomExportBtn');
+
+            // 筛选
+            const filterDeptEl = $('filterDept');
+            const filterCategoryEl = $('filterCategory');
+            const clearFilterBtn = $('clearFilter');
+
             // 工单模态框
             const modalOverlay = $('ticketModal');
             const modalTitle = $('modalTitle');
@@ -1345,21 +1480,24 @@
             const yearMonthList = $('yearMonthList');
 
             // ============================================================
-            //  3. 部门下拉（用于借出表单）
+            //  初始化：部门下拉
             // ============================================================
-            function populateBorrowDeptSelect() {
+            function populateSelects() {
                 borrowDept.innerHTML = '<option value="">请选择部门</option>';
+                const filterOpts = ['<option value="all">全部部门</option>'];
                 DEPARTMENTS.forEach(d => {
-                    const opt = document.createElement('option');
-                    opt.value = d;
-                    opt.textContent = d;
-                    borrowDept.appendChild(opt);
+                    const opt1 = document.createElement('option');
+                    opt1.value = d;
+                    opt1.textContent = d;
+                    borrowDept.appendChild(opt1);
+                    filterOpts.push(`<option value="${d}">${d}</option>`);
                 });
+                filterDeptEl.innerHTML = filterOpts.join('');
             }
-            populateBorrowDeptSelect();
+            populateSelects();
 
             // ============================================================
-            //  4. 配置管理
+            //  配置
             // ============================================================
             const CONFIG_KEY = 'firebase_ticket_config';
 
@@ -1382,7 +1520,7 @@
             fillConfigForm();
 
             // ============================================================
-            //  5. Firebase
+            //  Firebase
             // ============================================================
             function initFirebase() {
                 const config = {
@@ -1414,7 +1552,6 @@
 
             function getBorrowRef() { return firebase.database().ref('borrow_records'); }
 
-            // ===== 工单操作 =====
             function fetchAllTickets() {
                 return new Promise((resolve, reject) => {
                     getTicketsRef().once('value', (snapshot) => {
@@ -1423,6 +1560,18 @@
                         const tickets = Object.keys(data).map(key => ({ id: key, ...data[key] }));
                         tickets.sort((a, b) => (a.date < b.date ? 1 : -1));
                         resolve(tickets);
+                    }, reject);
+                });
+            }
+
+            function fetchAllBorrows() {
+                return new Promise((resolve, reject) => {
+                    getBorrowRef().once('value', (snapshot) => {
+                        const data = snapshot.val();
+                        if (!data) { resolve([]); return; }
+                        const borrows = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+                        borrows.sort((a, b) => (a.borrowDate < b.borrowDate ? 1 : -1));
+                        resolve(borrows);
                     }, reject);
                 });
             }
@@ -1446,23 +1595,6 @@
                 });
             }
 
-            // ===== 借出操作 =====
-            function fetchAllBorrows() {
-                return new Promise((resolve, reject) => {
-                    getBorrowRef().once('value', (snapshot) => {
-                        const data = snapshot.val();
-                        if (!data) { resolve([]); return; }
-                        const borrows = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-                        borrows.sort((a, b) => {
-                            if (a.borrowDate < b.borrowDate) return 1;
-                            if (a.borrowDate > b.borrowDate) return -1;
-                            return 0;
-                        });
-                        resolve(borrows);
-                    }, reject);
-                });
-            }
-
             function addBorrowToFirebase(record) {
                 return new Promise((resolve, reject) => {
                     const newRef = getBorrowRef().push();
@@ -1483,7 +1615,7 @@
             }
 
             // ============================================================
-            //  6. 周统计
+            //  周统计
             // ============================================================
             function getWeekRange(offset) {
                 const now = new Date();
@@ -1510,17 +1642,11 @@
                     weekRange.textContent = '--';
                     return;
                 }
-
                 const { start, end } = getWeekRange(currentWeekOffset);
                 const startStr = start.toISOString().slice(0, 10);
                 const endStr = end.toISOString().slice(0, 10);
                 weekRange.textContent = `${formatDateShort(start)} - ${formatDateShort(end)}`;
-
-                const weekTickets = allTickets.filter(t => {
-                    if (!t.date) return false;
-                    return t.date >= startStr && t.date <= endStr;
-                });
-
+                const weekTickets = allTickets.filter(t => t.date && t.date >= startStr && t.date <= endStr);
                 const total = weekTickets.length;
                 const resolved = weekTickets.filter(t => t.resolved == 1).length;
                 const pending = total - resolved;
@@ -1528,24 +1654,34 @@
                 const hardware = weekTickets.filter(t => t.category === '硬件').length;
                 const network = weekTickets.filter(t => t.category === '网络').length;
                 const other = weekTickets.filter(t => t.category === '其他').length;
-
                 weeklyGrid.innerHTML = `
                     <span class="weekly-item">总工单 <span class="num blue">${total}</span></span>
                     <span class="weekly-item">已解决 <span class="num green">${resolved}</span></span>
                     <span class="weekly-item">未解决 <span class="num red">${pending}</span></span>
-                    <span class="weekly-item">软件 <span class="num purple">${software}</span></span>
-                    <span class="weekly-item">硬件 <span class="num orange">${hardware}</span></span>
-                    <span class="weekly-item">网络 <span class="num indigo">${network}</span></span>
-                    ${other > 0 ? `<span class="weekly-item">其他 <span class="num" style="color:#64748b;">${other}</span></span>` : ''}
+                    <span class="weekly-item">💻 软件 <span class="num purple">${software}</span></span>
+                    <span class="weekly-item">🖨️ 硬件 <span class="num orange">${hardware}</span></span>
+                    <span class="weekly-item">🌐 网络 <span class="num indigo">${network}</span></span>
+                    ${other > 0 ? `<span class="weekly-item">📦 其他 <span class="num" style="color:#64748b;">${other}</span></span>` : ''}
                 `;
             }
 
             // ============================================================
-            //  7. 工单渲染
+            //  工单渲染（含筛选）
             // ============================================================
             function getMonthTickets(tickets, year, month) {
                 const monthStr = `${year}-${String(month).padStart(2, '0')}`;
                 return tickets.filter(t => t.date && t.date.startsWith(monthStr));
+            }
+
+            function applyFilters(tickets) {
+                let result = tickets;
+                if (filterDept !== 'all') {
+                    result = result.filter(t => t.department === filterDept);
+                }
+                if (filterCategory !== 'all') {
+                    result = result.filter(t => t.category === filterCategory);
+                }
+                return result;
             }
 
             function renderStats(tickets) {
@@ -1595,23 +1731,47 @@
             function escapeHtml(text) { if (!text) return ''; const d = document.createElement('div');
                 d.textContent = text; return d.innerHTML; }
 
+            function getCategoryEmoji(cat) {
+                const map = { '软件': '💻', '硬件': '🖨️', '网络': '🌐', '其他': '📦' };
+                return map[cat] || '';
+            }
+
+            // 快速标记已解决
+            async function quickResolve(id) {
+                if (!isFirebaseReady) { alert('系统未就绪'); return; }
+                if (!confirm('标记此工单为已解决？')) return;
+                try {
+                    syncDot.className = 'sync-dot syncing';
+                    syncLabel.textContent = '更新中...';
+                    await updateTicketInFirebase(id, { resolved: 1 });
+                    await refreshData();
+                    syncDot.className = 'sync-dot';
+                    syncLabel.textContent = '已同步';
+                } catch (err) {
+                    alert('操作失败: ' + err.message);
+                    syncDot.className = 'sync-dot error';
+                    syncLabel.textContent = '更新失败';
+                }
+            }
+
             function renderTickets() {
                 const year = currentMonth.getFullYear(),
                     month = currentMonth.getMonth() + 1;
                 currentMonthLabel.textContent = `${year}年${month}月`;
                 const monthTickets = getMonthTickets(allTickets, year, month);
-                renderStats(monthTickets);
-                renderChart(monthTickets, year, month);
+                const filteredTickets = applyFilters(monthTickets);
+                renderStats(filteredTickets);
+                renderChart(filteredTickets, year, month);
                 renderWeeklyStats();
 
                 const todayStr = new Date().toISOString().slice(0, 10);
                 const groups = {};
-                monthTickets.forEach(t => { if (t.date) { if (!groups[t.date]) groups[t.date] = [];
+                filteredTickets.forEach(t => { if (t.date) { if (!groups[t.date]) groups[t.date] = [];
                         groups[t.date].push(t); } });
                 const sortedDates = Object.keys(groups).sort((a, b) => b.localeCompare(a));
 
                 if (sortedDates.length === 0) {
-                    ticketList.innerHTML = `<div class="empty-state">📭 本月暂无工单记录</div>`;
+                    ticketList.innerHTML = `<div class="empty-state">📭 本月暂无工单记录${filterDept !== 'all' || filterCategory !== 'all' ? '（已筛选）' : ''}</div>`;
                     return;
                 }
 
@@ -1637,16 +1797,14 @@
                     let statsHtml = '';
                     if (sw > 0 || hw > 0 || nw > 0 || ot > 0) {
                         statsHtml = `<div class="day-stats">`;
-                        statsHtml +=
-                            `<span class="stat-item">软件 <span class="num purple">${sw}</span></span>`;
-                        statsHtml +=
-                            `<span class="stat-item">硬件 <span class="num orange">${hw}</span></span>`;
-                        statsHtml +=
-                            `<span class="stat-item">网络 <span class="num indigo">${nw}</span></span>`;
-                        if (ot > 0) {
-                            statsHtml +=
-                                `<span class="stat-item">其他 <span class="num" style="color:#64748b;">${ot}</span></span>`;
-                        }
+                        if (sw > 0) statsHtml +=
+                            `<span class="stat-item">💻 软件 <span class="num purple">${sw}</span></span>`;
+                        if (hw > 0) statsHtml +=
+                            `<span class="stat-item">🖨️ 硬件 <span class="num orange">${hw}</span></span>`;
+                        if (nw > 0) statsHtml +=
+                            `<span class="stat-item">🌐 网络 <span class="num indigo">${nw}</span></span>`;
+                        if (ot > 0) statsHtml +=
+                            `<span class="stat-item">📦 其他 <span class="num" style="color:#64748b;">${ot}</span></span>`;
                         statsHtml += `</div>`;
                     }
 
@@ -1663,18 +1821,21 @@
                         const resolvedText = t.resolved == 1 ? '已解决' : '未解决';
                         const badgeCls = t.resolved == 1 ? 'resolved' : 'pending';
                         const catCls = (t.category || '其他').toLowerCase();
+                        const emoji = getCategoryEmoji(t.category);
+                        const isResolved = t.resolved == 1;
                         html += `<div class="ticket-item" data-id="${t.id}">
                                 <div class="info">
                                     <span class="dept-name">${escapeHtml(t.department||'')} ${escapeHtml(t.name||'')}</span>
                                     <span class="issue-text">${escapeHtml(t.issue||'')}</span>
                                 </div>
                                 <div class="meta">
-                                    <span class="tag ${catCls}">${escapeHtml(t.category||'其他')}</span>
+                                    <span class="tag ${catCls}">${emoji} ${escapeHtml(t.category||'其他')}</span>
                                     <span class="status-badge ${badgeCls}">${resolvedText}</span>
                                 </div>
                                 <div class="actions">
-                                    <button class="btn btn-sm btn-primary edit-ticket" data-id="${t.id}">编辑</button>
-                                    <button class="btn btn-sm btn-danger delete-ticket" data-id="${t.id}">删除</button>
+                                    ${!isResolved ? `<button class="btn btn-resolve resolve-ticket" data-id="${t.id}">✅ 解决</button>` : ''}
+                                    <button class="btn btn-sm btn-primary edit-ticket" data-id="${t.id}">✏️</button>
+                                    <button class="btn btn-sm btn-danger delete-ticket" data-id="${t.id}">🗑️</button>
                                 </div>
                             </div>`;
                     });
@@ -1686,19 +1847,17 @@
             }
 
             // ============================================================
-            //  8. 借出渲染
+            //  借出渲染
             // ============================================================
             function renderBorrows() {
                 let filtered = allBorrows;
                 if (borrowFilter === 'unreturned') {
                     filtered = allBorrows.filter(b => b.status !== '已归还');
                 }
-
                 if (filtered.length === 0) {
                     borrowItems.innerHTML = `<div class="empty-state">📦 暂无借出记录</div>`;
                     return;
                 }
-
                 let html = '';
                 filtered.forEach(b => {
                     const status = b.status || '未归还';
@@ -1706,7 +1865,6 @@
                     const returnDateHtml = b.returnDate ?
                         `<span style="font-size:13px;color:#64748b;">归还: ${b.returnDate}</span>` :
                         '';
-
                     html += `
                         <div class="borrow-item" data-id="${b.id}">
                             <div class="info">
@@ -1728,7 +1886,7 @@
             }
 
             // ============================================================
-            //  9. 切换 Tab
+            //  Tab 切换
             // ============================================================
             function switchTab(tab) {
                 currentTab = tab;
@@ -1747,17 +1905,14 @@
             }
 
             // ============================================================
-            //  10. 核心操作
+            //  核心操作
             // ============================================================
             async function refreshData() {
                 if (!isFirebaseReady) return;
                 try {
                     syncDot.className = 'sync-dot syncing';
                     syncLabel.textContent = '加载中...';
-                    const [tickets, borrows] = await Promise.all([
-                        fetchAllTickets(),
-                        fetchAllBorrows()
-                    ]);
+                    const [tickets, borrows] = await Promise.all([fetchAllTickets(), fetchAllBorrows()]);
                     allTickets = tickets;
                     allBorrows = borrows;
                     if (currentTab === 'tickets') {
@@ -1774,7 +1929,6 @@
                 }
             }
 
-            // ===== 工单操作 =====
             async function performAddTicket(data) {
                 if (!isFirebaseReady) throw new Error('Firebase 未就绪');
                 syncDot.className = 'sync-dot syncing';
@@ -1817,7 +1971,6 @@
                 }
             }
 
-            // ===== 借出操作 =====
             async function performAddBorrow(data) {
                 if (!isFirebaseReady) throw new Error('Firebase 未就绪');
                 syncDot.className = 'sync-dot syncing';
@@ -1862,7 +2015,7 @@
             }
 
             // ============================================================
-            //  11. 工单模态框
+            //  工单模态框
             // ============================================================
             function resetTicketForm() {
                 editId.value = '';
@@ -1892,7 +2045,7 @@
             }
 
             // ============================================================
-            //  12. 借出模态框
+            //  借出模态框
             // ============================================================
             function resetBorrowForm() {
                 borrowEditId.value = '';
@@ -1903,28 +2056,26 @@
                 borrowNote.value = '';
             }
 
-            function openBorrowModal() {
+            function openBorrowModalFunc() {
                 resetBorrowForm();
                 borrowModal.classList.add('active');
             }
 
             // ============================================================
-            //  13. 未解决工单查看功能（新增）
+            //  未解决查看
             // ============================================================
             function renderPendingModal() {
                 const pendingTickets = allTickets.filter(t => t.resolved == 0);
                 pendingCountTitle.textContent = pendingTickets.length;
-
                 if (pendingTickets.length === 0) {
                     pendingList.innerHTML = `<div class="empty-state">🎉 当前没有未解决的工单</div>`;
                     return;
                 }
-
                 pendingTickets.sort((a, b) => (a.date < b.date ? 1 : -1));
-
                 let html = '';
                 pendingTickets.forEach(t => {
                     const catCls = (t.category || '其他').toLowerCase();
+                    const emoji = getCategoryEmoji(t.category);
                     html += `
                         <div class="pending-item">
                             <div class="info">
@@ -1933,7 +2084,7 @@
                                 <span style="display:block;color:#475569;font-size:14px;">${escapeHtml(t.issue||'')}</span>
                             </div>
                             <div class="meta">
-                                <span class="tag ${catCls}">${escapeHtml(t.category||'其他')}</span>
+                                <span class="tag ${catCls}">${emoji} ${escapeHtml(t.category||'其他')}</span>
                                 <span class="status-badge pending">未解决</span>
                             </div>
                         </div>
@@ -1943,16 +2094,13 @@
             }
 
             function openPendingModal() {
-                if (!isFirebaseReady) {
-                    alert('数据未加载，请稍候。');
-                    return;
-                }
+                if (!isFirebaseReady) { alert('数据未加载，请稍候。'); return; }
                 renderPendingModal();
                 pendingModal.classList.add('active');
             }
 
             // ============================================================
-            //  14. 年度汇总
+            //  年度汇总
             // ============================================================
             function populateYearSelect() {
                 const currentYear = new Date().getFullYear();
@@ -2032,6 +2180,7 @@
                         const resolvedText = t.resolved == 1 ? '已解决' : '未解决';
                         const badgeCls = t.resolved == 1 ? 'resolved' : 'pending';
                         const catCls = (t.category || '其他').toLowerCase();
+                        const emoji = getCategoryEmoji(t.category);
                         html += `<div class="year-ticket-item">
                                     <div class="info">
                                         <strong>${escapeHtml(t.date||'')}</strong>
@@ -2039,7 +2188,7 @@
                                         <span style="color:#475569;display:block;">${escapeHtml(t.issue||'')}</span>
                                     </div>
                                     <div class="meta">
-                                        <span class="tag ${catCls}">${escapeHtml(t.category||'其他')}</span>
+                                        <span class="tag ${catCls}">${emoji} ${escapeHtml(t.category||'其他')}</span>
                                         <span class="status-badge ${badgeCls}">${resolvedText}</span>
                                     </div>
                                 </div>`;
@@ -2064,11 +2213,8 @@
                 }
             }
 
-            function openYearModal() {
-                if (!isFirebaseReady || allTickets.length === 0) {
-                    alert('暂无工单数据。');
-                    return;
-                }
+            function openYearModalFunc() {
+                if (!isFirebaseReady || allTickets.length === 0) { alert('暂无工单数据。'); return; }
                 populateYearSelect();
                 const selectedYear = parseInt(yearSelect.value) || new Date().getFullYear();
                 renderYearSummary(selectedYear);
@@ -2076,13 +2222,10 @@
             }
 
             // ============================================================
-            //  15. 导出
+            //  导出
             // ============================================================
             function exportToCSV() {
-                if (!allTickets && !allBorrows) {
-                    alert('没有数据可导出。');
-                    return;
-                }
+                if (!allTickets && !allBorrows) { alert('没有数据可导出。'); return; }
                 let csvContent = '=== 工单记录 ===\n';
                 csvContent += '日期,部门,姓名,问题描述,分类,状态\n';
                 allTickets.forEach(t => {
@@ -2090,14 +2233,12 @@
                     csvContent +=
                         `${t.date||''},${t.department||''},${t.name||''},${t.issue||''},${t.category||'其他'},${status}\n`;
                 });
-
                 csvContent += '\n=== 设备借出记录 ===\n';
                 csvContent += '部门,姓名,设备,借出日期,状态,归还日期,备注\n';
                 allBorrows.forEach(b => {
                     csvContent +=
                         `${b.department||''},${b.name||''},${b.device||''},${b.borrowDate||''},${b.status||'未归还'},${b.returnDate||''},${b.note||''}\n`;
                 });
-
                 const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement('a');
                 const now = new Date();
@@ -2111,7 +2252,7 @@
             }
 
             // ============================================================
-            //  16. 事件绑定
+            //  事件绑定
             // ============================================================
             connectBtn.addEventListener('click', async () => {
                 try { initFirebase(); await refreshData();
@@ -2165,9 +2306,7 @@
                     'tickets') renderTickets(); });
 
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    switchTab(this.dataset.tab);
-                });
+                btn.addEventListener('click', function() { switchTab(this.dataset.tab); });
             });
 
             document.querySelectorAll('.borrow-filter .filter-btn').forEach(btn => {
@@ -2180,12 +2319,38 @@
                 });
             });
 
+            // 筛选事件
+            filterDeptEl.addEventListener('change', function() {
+                filterDept = this.value;
+                if (currentTab === 'tickets') renderTickets();
+            });
+            filterCategoryEl.addEventListener('change', function() {
+                filterCategory = this.value;
+                if (currentTab === 'tickets') renderTickets();
+            });
+            clearFilterBtn.addEventListener('click', function() {
+                filterDeptEl.value = 'all';
+                filterCategoryEl.value = 'all';
+                filterDept = 'all';
+                filterCategory = 'all';
+                if (currentTab === 'tickets') renderTickets();
+            });
+
+            // 顶部按钮
             openAddModal.addEventListener('click', () => { resetTicketForm();
                 modalOverlay.classList.add('active'); });
-            openBorrowModalBtn.addEventListener('click', openBorrowModal);
-            openYearModalBtn.addEventListener('click', openYearModal);
+            openBorrowModalBtn.addEventListener('click', openBorrowModalFunc);
+            openYearModalBtn.addEventListener('click', openYearModalFunc);
             exportBtn.addEventListener('click', exportToCSV);
 
+            // 底部按钮
+            bottomAddModal.addEventListener('click', () => { resetTicketForm();
+                modalOverlay.classList.add('active'); });
+            bottomBorrowModal.addEventListener('click', openBorrowModalFunc);
+            bottomYearModal.addEventListener('click', openYearModalFunc);
+            bottomExportBtn.addEventListener('click', exportToCSV);
+
+            // 工单模态框
             modalCancel.addEventListener('click', () => { modalOverlay.classList.remove('active'); });
             modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) modalOverlay.classList.remove(
                     'active'); });
@@ -2206,6 +2371,7 @@
                 } catch (err) { alert('保存失败: ' + err.message); }
             });
 
+            // 借出模态框
             borrowModalClose.addEventListener('click', () => { borrowModal.classList.remove('active'); });
             borrowModalCancel.addEventListener('click', () => { borrowModal.classList.remove('active'); });
             borrowModal.addEventListener('click', (e) => { if (e.target === borrowModal) borrowModal.classList.remove(
@@ -2227,23 +2393,20 @@
                 } catch (err) { alert('保存失败: ' + err.message); }
             });
 
+            // 借出列表事件
             borrowItems.addEventListener('click', function(e) {
                 const target = e.target.closest('button');
                 if (!target) return;
                 const id = target.dataset.id;
                 if (!id) return;
-
                 if (target.classList.contains('return-borrow')) {
-                    if (confirm('确认此设备已归还？')) {
-                        performReturnBorrow(id);
-                    }
+                    if (confirm('确认此设备已归还？')) performReturnBorrow(id);
                 } else if (target.classList.contains('delete-borrow')) {
-                    if (confirm('确定删除此借出记录吗？')) {
-                        performDeleteBorrow(id);
-                    }
+                    if (confirm('确定删除此借出记录吗？')) performDeleteBorrow(id);
                 }
             });
 
+            // 工单列表事件（折叠 + 按钮）
             ticketList.addEventListener('click', function(e) {
                 const header = e.target.closest('.day-header');
                 if (header) {
@@ -2258,21 +2421,20 @@
                     }
                     return;
                 }
-
                 const target = e.target.closest('button');
                 if (!target) return;
                 const id = target.dataset.id;
                 if (!id) return;
-
-                if (target.classList.contains('edit-ticket')) {
+                if (target.classList.contains('resolve-ticket')) {
+                    quickResolve(id);
+                } else if (target.classList.contains('edit-ticket')) {
                     openEditTicketModal(id);
                 } else if (target.classList.contains('delete-ticket')) {
-                    if (confirm('确定删除此工单吗？')) {
-                        performDeleteTicket(id);
-                    }
+                    if (confirm('确定删除此工单吗？')) performDeleteTicket(id);
                 }
             });
 
+            // 部门搜索
             formDept.addEventListener('input', function() {
                 const q = this.value || '';
                 let matched = [];
@@ -2315,17 +2477,19 @@
                 }
             });
 
+            // 年度汇总
             yearModalClose.addEventListener('click', () => { yearModal.classList.remove('active'); });
             yearModal.addEventListener('click', (e) => { if (e.target === yearModal) yearModal.classList.remove('active'); });
             yearSelect.addEventListener('change', function() { const year = parseInt(this.value); if (!isNaN(year))
                     renderYearSummary(year); });
 
-            // 未解决卡片点击
+            // 未解决卡片
             pendingCard.addEventListener('click', openPendingModal);
             pendingModalClose.addEventListener('click', () => { pendingModal.classList.remove('active'); });
             pendingModal.addEventListener('click', (e) => { if (e.target === pendingModal) pendingModal.classList.remove(
                     'active'); });
 
+            // 前台刷新
             document.addEventListener('visibilitychange', async () => {
                 if (document.visibilityState === 'visible' && !mainArea.classList.contains('hidden') && isFirebaseReady) {
                     await refreshData();
@@ -2333,7 +2497,7 @@
             });
 
             resetTicketForm();
-            console.log('运维管理系统 (稳定版 + 未解决点击查看) 已加载。');
+            console.log('运维管理系统 (优化版: 快速解决 + 移动底部栏 + 筛选 + emoji) 已加载。');
         })();
     </script>
 </body>
