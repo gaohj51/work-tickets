@@ -4,42 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>运维工单系统</title>
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-    <!-- SheetJS for import -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
-        /* ===== 全局重置与基础 ===== */
+        /* ===== 精简重置 ===== */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: #f5f7fb; color: #1e293b; padding: 12px 16px 90px; min-height: 100vh;
-            font-size: 14px;
+            background: #f5f7fb; color: #1e293b; padding: 10px 12px 80px; min-height: 100vh; font-size: 13px;
         }
         .container { max-width: 1000px; margin: 0 auto; }
 
         /* ===== 配置卡片 ===== */
         .config-card {
-            background: white; border-radius: 12px; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-            margin-bottom: 16px; border: 1px solid #e9eef3;
+            background: white; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            margin-bottom: 12px; border: 1px solid #e9eef3;
         }
-        .config-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
-        .config-card p { font-size: 13px; color: #64748b; margin-bottom: 10px; }
-        .config-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
-        .config-row input { flex: 1; min-width: 140px; padding: 8px 12px; border: 1px solid #d1d9e6; border-radius: 8px; font-size: 13px; background: #fafcff; }
+        .config-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+        .config-card p { font-size: 12px; color: #64748b; margin-bottom: 8px; }
+        .config-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+        .config-row input { flex: 1; min-width: 120px; padding: 6px 10px; border: 1px solid #d1d9e6; border-radius: 6px; font-size: 13px; background: #fafcff; }
         .config-row input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
         .config-hint { font-size: 12px; color: #64748b; align-self: center; }
 
-        /* ===== 按钮 ===== */
+        /* ===== 通用按钮 ===== */
         .btn {
-            padding: 8px 16px; border: none; border-radius: 8px; font-weight: 600; font-size: 13px;
+            padding: 6px 14px; border: none; border-radius: 6px; font-weight: 600; font-size: 13px;
             cursor: pointer; transition: background 0.15s, transform 0.1s; white-space: nowrap;
             display: inline-flex; align-items: center; gap: 4px;
         }
-        .btn:active { transform: scale(0.96); }
+        .btn:active { transform: scale(0.95); }
         .btn-primary { background: #3b82f6; color: #fff; }
         .btn-primary:hover { background: #2563eb; }
         .btn-success { background: #22c55e; color: #fff; }
@@ -56,75 +52,53 @@
         .btn-borrow:hover { background: #ec4899; }
         .btn-import { background: #14b8a6; color: #fff; }
         .btn-import:hover { background: #0d9488; }
-        .btn-sm { padding: 4px 10px; font-size: 12px; }
-        .btn-xs { padding: 2px 8px; font-size: 11px; }
-        .btn-resolve { background: #22c55e; color: #fff; padding: 2px 10px; font-size: 11px; border-radius: 16px; }
+        .btn-sm { padding: 3px 8px; font-size: 12px; }
+        .btn-xs { padding: 2px 6px; font-size: 11px; }
+        .btn-resolve { background: #22c55e; color: #fff; padding: 2px 8px; font-size: 11px; border-radius: 16px; }
         .btn-resolve:hover { background: #16a34a; }
-        .btn-resolve:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* ===== 状态标签 ===== */
         .badge {
-            font-size: 12px; padding: 2px 10px; border-radius: 20px; font-weight: 500;
-            display: inline-block;
+            font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; display: inline-block;
         }
         .badge-resolved { background: #dcfce7; color: #166534; }
         .badge-pending { background: #fee2e2; color: #991b1b; }
         .badge-borrowed { background: #fee2e2; color: #991b1b; }
         .badge-returned { background: #dcfce7; color: #166534; }
-        .badge-deleted { background: #e5e7eb; color: #6b7280; }
 
-        /* ===== 头部 ===== */
-        .header {
+        /* ===== 顶部栏：标题 + 年度汇总入口 ===== */
+        .header-bar {
             display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
-            margin-bottom: 12px;
+            margin-bottom: 10px; gap: 8px;
         }
-        .header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
-        .sync-status {
-            font-size: 12px; background: white; padding: 4px 12px; border-radius: 30px;
-            border: 1px solid #e9eef3; display: flex; align-items: center; gap: 6px;
+        .header-bar h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+        .header-bar .right-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .header-bar .sync-status {
+            font-size: 11px; background: white; padding: 2px 10px; border-radius: 30px;
+            border: 1px solid #e9eef3; display: flex; align-items: center; gap: 4px;
         }
-        .sync-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: #22c55e; }
+        .sync-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; background: #22c55e; }
         .sync-dot.error { background: #ef4444; }
         .sync-dot.syncing { background: #f59e0b; animation: pulse 1s infinite; }
         @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
-        /* ===== 年度汇总预览（置顶） ===== */
-        .year-preview {
-            background: white; border-radius: 12px; border: 1px solid #e9eef3;
-            padding: 12px 16px; margin-bottom: 12px;
-            display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px;
-            cursor: pointer; transition: background 0.15s;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        /* ===== 操作工具栏 ===== */
+        .toolbar {
+            display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;
+            background: white; padding: 6px 12px; border-radius: 10px; border: 1px solid #e9eef3;
+            align-items: center;
         }
-        .year-preview:hover { background: #f8fafc; }
-        .year-preview .year-label { font-weight: 600; font-size: 15px; color: #0f172a; }
-        .year-preview .stat-item { display: flex; align-items: baseline; gap: 4px; font-size: 13px; color: #475569; }
-        .year-preview .stat-item .num { font-weight: 700; font-size: 18px; }
-        .year-preview .stat-item .num.blue { color: #3b82f6; }
-        .year-preview .stat-item .num.green { color: #22c55e; }
-        .year-preview .stat-item .num.red { color: #ef4444; }
-        .year-preview .stat-item .num.purple { color: #8b5cf6; }
-        .year-preview .stat-item .num.orange { color: #f59e0b; }
-        .year-preview .stat-item .num.indigo { color: #4f46e5; }
-        .year-preview .arrow { margin-left: auto; color: #94a3b8; font-size: 14px; }
+        .toolbar .sep { color: #e2e8f0; font-size: 18px; margin: 0 2px; }
 
-        /* ===== 操作按钮行（分组） ===== */
-        .action-row {
-            display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;
-            justify-content: space-between;
-        }
-        .action-group { display: flex; flex-wrap: wrap; gap: 8px; }
-
-        /* ===== 核心指标卡 ===== */
+        /* ===== 核心指标 ===== */
         .stats-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px;
         }
         .stat-card {
-            background: white; padding: 14px 12px; border-radius: 12px; border: 1px solid #e9eef3;
+            background: white; padding: 8px 8px; border-radius: 10px; border: 1px solid #e9eef3;
             text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.02);
         }
-        .stat-card .num { font-size: 32px; font-weight: 700; line-height: 1.2; }
-        .stat-card .label { font-size: 13px; color: #64748b; margin-top: 2px; }
+        .stat-card .num { font-size: 26px; font-weight: 700; line-height: 1.2; }
+        .stat-card .label { font-size: 11px; color: #64748b; margin-top: 0px; }
         .stat-card.blue .num { color: #3b82f6; }
         .stat-card.green .num { color: #22c55e; }
         .stat-card.red .num { color: #ef4444; }
@@ -133,22 +107,21 @@
 
         /* ===== 周统计 ===== */
         .weekly-stats {
-            background: white; border-radius: 12px; border: 1px solid #e9eef3;
-            padding: 10px 14px; margin-bottom: 12px;
-            display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px;
+            background: white; border-radius: 10px; border: 1px solid #e9eef3;
+            padding: 6px 12px; margin-bottom: 10px;
+            display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px;
         }
-        .weekly-stats .weekly-title { font-weight: 600; font-size: 14px; color: #0f172a; }
-        .weekly-stats .weekly-nav { display: flex; gap: 4px; align-items: center; }
+        .weekly-stats .weekly-title { font-weight: 600; font-size: 13px; color: #0f172a; }
         .weekly-stats .weekly-nav button {
-            background: none; border: 1px solid #d1d9e6; border-radius: 6px;
-            padding: 0 8px; font-size: 16px; cursor: pointer; line-height: 1.6;
+            background: none; border: 1px solid #d1d9e6; border-radius: 4px;
+            padding: 0 6px; font-size: 14px; cursor: pointer; line-height: 1.4;
             color: #475569;
         }
         .weekly-stats .weekly-nav button:hover { background: #f1f5f9; }
-        .weekly-stats .weekly-nav .week-range { font-size: 13px; font-weight: 500; color: #0f172a; min-width: 100px; text-align: center; }
-        .weekly-stats .weekly-grid { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
-        .weekly-stats .weekly-item { display: flex; align-items: baseline; gap: 4px; font-size: 13px; color: #475569; }
-        .weekly-stats .weekly-item .num { font-weight: 700; font-size: 16px; }
+        .weekly-stats .weekly-nav .week-range { font-size: 12px; font-weight: 500; color: #0f172a; min-width: 80px; text-align: center; }
+        .weekly-stats .weekly-grid { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+        .weekly-stats .weekly-item { display: flex; align-items: baseline; gap: 2px; font-size: 12px; color: #475569; }
+        .weekly-stats .weekly-item .num { font-weight: 700; font-size: 14px; }
         .weekly-stats .weekly-item .num.blue { color: #3b82f6; }
         .weekly-stats .weekly-item .num.green { color: #22c55e; }
         .weekly-stats .weekly-item .num.red { color: #ef4444; }
@@ -156,114 +129,100 @@
         .weekly-stats .weekly-item .num.orange { color: #f59e0b; }
         .weekly-stats .weekly-item .num.indigo { color: #4f46e5; }
 
-        /* ===== 分类快速筛选 ===== */
-        .category-filter {
-            display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;
-            background: white; padding: 8px 14px; border-radius: 12px;
-            border: 1px solid #e9eef3;
-            align-items: center;
-        }
-        .category-filter .filter-label { font-weight: 500; font-size: 13px; color: #475569; margin-right: 6px; }
-        .category-filter .cat-btn {
-            padding: 4px 12px; border-radius: 20px; border: 1px solid #d1d9e6;
-            background: white; font-size: 13px; cursor: pointer; transition: 0.15s;
-            color: #475569;
-        }
-        .category-filter .cat-btn:hover { background: #f1f5f9; }
-        .category-filter .cat-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
-        .category-filter .cat-btn .count { font-weight: 700; margin-left: 2px; }
-
         /* ===== 图表 ===== */
         .chart-wrapper {
-            background: white; border-radius: 12px; padding: 12px; border: 1px solid #e9eef3;
-            margin-bottom: 12px; height: 160px; position: relative;
+            background: white; border-radius: 10px; padding: 8px; border: 1px solid #e9eef3;
+            margin-bottom: 10px; height: 140px; position: relative;
         }
         .chart-wrapper canvas { width: 100% !important; height: 100% !important; }
 
-        /* ===== 月份导航 ===== */
-        .month-nav {
-            display: flex; align-items: center; justify-content: space-between;
-            background: white; padding: 8px 14px; border-radius: 12px;
-            border: 1px solid #e9eef3; margin-bottom: 12px;
+        /* ===== 统一筛选行（Tab + 分类 + 月份） ===== */
+        .filter-top-row {
+            display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;
+            align-items: center;
         }
-        .month-nav .month-label { font-weight: 600; font-size: 16px; }
-        .month-nav .nav-btn {
-            background: none; border: 1px solid #d1d9e6; border-radius: 6px;
-            padding: 0 12px; font-size: 18px; cursor: pointer; line-height: 1.6;
+        .filter-top-row .tab-group {
+            display: flex; gap: 2px; background: #e9eef3; border-radius: 8px; padding: 2px;
+        }
+        .filter-top-row .tab-group .tab-btn {
+            padding: 4px 12px; border: none; border-radius: 6px; font-weight: 600; font-size: 12px;
+            cursor: pointer; background: transparent; color: #64748b; transition: 0.15s;
+        }
+        .filter-top-row .tab-group .tab-btn.active { background: white; color: #0f172a; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+
+        .filter-top-row .cat-group {
+            display: flex; gap: 2px; flex-wrap: wrap;
+        }
+        .filter-top-row .cat-group .cat-btn {
+            padding: 4px 10px; border-radius: 6px; border: 1px solid #d1d9e6;
+            background: white; font-size: 12px; cursor: pointer; transition: 0.15s;
             color: #475569;
         }
-        .month-nav .nav-btn:hover { background: #f1f5f9; }
+        .filter-top-row .cat-group .cat-btn:hover { background: #f1f5f9; }
+        .filter-top-row .cat-group .cat-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+        .filter-top-row .cat-group .cat-btn .count { font-weight: 700; margin-left: 2px; }
 
-        /* ===== 筛选栏（部门+搜索） ===== */
-        .filter-bar {
-            display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
-            background: white; padding: 8px 14px; border-radius: 12px;
-            border: 1px solid #e9eef3; margin-bottom: 12px;
+        .filter-top-row .month-nav {
+            display: flex; align-items: center; gap: 4px; margin-left: auto;
+            background: white; padding: 2px 8px; border-radius: 8px; border: 1px solid #e9eef3;
         }
-        .filter-bar .filter-label { font-weight: 500; font-size: 13px; color: #475569; }
-        .filter-bar select, .filter-bar input {
-            padding: 4px 10px; border: 1px solid #d1d9e6; border-radius: 6px;
-            font-size: 13px; background: white; min-width: 100px;
+        .filter-top-row .month-nav .month-label { font-weight: 600; font-size: 13px; min-width: 80px; text-align: center; }
+        .filter-top-row .month-nav .nav-btn {
+            background: none; border: 1px solid #d1d9e6; border-radius: 4px;
+            padding: 0 8px; font-size: 14px; cursor: pointer; line-height: 1.4;
+            color: #475569;
         }
-        .filter-bar input { min-width: 140px; }
-        .filter-bar .clear-filter {
-            color: #3b82f6; font-size: 13px; cursor: pointer; background: none;
+        .filter-top-row .month-nav .nav-btn:hover { background: #f1f5f9; }
+
+        /* ===== 搜索/部门筛选行 ===== */
+        .search-bar {
+            display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+            background: white; padding: 4px 10px; border-radius: 8px;
+            border: 1px solid #e9eef3; margin-bottom: 10px;
+        }
+        .search-bar select, .search-bar input {
+            padding: 3px 8px; border: 1px solid #d1d9e6; border-radius: 4px;
+            font-size: 12px; background: white; min-width: 80px;
+        }
+        .search-bar input { min-width: 120px; flex: 1; }
+        .search-bar .clear-filter {
+            color: #3b82f6; font-size: 12px; cursor: pointer; background: none;
             border: none; font-weight: 500;
         }
-        .filter-bar .clear-filter:hover { text-decoration: underline; }
-
-        /* ===== Tab 切换 ===== */
-        .tab-row {
-            display: flex; gap: 4px; background: #e9eef3; border-radius: 10px;
-            padding: 4px; margin-bottom: 12px;
-        }
-        .tab-row .tab-btn {
-            flex: 1; padding: 8px 12px; border: none; border-radius: 8px;
-            font-weight: 600; font-size: 14px; cursor: pointer; background: transparent;
-            color: #64748b; transition: 0.2s;
-        }
-        .tab-row .tab-btn.active { background: white; color: #0f172a; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+        .search-bar .clear-filter:hover { text-decoration: underline; }
 
         /* ===== 工单列表 ===== */
         .day-group {
-            background: white; border-radius: 12px; border: 1px solid #e9eef3;
-            margin-bottom: 12px; overflow: hidden;
+            background: white; border-radius: 10px; border: 1px solid #e9eef3;
+            margin-bottom: 10px; overflow: hidden;
         }
         .day-header {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 8px 14px; background: #f8fafc; border-bottom: 1px solid #e9eef3;
-            font-weight: 600; font-size: 14px; cursor: pointer; user-select: none;
+            padding: 6px 12px; background: #f8fafc; border-bottom: 1px solid #e9eef3;
+            font-weight: 600; font-size: 13px; cursor: pointer; user-select: none;
         }
         .day-header:hover { background: #f1f5f9; }
-        .day-header .day-count { font-weight: 400; color: #64748b; font-size: 13px; }
-        .day-header .toggle-icon { margin-left: 6px; font-size: 12px; color: #94a3b8; }
+        .day-header .day-count { font-weight: 400; color: #64748b; font-size: 12px; }
+        .day-header .toggle-icon { margin-left: 4px; font-size: 11px; color: #94a3b8; }
         .day-stats {
-            display: flex; flex-wrap: wrap; gap: 8px 16px;
-            padding: 4px 14px 8px; background: #fafcff;
-            border-bottom: 1px solid #e9eef3; font-size: 12px; color: #475569;
+            display: flex; flex-wrap: wrap; gap: 6px 12px;
+            padding: 3px 12px 6px; background: #fafcff;
+            border-bottom: 1px solid #e9eef3; font-size: 11px; color: #475569;
         }
-        .day-stats .stat-item { display: flex; align-items: baseline; gap: 3px; }
-        .day-stats .stat-item .num { font-weight: 700; font-size: 13px; }
-        .day-stats .stat-item .num.blue { color: #3b82f6; }
-        .day-stats .stat-item .num.green { color: #22c55e; }
-        .day-stats .stat-item .num.red { color: #ef4444; }
+        .day-stats .stat-item .num { font-weight: 700; font-size: 12px; }
         .day-stats .stat-item .num.purple { color: #8b5cf6; }
         .day-stats .stat-item .num.orange { color: #f59e0b; }
         .day-stats .stat-item .num.indigo { color: #4f46e5; }
         .day-content.hidden { display: none !important; }
 
-        /* 每条工单 */
         .ticket-item {
             display: flex; flex-wrap: wrap; align-items: center;
-            gap: 6px 12px; padding: 8px 14px;
-            border-bottom: 1px solid #f1f5f9;
-            position: relative;
-            padding-left: 17px;
+            gap: 4px 10px; padding: 6px 12px; padding-left: 14px;
+            border-bottom: 1px solid #f1f5f9; position: relative;
         }
         .ticket-item:last-child { border-bottom: none; }
-        /* 左侧色条 */
         .ticket-item::before {
-            content: ''; position: absolute; left: 4px; top: 6px; bottom: 6px;
+            content: ''; position: absolute; left: 4px; top: 4px; bottom: 4px;
             width: 3px; border-radius: 3px;
         }
         .ticket-item.color-software::before { background: #3b82f6; }
@@ -271,14 +230,14 @@
         .ticket-item.color-network::before { background: #4f46e5; }
         .ticket-item.color-other::before { background: #94a3b8; }
 
-        .ticket-item .info { flex: 1; min-width: 120px; }
+        .ticket-item .info { flex: 1; min-width: 100px; }
         .ticket-item .info .dept-name { font-weight: 500; font-size: 13px; }
-        .ticket-item .info .issue-text { color: #475569; font-size: 13px; display: block; margin-top: 1px; }
-        .ticket-item .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
-        .ticket-item .actions { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+        .ticket-item .info .issue-text { color: #475569; font-size: 12px; display: block; margin-top: 0px; }
+        .ticket-item .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; }
+        .ticket-item .actions { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; }
 
         .tag {
-            font-size: 11px; padding: 1px 8px; border-radius: 20px; background: #e9eef3; color: #334155;
+            font-size: 11px; padding: 1px 6px; border-radius: 20px; background: #e9eef3; color: #334155;
         }
         .tag.software { background: #dbeafe; color: #1e40af; }
         .tag.hardware { background: #fef3c7; color: #92400e; }
@@ -288,26 +247,24 @@
         /* ===== 借出/回收站列表 ===== */
         .borrow-item, .recycle-item {
             display: flex; flex-wrap: wrap; align-items: center;
-            gap: 6px 12px; padding: 8px 14px; border-bottom: 1px solid #f1f5f9;
+            gap: 4px 10px; padding: 6px 12px; border-bottom: 1px solid #f1f5f9;
             background: white;
         }
         .borrow-item:last-child, .recycle-item:last-child { border-bottom: none; }
-        .borrow-item .info, .recycle-item .info { flex: 1; min-width: 120px; }
-        .borrow-item .info .borrow-device { font-weight: 500; font-size: 13px; }
-        .borrow-item .info .borrow-detail { color: #475569; font-size: 13px; display: block; }
-        .borrow-item .meta, .recycle-item .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+        .borrow-item .info, .recycle-item .info { flex: 1; min-width: 100px; font-size: 13px; }
+        .borrow-item .info .borrow-device { font-weight: 500; }
+        .borrow-item .info .borrow-detail { color: #475569; font-size: 12px; display: block; }
         .borrow-item .actions, .recycle-item .actions { display: flex; gap: 4px; }
 
-        /* ===== 借出筛选 ===== */
         .borrow-filter {
-            display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
-            background: white; padding: 8px 14px; border-radius: 12px;
-            border: 1px solid #e9eef3; margin-bottom: 12px;
+            display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+            background: white; padding: 4px 10px; border-radius: 8px;
+            border: 1px solid #e9eef3; margin-bottom: 10px;
         }
-        .borrow-filter .filter-label { font-weight: 500; font-size: 13px; color: #475569; }
+        .borrow-filter .filter-label { font-weight: 500; font-size: 12px; color: #475569; }
         .borrow-filter .filter-btn {
-            padding: 4px 12px; border: 1px solid #d1d9e6; border-radius: 20px;
-            background: white; font-size: 13px; cursor: pointer; transition: 0.15s;
+            padding: 2px 10px; border: 1px solid #d1d9e6; border-radius: 16px;
+            background: white; font-size: 12px; cursor: pointer; transition: 0.15s;
             color: #475569;
         }
         .borrow-filter .filter-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
@@ -321,81 +278,78 @@
         }
         .modal-overlay.active { display: flex; }
         .modal {
-            background: white; border-radius: 16px; padding: 20px;
-            max-width: 820px; width: 100%; max-height: 90vh; overflow-y: auto;
+            background: white; border-radius: 14px; padding: 18px;
+            max-width: 780px; width: 100%; max-height: 90vh; overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0,0,0,0.12);
         }
-        .modal h2 { font-size: 18px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
-        .modal .close-btn { background: none; border: none; font-size: 22px; cursor: pointer; color: #94a3b8; padding: 0 8px; }
+        .modal h2 { font-size: 17px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .modal .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: #94a3b8; padding: 0 6px; }
         .modal .close-btn:hover { color: #1e293b; }
-        .modal label { font-weight: 500; font-size: 13px; display: block; margin-top: 10px; margin-bottom: 3px; }
+        .modal label { font-weight: 500; font-size: 12px; display: block; margin-top: 8px; margin-bottom: 2px; }
         .modal input, .modal select, .modal textarea {
-            width: 100%; padding: 8px 12px; border: 1px solid #d1d9e6;
-            border-radius: 8px; font-size: 13px; background: white;
+            width: 100%; padding: 6px 10px; border: 1px solid #d1d9e6;
+            border-radius: 6px; font-size: 13px; background: white;
         }
-        .modal textarea { min-height: 50px; resize: vertical; }
-        .modal .form-row { display: flex; gap: 10px; flex-wrap: wrap; }
-        .modal .form-row>div { flex: 1; min-width: 100px; position: relative; }
-        .modal .modal-actions { display: flex; gap: 10px; margin-top: 16px; justify-content: flex-end; }
+        .modal textarea { min-height: 40px; resize: vertical; }
+        .modal .form-row { display: flex; gap: 8px; flex-wrap: wrap; }
+        .modal .form-row>div { flex: 1; min-width: 80px; position: relative; }
+        .modal .modal-actions { display: flex; gap: 8px; margin-top: 14px; justify-content: flex-end; }
 
-        /* ===== 部门下拉 ===== */
         .dept-dropdown {
             position: absolute; top: 100%; left: 0; right: 0;
             background: white; border: 1px solid #d1d9e6; border-top: none;
-            border-radius: 0 0 8px 8px; max-height: 150px; overflow-y: auto;
+            border-radius: 0 0 6px 6px; max-height: 120px; overflow-y: auto;
             z-index: 1000; box-shadow: 0 8px 20px rgba(0,0,0,0.08); display: none;
         }
         .dept-dropdown.show { display: block; }
-        .dept-dropdown .dept-item {
-            padding: 6px 12px; cursor: pointer; font-size: 13px; border-bottom: 1px solid #f1f5f9;
-        }
+        .dept-dropdown .dept-item { padding: 4px 10px; cursor: pointer; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
         .dept-dropdown .dept-item:hover { background: #f1f5f9; }
         .dept-dropdown .dept-item:last-child { border-bottom: none; }
         .dept-dropdown .dept-item .highlight { font-weight: 600; color: #3b82f6; }
-        .dept-dropdown .no-result { padding: 8px 12px; color: #94a3b8; text-align: center; }
+        .dept-dropdown .no-result { padding: 6px 10px; color: #94a3b8; text-align: center; font-size: 12px; }
 
         /* ===== 年度汇总内部 ===== */
         .year-stats-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(80px,1fr));
-            gap: 8px; margin-bottom: 14px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(70px,1fr));
+            gap: 6px; margin-bottom: 12px;
         }
         .year-chart-wrapper {
-            background: #f8fafc; border-radius: 12px; padding: 10px;
-            margin-bottom: 14px; height: 180px; position: relative;
+            background: #f8fafc; border-radius: 10px; padding: 8px;
+            margin-bottom: 12px; height: 160px; position: relative;
         }
         .year-chart-wrapper canvas { width: 100% !important; height: 100% !important; }
-        .year-chart-row { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 14px; }
-        .year-chart-row .year-chart-wrapper { flex: 1; min-width: 200px; height: 180px; }
+        .year-chart-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+        .year-chart-row .year-chart-wrapper { flex: 1; min-width: 180px; height: 160px; }
         .year-month-group {
-            border: 1px solid #e9eef3; border-radius: 8px; margin-bottom: 8px; overflow: hidden;
+            border: 1px solid #e9eef3; border-radius: 6px; margin-bottom: 6px; overflow: hidden;
         }
         .year-month-header {
-            background: #f8fafc; padding: 8px 14px; font-weight: 600;
+            background: #f8fafc; padding: 6px 12px; font-weight: 600; font-size: 13px;
             display: flex; justify-content: space-between; cursor: pointer; user-select: none;
         }
         .year-month-header:hover { background: #f1f5f9; }
         .year-month-header .arrow { transition: transform 0.2s; }
         .year-month-header .arrow.collapsed { transform: rotate(-90deg); }
-        .year-month-details { padding: 0 14px 10px; }
+        .year-month-details { padding: 0 12px 8px; }
         .year-month-details.hidden { display: none; }
         .year-ticket-item {
-            display: flex; flex-wrap: wrap; gap: 6px 12px; padding: 6px 0;
-            border-bottom: 1px solid #f1f5f9; font-size: 13px;
+            display: flex; flex-wrap: wrap; gap: 4px 10px; padding: 4px 0;
+            border-bottom: 1px solid #f1f5f9; font-size: 12px;
         }
         .year-ticket-item:last-child { border-bottom: none; }
-        .year-ticket-item .info { flex: 1; min-width: 120px; }
-        .year-ticket-item .meta { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
-        .year-selector { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-        .year-selector select { padding: 6px 12px; border-radius: 8px; border: 1px solid #d1d9e6; font-size: 13px; }
+        .year-ticket-item .info { flex: 1; min-width: 100px; }
+        .year-ticket-item .meta { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; }
+        .year-selector { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .year-selector select { padding: 4px 10px; border-radius: 6px; border: 1px solid #d1d9e6; font-size: 13px; }
 
         /* ===== 导入预览 ===== */
-        .import-preview { max-height: 250px; overflow: auto; border: 1px solid #e9eef3; border-radius: 8px; margin: 10px 0; }
-        .import-preview table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        .import-preview th, .import-preview td { border: 1px solid #e9eef3; padding: 4px 8px; text-align: left; }
+        .import-preview { max-height: 200px; overflow: auto; border: 1px solid #e9eef3; border-radius: 6px; margin: 8px 0; }
+        .import-preview table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .import-preview th, .import-preview td { border: 1px solid #e9eef3; padding: 3px 6px; text-align: left; }
         .import-preview th { background: #f8fafc; position: sticky; top: 0; }
 
         /* ===== 空状态 ===== */
-        .empty-state { text-align: center; padding: 30px 20px; color: #94a3b8; font-size: 14px; }
+        .empty-state { text-align: center; padding: 24px 16px; color: #94a3b8; font-size: 13px; }
 
         /* ===== 隐藏 ===== */
         .hidden { display: none !important; }
@@ -403,51 +357,55 @@
         /* ===== 移动端底部栏 ===== */
         .bottom-actions {
             display: none; position: fixed; bottom: 0; left: 0; right: 0;
-            background: white; padding: 8px 12px; padding-bottom: max(8px, env(safe-area-inset-bottom));
+            background: white; padding: 6px 10px; padding-bottom: max(6px, env(safe-area-inset-bottom));
             border-top: 1px solid #e9eef3; box-shadow: 0 -4px 12px rgba(0,0,0,0.06);
-            z-index: 100; gap: 6px; justify-content: space-around;
+            z-index: 100; gap: 4px; justify-content: space-around;
         }
         .bottom-actions .btn {
-            flex: 1; padding: 6px 4px; font-size: 11px; border-radius: 10px;
+            flex: 1; padding: 4px 2px; font-size: 10px; border-radius: 8px;
             text-align: center; min-width: 0; display: flex; flex-direction: column;
-            align-items: center; gap: 1px; line-height: 1.2;
+            align-items: center; gap: 0px; line-height: 1.2;
         }
-        .bottom-actions .btn .icon { font-size: 18px; }
-        .bottom-actions .btn .label { font-size: 10px; }
+        .bottom-actions .btn .icon { font-size: 16px; }
+        .bottom-actions .btn .label { font-size: 9px; }
 
-        /* ===== 响应式 ===== */
+        .highlight { background: #fef9c3; }
+
         @media (max-width: 600px) {
-            body { padding: 10px 12px 80px; }
-            .stats-grid { gap: 8px; }
-            .stat-card .num { font-size: 24px; }
-            .action-row .btn { font-size: 12px; padding: 6px 10px; }
-            .action-row { gap: 6px; }
-            .filter-bar select, .filter-bar input { min-width: 70px; font-size: 12px; padding: 3px 6px; }
-            .filter-bar input { min-width: 100px; }
-            .category-filter .cat-btn { font-size: 12px; padding: 3px 10px; }
-            .year-preview { padding: 8px 12px; gap: 8px 16px; }
-            .year-preview .stat-item { font-size: 12px; }
-            .year-preview .stat-item .num { font-size: 15px; }
-            .weekly-stats { padding: 6px 10px; gap: 4px 10px; }
-            .weekly-stats .weekly-item { font-size: 12px; }
-            .weekly-stats .weekly-item .num { font-size: 14px; }
-            .tab-row .tab-btn { font-size: 13px; padding: 6px 8px; }
-            .ticket-item { padding: 6px 10px 6px 14px; }
+            body { padding: 6px 8px 70px; font-size: 12px; }
+            .header-bar h1 { font-size: 17px; }
+            .toolbar .btn { font-size: 11px; padding: 4px 8px; }
+            .toolbar .sep { font-size: 14px; }
+            .stats-grid { gap: 4px; }
+            .stat-card .num { font-size: 20px; }
+            .stat-card .label { font-size: 10px; }
+            .weekly-stats { padding: 4px 8px; gap: 4px 8px; }
+            .weekly-stats .weekly-item { font-size: 11px; }
+            .weekly-stats .weekly-item .num { font-size: 13px; }
+            .filter-top-row .tab-group .tab-btn { font-size: 11px; padding: 3px 8px; }
+            .filter-top-row .cat-group .cat-btn { font-size: 11px; padding: 2px 6px; }
+            .filter-top-row .month-nav .month-label { font-size: 12px; min-width: 60px; }
+            .chart-wrapper { height: 110px; }
+            .search-bar input { min-width: 80px; font-size: 12px; }
+            .search-bar select { font-size: 12px; }
+            .ticket-item { padding: 4px 8px 4px 12px; gap: 2px 6px; }
             .ticket-item .info .dept-name { font-size: 12px; }
-            .ticket-item .info .issue-text { font-size: 12px; }
-            .btn-sm { font-size: 11px; padding: 2px 6px; }
+            .ticket-item .info .issue-text { font-size: 11px; }
+            .day-header { font-size: 12px; padding: 4px 8px; }
+            .day-stats { font-size: 10px; padding: 2px 8px 4px; gap: 4px 8px; }
+            .btn-sm { font-size: 10px; padding: 2px 6px; }
             .btn-resolve { font-size: 10px; padding: 2px 6px; }
-            .modal { padding: 14px; }
+            .modal { padding: 12px; }
+            .year-chart-row .year-chart-wrapper { height: 130px; }
             .bottom-actions { display: flex; }
-            .action-row { display: none !important; }
-            .year-chart-row { flex-direction: column; }
-            .year-chart-row .year-chart-wrapper { height: 160px; }
+            .toolbar { display: none !important; }
+            .filter-top-row .month-nav { margin-left: 0; }
+            .filter-top-row { flex-direction: column; align-items: stretch; }
         }
         @media (min-width: 601px) {
             .bottom-actions { display: none !important; }
-            .action-row { display: flex !important; }
+            .toolbar { display: flex !important; }
         }
-        .highlight { background: #fef9c3; }
     </style>
 </head>
 <body>
@@ -467,9 +425,9 @@
                 <input type="text" id="fbStorageBucket" placeholder="storageBucket">
                 <input type="text" id="fbAppId" placeholder="appId">
             </div>
-            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-                <button class="btn btn-primary" id="connectBtn">✅ 连接并加载</button>
-                <button class="btn btn-warning" id="resetConfigBtn">🔄 重置配置</button>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                <button class="btn btn-primary" id="connectBtn">✅ 连接</button>
+                <button class="btn btn-warning" id="resetConfigBtn">🔄 重置</button>
                 <span class="config-hint" id="configHint">💡 配置保存在浏览器</span>
             </div>
         </div>
@@ -477,37 +435,25 @@
         <!-- ===== 主界面 ===== -->
         <div id="mainArea" class="hidden">
 
-            <!-- 顶部栏 -->
-            <div class="header">
-                <h1>📋 运维管理系统</h1>
-                <div class="sync-status">
-                    <span class="sync-dot" id="syncDot"></span>
-                    <span id="syncLabel">已连接</span>
+            <!-- ===== 顶部栏 ===== -->
+            <div class="header-bar">
+                <h1>📋 运维</h1>
+                <div class="right-group">
+                    <button class="btn btn-purple" id="openYearModalBtn" style="font-size:13px;padding:4px 12px;">📊 年度汇总</button>
+                    <div class="sync-status">
+                        <span class="sync-dot" id="syncDot"></span>
+                        <span id="syncLabel">已连接</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- ===== 年度汇总预览（置顶） ===== -->
-            <div class="year-preview" id="yearPreview">
-                <span class="year-label" id="yearPreviewLabel">2026年</span>
-                <span class="stat-item">总工单 <span class="num blue" id="yearPreviewTotal">0</span></span>
-                <span class="stat-item">已解决 <span class="num green" id="yearPreviewResolved">0</span></span>
-                <span class="stat-item">未解决 <span class="num red" id="yearPreviewPending">0</span></span>
-                <span class="stat-item">💻 <span class="num purple" id="yearPreviewSoftware">0</span></span>
-                <span class="stat-item">🖨️ <span class="num orange" id="yearPreviewHardware">0</span></span>
-                <span class="stat-item">🌐 <span class="num indigo" id="yearPreviewNetwork">0</span></span>
-                <span class="arrow">▶ 查看详情</span>
-            </div>
-
-            <!-- ===== 操作按钮行（分组） ===== -->
-            <div class="action-row" id="topActionRow">
-                <div class="action-group">
-                    <button class="btn btn-success" id="openAddModal">➕ 添加工单</button>
-                    <button class="btn btn-borrow" id="openBorrowModal">📦 借出</button>
-                </div>
-                <div class="action-group">
-                    <button class="btn btn-import" id="openImportModal">📤 导入</button>
-                    <button class="btn btn-export" id="exportBtn">📥 导出</button>
-                </div>
+            <!-- ===== 操作工具栏 ===== -->
+            <div class="toolbar" id="topToolbar">
+                <button class="btn btn-success" id="openAddModal">➕ 工单</button>
+                <button class="btn btn-borrow" id="openBorrowModal">📦 借出</button>
+                <span class="sep">|</span>
+                <button class="btn btn-import" id="openImportModal">📤 导入</button>
+                <button class="btn btn-export" id="exportBtn">📥 导出</button>
             </div>
 
             <!-- ===== 核心指标 ===== -->
@@ -519,7 +465,7 @@
 
             <!-- ===== 周统计 ===== -->
             <div class="weekly-stats" id="weeklyStats">
-                <div class="weekly-title">📅 周统计</div>
+                <span class="weekly-title">📅 周</span>
                 <div class="weekly-nav">
                     <button id="weekPrev">◀</button>
                     <span class="week-range" id="weekRange">加载中...</span>
@@ -531,36 +477,32 @@
             <!-- ===== 图表 ===== -->
             <div class="chart-wrapper"><canvas id="monthChart"></canvas></div>
 
-            <!-- ===== 分类快速筛选 ===== -->
-            <div class="category-filter" id="categoryFilter">
-                <span class="filter-label">分类：</span>
-                <button class="cat-btn active" data-cat="all">全部</button>
-                <button class="cat-btn" data-cat="软件">💻 软件 <span class="count" id="catSoftware">0</span></button>
-                <button class="cat-btn" data-cat="硬件">🖨️ 硬件 <span class="count" id="catHardware">0</span></button>
-                <button class="cat-btn" data-cat="网络">🌐 网络 <span class="count" id="catNetwork">0</span></button>
-                <button class="cat-btn" data-cat="其他">📦 其他 <span class="count" id="catOther">0</span></button>
+            <!-- ===== 统一筛选行 ===== -->
+            <div class="filter-top-row">
+                <div class="tab-group">
+                    <button class="tab-btn active" data-tab="tickets">📋 工单</button>
+                    <button class="tab-btn" data-tab="borrow">📦 借出</button>
+                    <button class="tab-btn" data-tab="recycle">♻️ 回收站</button>
+                </div>
+                <div class="cat-group" id="catGroup">
+                    <button class="cat-btn active" data-cat="all">全部</button>
+                    <button class="cat-btn" data-cat="软件">💻 <span class="count" id="catSoftware">0</span></button>
+                    <button class="cat-btn" data-cat="硬件">🖨️ <span class="count" id="catHardware">0</span></button>
+                    <button class="cat-btn" data-cat="网络">🌐 <span class="count" id="catNetwork">0</span></button>
+                    <button class="cat-btn" data-cat="其他">📦 <span class="count" id="catOther">0</span></button>
+                </div>
+                <div class="month-nav">
+                    <button class="nav-btn" id="prevMonth">‹</button>
+                    <span class="month-label" id="currentMonthLabel">2026年7月</span>
+                    <button class="nav-btn" id="nextMonth">›</button>
+                </div>
             </div>
 
-            <!-- ===== Tab切换 ===== -->
-            <div class="tab-row">
-                <button class="tab-btn active" data-tab="tickets">📋 工单</button>
-                <button class="tab-btn" data-tab="borrow">📦 借出</button>
-                <button class="tab-btn" data-tab="recycle">♻️ 回收站</button>
-            </div>
-
-            <!-- ===== 月份导航 ===== -->
-            <div class="month-nav">
-                <button class="nav-btn" id="prevMonth">‹</button>
-                <span class="month-label" id="currentMonthLabel">2026年7月</span>
-                <button class="nav-btn" id="nextMonth">›</button>
-            </div>
-
-            <!-- ===== 筛选栏（部门+搜索） ===== -->
-            <div class="filter-bar" id="filterBar">
-                <span class="filter-label">筛选：</span>
+            <!-- ===== 搜索/部门筛选 ===== -->
+            <div class="search-bar" id="filterBar">
                 <select id="filterDept"><option value="all">全部部门</option></select>
-                <input type="text" id="searchInput" placeholder="🔍 搜索关键词" style="min-width:140px;">
-                <button class="clear-filter" id="clearFilter">清除筛选</button>
+                <input type="text" id="searchInput" placeholder="🔍 搜索关键词" style="min-width:120px;">
+                <button class="clear-filter" id="clearFilter">清除</button>
             </div>
 
             <!-- ===== 工单列表 ===== -->
@@ -589,7 +531,7 @@
         </div>
     </div>
 
-    <!-- ===== 底部固定操作栏（移动端） ===== -->
+    <!-- ===== 底部固定操作栏 ===== -->
     <div class="bottom-actions" id="bottomActions">
         <button class="btn btn-success" id="bottomAddModal"><span class="icon">➕</span><span class="label">工单</span></button>
         <button class="btn btn-borrow" id="bottomBorrowModal"><span class="icon">📦</span><span class="label">借出</span></button>
@@ -667,19 +609,19 @@
     <div class="modal-overlay" id="importModal">
         <div class="modal" style="max-width:950px;">
             <h2><span>📤 导入数据</span><button class="close-btn" id="importModalClose">&times;</button></h2>
-            <div style="margin-bottom:12px;">
-                <label style="font-weight:500;">选择文件（.csv / .xlsx）</label>
+            <div style="margin-bottom:10px;">
+                <label style="font-weight:500;font-size:13px;">选择文件（.csv / .xlsx）</label>
                 <input type="file" id="importFileInput" accept=".csv,.xlsx" style="display:block;margin-top:4px;">
             </div>
             <div class="form-row">
                 <div><label>导入类型</label><select id="importType"><option value="tickets">工单</option><option value="borrow">借出</option></select></div>
-                <div style="display:flex;gap:8px;align-items:flex-end;">
+                <div style="display:flex;gap:6px;align-items:flex-end;">
                     <button class="btn btn-primary" id="importPreviewBtn">预览</button>
                     <button class="btn btn-success" id="importConfirmBtn" disabled>确认导入</button>
                 </div>
             </div>
             <div id="importPreviewArea" class="import-preview" style="display:none;"></div>
-            <div id="importStatus" style="font-size:13px;color:#475569;margin-top:6px;"></div>
+            <div id="importStatus" style="font-size:12px;color:#475569;margin-top:4px;"></div>
             <div class="modal-actions"><button class="btn" id="importCancel">关闭</button></div>
         </div>
     </div>
@@ -716,20 +658,13 @@
             const ticketList = $('ticketList'), borrowList = $('borrowList'), recycleList = $('recycleList');
             const borrowItems = $('borrowItems'), recycleItems = $('recycleItems');
             const openAddModal = $('openAddModal'), openBorrowModalBtn = $('openBorrowModal');
-            const openYearModalBtn = $('openYearModal'), exportBtn = $('exportBtn');
+            const openYearModalBtn = $('openYearModalBtn'), exportBtn = $('exportBtn');
             const openImportModal = $('openImportModal');
             const bottomAddModal = $('bottomAddModal'), bottomBorrowModal = $('bottomBorrowModal');
-            const bottomYearModal = $('bottomYearModal'), bottomExportBtn = $('bottomExportBtn');
-            const bottomImportModal = $('bottomImportModal');
+            const bottomImportModal = $('bottomImportModal'), bottomExportBtn = $('bottomExportBtn');
             const weeklyGrid = $('weeklyGrid'), weekRange = $('weekRange'), weekPrev = $('weekPrev'), weekNext = $('weekNext');
-            const filterDeptEl = $('filterDept'), filterCategoryEl = $('filterCategory'), searchInput = $('searchInput');
+            const filterDeptEl = $('filterDept'), searchInput = $('searchInput');
             const clearFilterBtn = $('clearFilter');
-            // 年度预览
-            const yearPreview = $('yearPreview'), yearPreviewLabel = $('yearPreviewLabel');
-            const yearPreviewTotal = $('yearPreviewTotal'), yearPreviewResolved = $('yearPreviewResolved');
-            const yearPreviewPending = $('yearPreviewPending'), yearPreviewSoftware = $('yearPreviewSoftware');
-            const yearPreviewHardware = $('yearPreviewHardware'), yearPreviewNetwork = $('yearPreviewNetwork');
-            // 分类快速筛选
             const catSoftware = $('catSoftware'), catHardware = $('catHardware'), catNetwork = $('catNetwork'), catOther = $('catOther');
             // 工单模态框
             const modalOverlay = $('ticketModal'), modalTitle = $('modalTitle'), editId = $('editId');
@@ -820,7 +755,7 @@
             }
             function formatDateShort(d){return (d.getMonth()+1)+'/'+d.getDate();}
             function renderWeeklyStats(){
-                if(!allTickets||allTickets.length===0){weeklyGrid.innerHTML='<span style="color:#94a3b8;font-size:13px;">暂无</span>';weekRange.textContent='--';return;}
+                if(!allTickets||allTickets.length===0){weeklyGrid.innerHTML='<span style="color:#94a3b8;font-size:12px;">暂无</span>';weekRange.textContent='--';return;}
                 let {start,end}=getWeekRange(currentWeekOffset);
                 let startStr=start.toISOString().slice(0,10), endStr=end.toISOString().slice(0,10);
                 weekRange.textContent=formatDateShort(start)+' - '+formatDateShort(end);
@@ -863,7 +798,7 @@
                 let data=Object.values(dayCounts);
                 let ctx=document.getElementById('monthChart').getContext('2d');
                 if(chartInstance)chartInstance.destroy();
-                chartInstance=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label:'工单',data,backgroundColor:'rgba(59,130,246,0.6)',borderColor:'rgba(59,130,246,1)',borderWidth:1,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.parsed.y} 条`}}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}},grid:{color:'#f1f5f9'}},x:{ticks:{maxRotation:30,font:{size:9}},grid:{display:false}}}}});
+                chartInstance=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label:'工单',data,backgroundColor:'rgba(59,130,246,0.6)',borderColor:'rgba(59,130,246,1)',borderWidth:1,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.parsed.y} 条`}}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{size:9}},grid:{color:'#f1f5f9'}},x:{ticks:{maxRotation:30,font:{size:8}},grid:{display:false}}}}});
             }
             function escapeHtml(text){if(!text)return'';let d=document.createElement('div');d.textContent=text;return d.innerHTML;}
             function getCategoryEmoji(cat){let map={'软件':'💻','硬件':'🖨️','网络':'🌐','其他':'📦'};return map[cat]||'';}
@@ -871,7 +806,6 @@
             async function quickResolve(id){if(!isFirebaseReady){alert('系统未就绪');return;}if(!confirm('标记此工单为已解决？'))return;try{syncDot.className='sync-dot syncing';syncLabel.textContent='更新中...';await updateTicketInFirebase(id,{resolved:1});await refreshData();syncDot.className='sync-dot';syncLabel.textContent='已同步';}catch(err){alert('操作失败: '+err.message);syncDot.className='sync-dot error';syncLabel.textContent='更新失败';}}
             async function softDeleteTicket(id){if(!confirm('确定删除此工单？可恢复'))return;try{syncDot.className='sync-dot syncing';syncLabel.textContent='删除中...';await updateTicketInFirebase(id,{deleted:true});await refreshData();syncDot.className='sync-dot';syncLabel.textContent='已删除';}catch(err){alert('删除失败: '+err.message);syncDot.className='sync-dot error';syncLabel.textContent='删除失败';}}
             function getCategoryColor(cat){const map={'软件':'software','硬件':'hardware','网络':'network','其他':'other'};return map[cat]||'other';}
-
             function updateCategoryCounts(tickets){
                 let sw=tickets.filter(t=>t.category==='软件').length;
                 let hw=tickets.filter(t=>t.category==='硬件').length;
@@ -879,7 +813,6 @@
                 let ot=tickets.filter(t=>t.category==='其他').length;
                 catSoftware.textContent=sw>0?sw:''; catHardware.textContent=hw>0?hw:''; catNetwork.textContent=nw>0?nw:''; catOther.textContent=ot>0?ot:'';
             }
-
             function renderTickets(){
                 let year=currentMonth.getFullYear(), month=currentMonth.getMonth()+1;
                 currentMonthLabel.textContent=`${year}年${month}月`;
@@ -889,7 +822,6 @@
                 renderChart(filtered,year,month);
                 renderWeeklyStats();
                 updateCategoryCounts(filtered);
-
                 let todayStr=new Date().toISOString().slice(0,10);
                 let groups={};
                 filtered.forEach(t=>{if(t.date){if(!groups[t.date])groups[t.date]=[];groups[t.date].push(t);}});
@@ -943,7 +875,7 @@
                 filtered.forEach(b=>{
                     let status=b.status||'未归还';
                     let badgeCls=status==='已归还'?'returned':'borrowed';
-                    let returnDateHtml=b.returnDate?`<span style="font-size:12px;color:#64748b;">归还: ${b.returnDate}</span>`:'';
+                    let returnDateHtml=b.returnDate?`<span style="font-size:11px;color:#64748b;">归还: ${b.returnDate}</span>`:'';
                     html+=`<div class="borrow-item" data-id="${b.id}"><div class="info"><span class="borrow-device">${escapeHtml(b.device||'')}</span><span class="borrow-detail">${escapeHtml(b.department||'')} ${escapeHtml(b.name||'')}  |  借出: ${escapeHtml(b.borrowDate||'')}${b.note?`  |  ${escapeHtml(b.note)}`:''}</span></div><div class="meta"><span class="badge badge-${badgeCls}">${status}</span>${returnDateHtml}</div><div class="actions">${status!=='已归还'?`<button class="btn btn-sm btn-success return-borrow" data-id="${b.id}">归还</button>`:''}<button class="btn btn-sm btn-danger delete-borrow" data-id="${b.id}">删除</button></div></div>`;
                 });
                 borrowItems.innerHTML=html;
@@ -972,25 +904,6 @@
             async function restoreItem(id,type){try{syncDot.className='sync-dot syncing';syncLabel.textContent='恢复中...';if(type==='ticket')await updateTicketInFirebase(id,{deleted:false});else await updateBorrowInFirebase(id,{deleted:false});await refreshData();syncDot.className='sync-dot';syncLabel.textContent='已恢复';}catch(err){alert('恢复失败: '+err.message);syncDot.className='sync-dot error';syncLabel.textContent='恢复失败';}}
             async function permanentDeleteItem(id,type){if(!confirm('永久删除不可恢复，确定？'))return;try{syncDot.className='sync-dot syncing';syncLabel.textContent='删除中...';if(type==='ticket')await deleteTicketPermanent(id);else await deleteBorrowPermanent(id);await refreshData();syncDot.className='sync-dot';syncLabel.textContent='已永久删除';}catch(err){alert('删除失败: '+err.message);syncDot.className='sync-dot error';syncLabel.textContent='删除失败';}}
 
-            // ===================== 年度汇总预览（置顶） =====================
-            function updateYearPreview(){
-                let currentYear = new Date().getFullYear();
-                yearPreviewLabel.textContent = currentYear + '年';
-                let yearTickets = allTickets.filter(t=>t.date && t.date.startsWith(String(currentYear)) && !t.deleted);
-                let total = yearTickets.length;
-                let resolved = yearTickets.filter(t=>t.resolved==1).length;
-                let pending = total-resolved;
-                let software = yearTickets.filter(t=>t.category==='软件').length;
-                let hardware = yearTickets.filter(t=>t.category==='硬件').length;
-                let network = yearTickets.filter(t=>t.category==='网络').length;
-                yearPreviewTotal.textContent = total;
-                yearPreviewResolved.textContent = resolved;
-                yearPreviewPending.textContent = pending;
-                yearPreviewSoftware.textContent = software;
-                yearPreviewHardware.textContent = hardware;
-                yearPreviewNetwork.textContent = network;
-            }
-
             // ===================== 年度汇总模态框 =====================
             function populateYearSelect(){
                 let currentYear=new Date().getFullYear();
@@ -1009,7 +922,6 @@
                 let network=yearTickets.filter(t=>t.category==='网络').length;
                 yearTotal.textContent=total; yearResolved.textContent=resolved; yearPending.textContent=pending;
                 yearSoftware.textContent=software; yearHardware.textContent=hardware; yearNetwork.textContent=network;
-
                 // 折线图
                 let monthCounts={}; for(let m=1;m<=12;m++){let ms=`${year}-${String(m).padStart(2,'0')}`;monthCounts[ms]=0;}
                 yearTickets.forEach(t=>{if(t.date){let prefix=t.date.substring(0,7);if(monthCounts[prefix]!==undefined)monthCounts[prefix]++;}});
@@ -1017,8 +929,7 @@
                 let data=Object.values(monthCounts);
                 let ctxLine=yearLineChartCanvas.getContext('2d');
                 if(yearLineChartInstance)yearLineChartInstance.destroy();
-                yearLineChartInstance=new Chart(ctxLine,{type:'line',data:{labels,datasets:[{label:'工单数',data,borderColor:'#8b5cf6',backgroundColor:'rgba(139,92,246,0.1)',fill:true,tension:0.3,pointBackgroundColor:'#8b5cf6'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.parsed.y} 条`}}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}},grid:{color:'#f1f5f9'}},x:{ticks:{font:{size:10}},grid:{display:false}}}}});
-
+                yearLineChartInstance=new Chart(ctxLine,{type:'line',data:{labels,datasets:[{label:'工单数',data,borderColor:'#8b5cf6',backgroundColor:'rgba(139,92,246,0.1)',fill:true,tension:0.3,pointBackgroundColor:'#8b5cf6'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.parsed.y} 条`}}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{size:9}},grid:{color:'#f1f5f9'}},x:{ticks:{font:{size:9}},grid:{display:false}}}}});
                 // 饼图
                 let catData=[software,hardware,network];
                 let catLabels=['💻 软件','🖨️ 硬件','🌐 网络'];
@@ -1027,8 +938,7 @@
                 if(other>0){catData.push(other);catLabels.push('📦 其他');colors.push('#94a3b8');}
                 let ctxPie=yearPieChartCanvas.getContext('2d');
                 if(yearPieChartInstance)yearPieChartInstance.destroy();
-                yearPieChartInstance=new Chart(ctxPie,{type:'doughnut',data:{labels:catLabels,datasets:[{data:catData,backgroundColor:colors,borderWidth:2,borderColor:'white'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11}}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed} 条 (${((ctx.parsed/total)*100).toFixed(1)}%)`}}}}});
-
+                yearPieChartInstance=new Chart(ctxPie,{type:'doughnut',data:{labels:catLabels,datasets:[{data:catData,backgroundColor:colors,borderWidth:2,borderColor:'white'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10}}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed} 条 (${((ctx.parsed/total)*100).toFixed(1)}%)`}}}}});
                 // 明细
                 let groups={}; yearTickets.forEach(t=>{let m=t.date?t.date.substring(0,7):'未知';if(!groups[m])groups[m]=[];groups[m].push(t);});
                 let sortedMonths=Object.keys(groups).sort();
@@ -1042,7 +952,7 @@
                         let badgeCls=t.resolved==1?'resolved':'pending';
                         let catCls=(t.category||'其他').toLowerCase();
                         let emoji=getCategoryEmoji(t.category);
-                        html+=`<div class="year-ticket-item"><div class="info"><strong>${escapeHtml(t.date||'')}</strong> ${escapeHtml(t.department||'')} ${escapeHtml(t.name||'')}<span style="display:block;color:#475569;font-size:13px;">${escapeHtml(t.issue||'')}</span></div><div class="meta"><span class="tag ${catCls}">${emoji} ${escapeHtml(t.category||'其他')}</span><span class="badge badge-${badgeCls}">${resolvedText}</span></div></div>`;
+                        html+=`<div class="year-ticket-item"><div class="info"><strong>${escapeHtml(t.date||'')}</strong> ${escapeHtml(t.department||'')} ${escapeHtml(t.name||'')}<span style="display:block;color:#475569;font-size:12px;">${escapeHtml(t.issue||'')}</span></div><div class="meta"><span class="tag ${catCls}">${emoji} ${escapeHtml(t.category||'其他')}</span><span class="badge badge-${badgeCls}">${resolvedText}</span></div></div>`;
                     });
                     html+=`</div></div>`;
                 });
@@ -1053,6 +963,7 @@
                 let firstHeader=document.querySelector('.year-month-header');
                 if(firstHeader){let target=document.getElementById(firstHeader.dataset.target);if(target){target.classList.remove('hidden');let arrow=firstHeader.querySelector('.arrow');if(arrow)arrow.classList.remove('collapsed');}}
             }
+            function openYearModalFunc(){if(!isFirebaseReady||allTickets.length===0){alert('暂无工单数据');return;}populateYearSelect();let selectedYear=parseInt(yearSelect.value)||new Date().getFullYear();renderYearSummary(selectedYear);yearModal.classList.add('active');}
 
             // ===================== Tab切换 =====================
             function switchTab(tab){
@@ -1072,8 +983,6 @@
                 try{syncDot.className='sync-dot syncing';syncLabel.textContent='加载中...';
                 let [tickets,borrows]=await Promise.all([fetchAllTickets(),fetchAllBorrows()]);
                 allTickets=tickets; allBorrows=borrows;
-                // 更新年度预览
-                updateYearPreview();
                 if(currentTab==='tickets') renderTickets();
                 else if(currentTab==='borrow') renderBorrows();
                 else renderRecycle();
@@ -1113,7 +1022,7 @@
                     importPreviewArea.innerHTML=previewHtml;
                     importPreviewArea.style.display='block';
                     importConfirmBtn.disabled=false;
-                    importStatus.textContent=`预览成功，共 ${json.length} 条记录，准备导入 ${type==='tickets'?'工单':'借出'}`;
+                    importStatus.textContent=`预览成功，共 ${json.length} 条`;
                 }catch(err){alert('解析失败: '+err.message);importStatus.textContent='解析失败';}
             }
             async function handleImportConfirm(){
@@ -1163,48 +1072,44 @@
             prevMonthBtn.addEventListener('click',()=>{currentMonth.setMonth(currentMonth.getMonth()-1);if(currentTab==='tickets')renderTickets();});
             nextMonthBtn.addEventListener('click',()=>{currentMonth.setMonth(currentMonth.getMonth()+1);if(currentTab==='tickets')renderTickets();});
 
+            // Tab
             document.querySelectorAll('.tab-btn').forEach(btn=>{btn.addEventListener('click',function(){switchTab(this.dataset.tab);});});
 
-            document.querySelectorAll('.borrow-filter .filter-btn').forEach(btn=>{btn.addEventListener('click',function(){document.querySelectorAll('.borrow-filter .filter-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');borrowFilter=this.dataset.filter;renderBorrows();});});
-            document.querySelectorAll('.borrow-filter .filter-btn[data-recycle]').forEach(btn=>{btn.addEventListener('click',function(){document.querySelectorAll('.borrow-filter .filter-btn[data-recycle]').forEach(b=>b.classList.remove('active'));this.classList.add('active');recycleFilter=this.dataset.recycle;renderRecycle();});});
-
-            // 分类快速筛选
-            document.querySelectorAll('.category-filter .cat-btn').forEach(btn=>{
+            // 分类筛选
+            document.querySelectorAll('.cat-group .cat-btn').forEach(btn=>{
                 btn.addEventListener('click',function(){
-                    document.querySelectorAll('.category-filter .cat-btn').forEach(b=>b.classList.remove('active'));
+                    document.querySelectorAll('.cat-group .cat-btn').forEach(b=>b.classList.remove('active'));
                     this.classList.add('active');
-                    let cat=this.dataset.cat;
-                    if(cat==='all') filterCategory='all';
-                    else filterCategory=cat;
+                    filterCategory=this.dataset.cat;
                     if(currentTab==='tickets') renderTickets();
                 });
             });
 
-            // 筛选和搜索
+            // 借出/回收站筛选
+            document.querySelectorAll('.borrow-filter .filter-btn').forEach(btn=>{btn.addEventListener('click',function(){document.querySelectorAll('.borrow-filter .filter-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');borrowFilter=this.dataset.filter;renderBorrows();});});
+            document.querySelectorAll('.borrow-filter .filter-btn[data-recycle]').forEach(btn=>{btn.addEventListener('click',function(){document.querySelectorAll('.borrow-filter .filter-btn[data-recycle]').forEach(b=>b.classList.remove('active'));this.classList.add('active');recycleFilter=this.dataset.recycle;renderRecycle();});});
+
+            // 搜索/部门
             filterDeptEl.addEventListener('change',function(){filterDept=this.value;if(currentTab==='tickets')renderTickets();});
             searchInput.addEventListener('input',function(){searchKeyword=this.value;if(currentTab==='tickets')renderTickets();});
             clearFilterBtn.addEventListener('click',function(){filterDeptEl.value='all';searchInput.value='';filterDept='all';searchKeyword='';if(currentTab==='tickets')renderTickets();});
 
-            // 打开模态框
-            openAddModal.addEventListener('click',()=>{resetTicketForm();modalOverlay.classList.add('active');});
-            openBorrowModalBtn.addEventListener('click',openBorrowModalFunc);
-            openImportModal.addEventListener('click',()=>{importModal.classList.add('active');});
-            exportBtn.addEventListener('click',exportToCSV);
-            openYearModalBtn.addEventListener('click',openYearModalFunc);
+            // 打开模态框 - 使用直接绑定方式确保有效
+            openAddModal.addEventListener('click', function(e){ e.stopPropagation(); resetTicketForm(); modalOverlay.classList.add('active'); });
+            openBorrowModalBtn.addEventListener('click', function(e){ e.stopPropagation(); resetBorrowForm(); borrowModal.classList.add('active'); });
+            openImportModal.addEventListener('click', function(e){ e.stopPropagation(); importModal.classList.add('active'); });
+            exportBtn.addEventListener('click', exportToCSV);
+            openYearModalBtn.addEventListener('click', function(e){ e.stopPropagation(); openYearModalFunc(); });
 
-            // 底部按钮
-            bottomAddModal.addEventListener('click',()=>{resetTicketForm();modalOverlay.classList.add('active');});
-            bottomBorrowModal.addEventListener('click',openBorrowModalFunc);
-            bottomImportModal.addEventListener('click',()=>{importModal.classList.add('active');});
-            bottomExportBtn.addEventListener('click',exportToCSV);
+            bottomAddModal.addEventListener('click', function(e){ e.stopPropagation(); resetTicketForm(); modalOverlay.classList.add('active'); });
+            bottomBorrowModal.addEventListener('click', function(e){ e.stopPropagation(); resetBorrowForm(); borrowModal.classList.add('active'); });
+            bottomImportModal.addEventListener('click', function(e){ e.stopPropagation(); importModal.classList.add('active'); });
+            bottomExportBtn.addEventListener('click', exportToCSV);
 
-            // 年度预览点击
-            yearPreview.addEventListener('click',openYearModalFunc);
-
-            // 工单模态框
-            modalCancel.addEventListener('click',()=>{modalOverlay.classList.remove('active');});
-            modalOverlay.addEventListener('click',(e)=>{if(e.target===modalOverlay)modalOverlay.classList.remove('active');});
-            modalSave.addEventListener('click', async ()=>{
+            // 模态框关闭 - 使用直接绑定
+            modalCancel.addEventListener('click', function(e){ e.stopPropagation(); modalOverlay.classList.remove('active'); });
+            modalOverlay.addEventListener('click', function(e){ if(e.target===modalOverlay) modalOverlay.classList.remove('active'); });
+            modalSave.addEventListener('click', async function(e){ e.stopPropagation();
                 let date=formDate.value, dept=formDept.value.trim(), name=formName.value.trim(), issue=formIssue.value.trim();
                 let category=formCategory.value, resolved=parseInt(formResolved.value);
                 if(!date){alert('请选择日期');return;} if(!issue){alert('请输入问题描述');return;}
@@ -1213,11 +1118,10 @@
                 try{if(id){await updateTicketInFirebase(id,data);}else{await addTicketToFirebase(data);}modalOverlay.classList.remove('active');await refreshData();}catch(err){alert('保存失败: '+err.message);}
             });
 
-            // 借出模态框
-            borrowModalClose.addEventListener('click',()=>{borrowModal.classList.remove('active');});
-            borrowModalCancel.addEventListener('click',()=>{borrowModal.classList.remove('active');});
-            borrowModal.addEventListener('click',(e)=>{if(e.target===borrowModal)borrowModal.classList.remove('active');});
-            borrowModalSave.addEventListener('click', async ()=>{
+            borrowModalClose.addEventListener('click', function(e){ e.stopPropagation(); borrowModal.classList.remove('active'); });
+            borrowModalCancel.addEventListener('click', function(e){ e.stopPropagation(); borrowModal.classList.remove('active'); });
+            borrowModal.addEventListener('click', function(e){ if(e.target===borrowModal) borrowModal.classList.remove('active'); });
+            borrowModalSave.addEventListener('click', async function(e){ e.stopPropagation();
                 let dept=borrowDept.value, name=borrowName.value.trim(), device=borrowDevice.value.trim(), date=borrowDate.value, note=borrowNote.value.trim();
                 if(!dept){alert('请选择部门');return;} if(!name){alert('请输入借用人');return;} if(!device){alert('请输入借用设备');return;} if(!date){alert('请选择借出日期');return;}
                 let data={department:dept,name,device,borrowDate:date,note,status:'未归还',deleted:false};
@@ -1241,35 +1145,33 @@
             recycleItems.addEventListener('click',function(e){let target=e.target.closest('button');if(!target)return;let id=target.dataset.id,type=target.dataset.type;if(!id||!type)return;if(target.classList.contains('restore-item')){restoreItem(id,type);}else if(target.classList.contains('permanent-delete')){permanentDeleteItem(id,type);}});
 
             // 部门搜索
-            formDept.addEventListener('input',function(){let q=this.value||'';let matched=[];if(q.trim()==='')matched=DEPARTMENTS;else matched=DEPARTMENTS.filter(d=>matchDepartment(q,d));if(matched.length===0){deptDropdown.innerHTML='<div class="no-result">未找到匹配，可自定义</div>';deptDropdown.classList.add('show');return;}let html='';matched.forEach(dept=>{let display=dept;if(q.trim()!==''){let idx=dept.indexOf(q.trim());if(idx!==-1){display=dept.substring(0,idx)+'<span class="highlight">'+dept.substring(idx,idx+q.trim().length)+'</span>'+dept.substring(idx+q.trim().length);}}html+=`<div class="dept-item" data-dept="${dept}">${display}</div>`;});deptDropdown.innerHTML=html;deptDropdown.classList.add('show');deptDropdown.querySelectorAll('.dept-item').forEach(el=>{el.addEventListener('click',function(){formDept.value=this.dataset.dept;deptDropdown.classList.remove('show');});});});
+            formDept.addEventListener('input',function(){let q=this.value||'';let matched=[];if(q.trim()==='')matched=DEPARTMENTS;else matched=DEPARTMENTS.filter(d=>matchDepartment(q,d));if(matched.length===0){deptDropdown.innerHTML='<div class="no-result">未找到，可自定义</div>';deptDropdown.classList.add('show');return;}let html='';matched.forEach(dept=>{let display=dept;if(q.trim()!==''){let idx=dept.indexOf(q.trim());if(idx!==-1){display=dept.substring(0,idx)+'<span class="highlight">'+dept.substring(idx,idx+q.trim().length)+'</span>'+dept.substring(idx+q.trim().length);}}html+=`<div class="dept-item" data-dept="${dept}">${display}</div>`;});deptDropdown.innerHTML=html;deptDropdown.classList.add('show');deptDropdown.querySelectorAll('.dept-item').forEach(el=>{el.addEventListener('click',function(){formDept.value=this.dataset.dept;deptDropdown.classList.remove('show');});});});
             formDept.addEventListener('focus',function(){this.dispatchEvent(new Event('input'));});
             formDept.addEventListener('blur',function(){setTimeout(()=>{deptDropdown.classList.remove('show');},200);});
             document.addEventListener('click',function(e){if(!e.target.closest('#formDept')&&!e.target.closest('#deptDropdown')){deptDropdown.classList.remove('show');}});
 
             // 年度汇总模态框
-            yearModalClose.addEventListener('click',()=>{yearModal.classList.remove('active');});
-            yearModal.addEventListener('click',(e)=>{if(e.target===yearModal)yearModal.classList.remove('active');});
+            yearModalClose.addEventListener('click', function(e){ e.stopPropagation(); yearModal.classList.remove('active'); });
+            yearModal.addEventListener('click', function(e){ if(e.target===yearModal) yearModal.classList.remove('active'); });
             yearSelect.addEventListener('change',function(){let year=parseInt(this.value);if(!isNaN(year))renderYearSummary(year);});
 
             // 未解决
             pendingCard.addEventListener('click',openPendingModal);
-            pendingModalClose.addEventListener('click',()=>{pendingModal.classList.remove('active');});
-            pendingModal.addEventListener('click',(e)=>{if(e.target===pendingModal)pendingModal.classList.remove('active');});
+            pendingModalClose.addEventListener('click', function(e){ e.stopPropagation(); pendingModal.classList.remove('active'); });
+            pendingModal.addEventListener('click', function(e){ if(e.target===pendingModal) pendingModal.classList.remove('active'); });
 
             // 导入
-            importModalClose.addEventListener('click',()=>{importModal.classList.remove('active');});
-            importCancel.addEventListener('click',()=>{importModal.classList.remove('active');});
-            importModal.addEventListener('click',(e)=>{if(e.target===importModal)importModal.classList.remove('active');});
-            importPreviewBtn.addEventListener('click',handleImportPreview);
-            importConfirmBtn.addEventListener('click',handleImportConfirm);
+            importModalClose.addEventListener('click', function(e){ e.stopPropagation(); importModal.classList.remove('active'); });
+            importCancel.addEventListener('click', function(e){ e.stopPropagation(); importModal.classList.remove('active'); });
+            importModal.addEventListener('click', function(e){ if(e.target===importModal) importModal.classList.remove('active'); });
+            importPreviewBtn.addEventListener('click', handleImportPreview);
+            importConfirmBtn.addEventListener('click', handleImportConfirm);
 
             // ===================== 辅助函数 =====================
             function resetTicketForm(){editId.value='';modalTitle.textContent='添加工单';formDate.value=new Date().toISOString().slice(0,10);formDept.value='';formName.value='';formIssue.value='';formCategory.value='软件';formResolved.value='0';deptDropdown.classList.remove('show');}
             function openEditTicketModal(id){let ticket=allTickets.find(t=>t.id===id);if(!ticket)return;editId.value=ticket.id;modalTitle.textContent='编辑工单';formDate.value=ticket.date||'';formDept.value=ticket.department||'';formName.value=ticket.name||'';formIssue.value=ticket.issue||'';formCategory.value=ticket.category||'其他';formResolved.value=ticket.resolved||0;modalOverlay.classList.add('active');deptDropdown.classList.remove('show');}
             function resetBorrowForm(){borrowEditId.value='';borrowDept.value='';borrowName.value='';borrowDevice.value='';borrowDate.value=new Date().toISOString().slice(0,10);borrowNote.value='';}
-            function openBorrowModalFunc(){resetBorrowForm();borrowModal.classList.add('active');}
-            function openPendingModal(){if(!isFirebaseReady){alert('数据未加载');return;}let pendingTickets=allTickets.filter(t=>t.resolved==0&&!t.deleted);pendingCountTitle.textContent=pendingTickets.length;if(pendingTickets.length===0){pendingList.innerHTML='<div class="empty-state">🎉 没有未解决工单</div>';pendingModal.classList.add('active');return;}pendingTickets.sort((a,b)=>(a.date<b.date?1:-1));let html='';pendingTickets.forEach(t=>{let catCls=(t.category||'其他').toLowerCase();let emoji=getCategoryEmoji(t.category);html+=`<div class="pending-item"><div class="info"><strong>${escapeHtml(t.date||'')}</strong> ${escapeHtml(t.department||'')} ${escapeHtml(t.name||'')}<span style="display:block;color:#475569;font-size:13px;">${escapeHtml(t.issue||'')}</span></div><div class="meta"><span class="tag ${catCls}">${emoji} ${escapeHtml(t.category||'其他')}</span><span class="badge badge-pending">未解决</span></div></div>`;});pendingList.innerHTML=html;pendingModal.classList.add('active');}
-            function openYearModalFunc(){if(!isFirebaseReady||allTickets.length===0){alert('暂无工单数据');return;}populateYearSelect();let selectedYear=parseInt(yearSelect.value)||new Date().getFullYear();renderYearSummary(selectedYear);yearModal.classList.add('active');}
+            function openPendingModal(){if(!isFirebaseReady){alert('数据未加载');return;}let pendingTickets=allTickets.filter(t=>t.resolved==0&&!t.deleted);pendingCountTitle.textContent=pendingTickets.length;if(pendingTickets.length===0){pendingList.innerHTML='<div class="empty-state">🎉 没有未解决工单</div>';pendingModal.classList.add('active');return;}pendingTickets.sort((a,b)=>(a.date<b.date?1:-1));let html='';pendingTickets.forEach(t=>{let catCls=(t.category||'其他').toLowerCase();let emoji=getCategoryEmoji(t.category);html+=`<div class="pending-item"><div class="info"><strong>${escapeHtml(t.date||'')}</strong> ${escapeHtml(t.department||'')} ${escapeHtml(t.name||'')}<span style="display:block;color:#475569;font-size:12px;">${escapeHtml(t.issue||'')}</span></div><div class="meta"><span class="tag ${catCls}">${emoji} ${escapeHtml(t.category||'其他')}</span><span class="badge badge-pending">未解决</span></div></div>`;});pendingList.innerHTML=html;pendingModal.classList.add('active');}
             async function performReturnBorrow(id){if(!isFirebaseReady)return;try{syncDot.className='sync-dot syncing';syncLabel.textContent='更新中...';let today=new Date().toISOString().slice(0,10);await updateBorrowInFirebase(id,{status:'已归还',returnDate:today});await refreshData();syncDot.className='sync-dot';syncLabel.textContent='已同步';}catch(err){alert('操作失败: '+err.message);syncDot.className='sync-dot error';syncLabel.textContent='更新失败';}}
             function exportToCSV(){
                 if(!allTickets&&!allBorrows){alert('没有数据可导出');return;}
@@ -1283,13 +1185,12 @@
                 document.body.appendChild(link);link.click();document.body.removeChild(link);URL.revokeObjectURL(link.href);
             }
 
-            // 前台刷新
             document.addEventListener('visibilitychange', async ()=>{
                 if(document.visibilityState==='visible'&&!mainArea.classList.contains('hidden')&&isFirebaseReady)await refreshData();
             });
 
             resetTicketForm();
-            console.log('运维管理系统 (效率型布局+年度汇总置顶) 已加载');
+            console.log('运维管理系统 (紧凑布局+弹窗修复) 已加载');
         })();
     </script>
 </body>
