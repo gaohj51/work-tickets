@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>运维工单系统</title>
+    <title>工单系统</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
-        /* ===== 精简重置 ===== */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: #f5f7fb; color: #1e293b; padding: 10px 12px 80px; min-height: 100vh; font-size: 13px;
+            background: #f5f7fb; color: #1e293b; padding: 12px 16px 80px; min-height: 100vh; font-size: 14px;
         }
         .container { max-width: 1000px; margin: 0 auto; }
 
@@ -29,31 +28,24 @@
         .config-row input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
         .config-hint { font-size: 12px; color: #64748b; align-self: center; }
 
-        /* ===== 通用按钮 ===== */
         .btn {
             padding: 6px 14px; border: none; border-radius: 6px; font-weight: 600; font-size: 13px;
-            cursor: pointer; transition: background 0.15s, transform 0.1s; white-space: nowrap;
+            cursor: pointer; transition: background 0.15s; white-space: nowrap;
             display: inline-flex; align-items: center; gap: 4px;
         }
-        .btn:active { transform: scale(0.95); }
+        .btn:active { transform: scale(0.96); }
         .btn-primary { background: #3b82f6; color: #fff; }
         .btn-primary:hover { background: #2563eb; }
         .btn-success { background: #22c55e; color: #fff; }
         .btn-success:hover { background: #16a34a; }
         .btn-danger { background: #ef4444; color: #fff; }
         .btn-danger:hover { background: #dc2626; }
-        .btn-warning { background: #f59e0b; color: #fff; }
-        .btn-warning:hover { background: #d97706; }
         .btn-purple { background: #8b5cf6; color: #fff; }
         .btn-purple:hover { background: #7c3aed; }
-        .btn-export { background: #0ea5e9; color: #fff; }
-        .btn-export:hover { background: #0284c7; }
         .btn-borrow { background: #f472b6; color: #fff; }
         .btn-borrow:hover { background: #ec4899; }
-        .btn-import { background: #14b8a6; color: #fff; }
-        .btn-import:hover { background: #0d9488; }
-        .btn-sm { padding: 3px 8px; font-size: 12px; }
-        .btn-xs { padding: 2px 6px; font-size: 11px; }
+        .btn-sm { padding: 3px 10px; font-size: 12px; }
+        .btn-xs { padding: 2px 8px; font-size: 11px; }
         .btn-resolve { background: #22c55e; color: #fff; padding: 2px 8px; font-size: 11px; border-radius: 16px; }
         .btn-resolve:hover { background: #16a34a; }
 
@@ -65,13 +57,14 @@
         .badge-borrowed { background: #fee2e2; color: #991b1b; }
         .badge-returned { background: #dcfce7; color: #166534; }
 
-        /* ===== 顶部栏：标题 + 年度汇总入口 ===== */
+        /* ===== 顶部栏 ===== */
         .header-bar {
             display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
-            margin-bottom: 10px; gap: 8px;
+            margin-bottom: 14px; gap: 8px;
         }
-        .header-bar h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
-        .header-bar .right-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .header-bar .left { display: flex; align-items: center; gap: 10px; }
+        .header-bar .left h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+        .header-bar .right { display: flex; align-items: center; gap: 10px; }
         .header-bar .sync-status {
             font-size: 11px; background: white; padding: 2px 10px; border-radius: 30px;
             border: 1px solid #e9eef3; display: flex; align-items: center; gap: 4px;
@@ -81,135 +74,159 @@
         .sync-dot.syncing { background: #f59e0b; animation: pulse 1s infinite; }
         @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
-        /* ===== 操作工具栏 ===== */
-        .toolbar {
-            display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;
-            background: white; padding: 6px 12px; border-radius: 10px; border: 1px solid #e9eef3;
-            align-items: center;
+        /* 更多下拉菜单 */
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown .dropbtn {
+            background: white; border: 1px solid #e9eef3; border-radius: 8px;
+            padding: 6px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
+            color: #1e293b; display: flex; align-items: center; gap: 4px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
         }
-        .toolbar .sep { color: #e2e8f0; font-size: 18px; margin: 0 2px; }
+        .dropdown .dropbtn:hover { background: #f1f5f9; }
+        .dropdown-content {
+            display: none; position: absolute; right: 0; top: 100%; margin-top: 4px;
+            background: white; min-width: 140px; border-radius: 10px;
+            border: 1px solid #e9eef3; box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            z-index: 100; overflow: hidden;
+        }
+        .dropdown-content.show { display: block; }
+        .dropdown-content .item {
+            padding: 8px 16px; font-size: 13px; cursor: pointer; border: none;
+            background: none; width: 100%; text-align: left; display: flex; align-items: center; gap: 8px;
+            color: #1e293b;
+        }
+        .dropdown-content .item:hover { background: #f1f5f9; }
+        .dropdown-content .item.danger { color: #ef4444; }
 
         /* ===== 核心指标 ===== */
         .stats-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 8px;
         }
         .stat-card {
-            background: white; padding: 8px 8px; border-radius: 10px; border: 1px solid #e9eef3;
+            background: white; padding: 12px 8px; border-radius: 12px; border: 1px solid #e9eef3;
             text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.02);
         }
-        .stat-card .num { font-size: 26px; font-weight: 700; line-height: 1.2; }
-        .stat-card .label { font-size: 11px; color: #64748b; margin-top: 0px; }
+        .stat-card .num { font-size: 30px; font-weight: 700; line-height: 1.2; }
+        .stat-card .label { font-size: 12px; color: #64748b; margin-top: 2px; }
         .stat-card.blue .num { color: #3b82f6; }
         .stat-card.green .num { color: #22c55e; }
         .stat-card.red .num { color: #ef4444; }
         .stat-card.clickable { cursor: pointer; }
         .stat-card.clickable:hover { background: #f8fafc; border-color: #cbd5e1; }
 
-        /* ===== 周统计 ===== */
-        .weekly-stats {
-            background: white; border-radius: 10px; border: 1px solid #e9eef3;
-            padding: 6px 12px; margin-bottom: 10px;
-            display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px;
+        /* ===== 分类统计（第二排） ===== */
+        .category-stats {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px;
         }
-        .weekly-stats .weekly-title { font-weight: 600; font-size: 13px; color: #0f172a; }
-        .weekly-stats .weekly-nav button {
-            background: none; border: 1px solid #d1d9e6; border-radius: 4px;
-            padding: 0 6px; font-size: 14px; cursor: pointer; line-height: 1.4;
+        .cat-stat {
+            background: white; padding: 6px 8px; border-radius: 8px; border: 1px solid #e9eef3;
+            text-align: center; font-size: 13px;
+        }
+        .cat-stat .num { font-weight: 700; font-size: 18px; }
+        .cat-stat .label { font-size: 11px; color: #64748b; }
+        .cat-stat.software .num { color: #3b82f6; }
+        .cat-stat.hardware .num { color: #f59e0b; }
+        .cat-stat.network .num { color: #4f46e5; }
+        .cat-stat.other .num { color: #94a3b8; }
+
+        /* ===== 周统计（独立卡片） ===== */
+        .weekly-card {
+            background: #f8fafc; border-radius: 12px; border: 1px solid #e9eef3;
+            padding: 10px 16px; margin-bottom: 12px;
+            display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px;
+        }
+        .weekly-card .weekly-title { font-weight: 600; font-size: 14px; color: #0f172a; }
+        .weekly-card .weekly-nav { display: flex; gap: 4px; align-items: center; }
+        .weekly-card .weekly-nav button {
+            background: none; border: 1px solid #d1d9e6; border-radius: 6px;
+            padding: 0 10px; font-size: 16px; cursor: pointer; line-height: 1.6;
             color: #475569;
         }
-        .weekly-stats .weekly-nav button:hover { background: #f1f5f9; }
-        .weekly-stats .weekly-nav .week-range { font-size: 12px; font-weight: 500; color: #0f172a; min-width: 80px; text-align: center; }
-        .weekly-stats .weekly-grid { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
-        .weekly-stats .weekly-item { display: flex; align-items: baseline; gap: 2px; font-size: 12px; color: #475569; }
-        .weekly-stats .weekly-item .num { font-weight: 700; font-size: 14px; }
-        .weekly-stats .weekly-item .num.blue { color: #3b82f6; }
-        .weekly-stats .weekly-item .num.green { color: #22c55e; }
-        .weekly-stats .weekly-item .num.red { color: #ef4444; }
-        .weekly-stats .weekly-item .num.purple { color: #8b5cf6; }
-        .weekly-stats .weekly-item .num.orange { color: #f59e0b; }
-        .weekly-stats .weekly-item .num.indigo { color: #4f46e5; }
+        .weekly-card .weekly-nav button:hover { background: #e9eef3; }
+        .weekly-card .weekly-nav .week-range { font-size: 14px; font-weight: 500; color: #0f172a; min-width: 100px; text-align: center; }
+        .weekly-card .weekly-grid { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
+        .weekly-card .weekly-item { display: flex; align-items: baseline; gap: 3px; font-size: 13px; color: #475569; }
+        .weekly-card .weekly-item .num { font-weight: 700; font-size: 16px; }
+        .weekly-card .weekly-item .num.blue { color: #3b82f6; }
+        .weekly-card .weekly-item .num.green { color: #22c55e; }
+        .weekly-card .weekly-item .num.red { color: #ef4444; }
+        .weekly-card .weekly-item .num.purple { color: #8b5cf6; }
+        .weekly-card .weekly-item .num.orange { color: #f59e0b; }
+        .weekly-card .weekly-item .num.indigo { color: #4f46e5; }
 
         /* ===== 图表 ===== */
         .chart-wrapper {
-            background: white; border-radius: 10px; padding: 8px; border: 1px solid #e9eef3;
-            margin-bottom: 10px; height: 140px; position: relative;
+            background: white; border-radius: 12px; padding: 10px; border: 1px solid #e9eef3;
+            margin-bottom: 12px; height: 150px; position: relative;
         }
         .chart-wrapper canvas { width: 100% !important; height: 100% !important; }
 
-        /* ===== 统一筛选行（Tab + 分类 + 月份） ===== */
+        /* ===== 月份切换（放大） ===== */
+        .month-nav {
+            display: flex; align-items: center; justify-content: space-between;
+            background: white; padding: 8px 16px; border-radius: 12px;
+            border: 1px solid #e9eef3; margin-bottom: 12px;
+        }
+        .month-nav .month-label { font-weight: 700; font-size: 20px; letter-spacing: 0.5px; }
+        .month-nav .nav-btn {
+            background: none; border: 1px solid #d1d9e6; border-radius: 8px;
+            padding: 4px 18px; font-size: 24px; cursor: pointer; line-height: 1.4;
+            color: #475569; font-weight: 300;
+        }
+        .month-nav .nav-btn:hover { background: #f1f5f9; }
+
+        /* ===== Tab + 筛选行 ===== */
         .filter-top-row {
-            display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;
+            display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;
             align-items: center;
         }
         .filter-top-row .tab-group {
-            display: flex; gap: 2px; background: #e9eef3; border-radius: 8px; padding: 2px;
+            display: flex; gap: 2px; background: #e9eef3; border-radius: 8px; padding: 3px;
         }
         .filter-top-row .tab-group .tab-btn {
-            padding: 4px 12px; border: none; border-radius: 6px; font-weight: 600; font-size: 12px;
+            padding: 6px 16px; border: none; border-radius: 6px; font-weight: 600; font-size: 13px;
             cursor: pointer; background: transparent; color: #64748b; transition: 0.15s;
         }
         .filter-top-row .tab-group .tab-btn.active { background: white; color: #0f172a; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
 
-        .filter-top-row .cat-group {
-            display: flex; gap: 2px; flex-wrap: wrap;
+        .filter-top-row .search-group {
+            display: flex; flex-wrap: wrap; gap: 6px; align-items: center; flex: 1;
+            background: white; padding: 4px 12px; border-radius: 8px;
+            border: 1px solid #e9eef3;
         }
-        .filter-top-row .cat-group .cat-btn {
-            padding: 4px 10px; border-radius: 6px; border: 1px solid #d1d9e6;
-            background: white; font-size: 12px; cursor: pointer; transition: 0.15s;
-            color: #475569;
-        }
-        .filter-top-row .cat-group .cat-btn:hover { background: #f1f5f9; }
-        .filter-top-row .cat-group .cat-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
-        .filter-top-row .cat-group .cat-btn .count { font-weight: 700; margin-left: 2px; }
-
-        .filter-top-row .month-nav {
-            display: flex; align-items: center; gap: 4px; margin-left: auto;
-            background: white; padding: 2px 8px; border-radius: 8px; border: 1px solid #e9eef3;
-        }
-        .filter-top-row .month-nav .month-label { font-weight: 600; font-size: 13px; min-width: 80px; text-align: center; }
-        .filter-top-row .month-nav .nav-btn {
-            background: none; border: 1px solid #d1d9e6; border-radius: 4px;
-            padding: 0 8px; font-size: 14px; cursor: pointer; line-height: 1.4;
-            color: #475569;
-        }
-        .filter-top-row .month-nav .nav-btn:hover { background: #f1f5f9; }
-
-        /* ===== 搜索/部门筛选行 ===== */
-        .search-bar {
-            display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
-            background: white; padding: 4px 10px; border-radius: 8px;
-            border: 1px solid #e9eef3; margin-bottom: 10px;
-        }
-        .search-bar select, .search-bar input {
-            padding: 3px 8px; border: 1px solid #d1d9e6; border-radius: 4px;
+        .filter-top-row .search-group select {
+            padding: 4px 8px; border: 1px solid #d1d9e6; border-radius: 4px;
             font-size: 12px; background: white; min-width: 80px;
         }
-        .search-bar input { min-width: 120px; flex: 1; }
-        .search-bar .clear-filter {
+        .filter-top-row .search-group input {
+            padding: 4px 8px; border: 1px solid #d1d9e6; border-radius: 4px;
+            font-size: 12px; background: white; min-width: 120px; flex: 1;
+        }
+        .filter-top-row .search-group .clear-filter {
             color: #3b82f6; font-size: 12px; cursor: pointer; background: none;
             border: none; font-weight: 500;
         }
-        .search-bar .clear-filter:hover { text-decoration: underline; }
+        .filter-top-row .search-group .clear-filter:hover { text-decoration: underline; }
 
         /* ===== 工单列表 ===== */
         .day-group {
-            background: white; border-radius: 10px; border: 1px solid #e9eef3;
+            background: white; border-radius: 12px; border: 1px solid #e9eef3;
             margin-bottom: 10px; overflow: hidden;
         }
         .day-header {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 6px 12px; background: #f8fafc; border-bottom: 1px solid #e9eef3;
-            font-weight: 600; font-size: 13px; cursor: pointer; user-select: none;
+            padding: 8px 14px; background: #f8fafc; border-bottom: 1px solid #e9eef3;
+            font-weight: 600; font-size: 14px; cursor: pointer; user-select: none;
         }
         .day-header:hover { background: #f1f5f9; }
-        .day-header .day-count { font-weight: 400; color: #64748b; font-size: 12px; }
-        .day-header .toggle-icon { margin-left: 4px; font-size: 11px; color: #94a3b8; }
+        .day-header .day-count { font-weight: 400; color: #64748b; font-size: 13px; }
+        .day-header .toggle-icon { margin-left: 4px; font-size: 12px; color: #94a3b8; }
         .day-stats {
-            display: flex; flex-wrap: wrap; gap: 6px 12px;
-            padding: 3px 12px 6px; background: #fafcff;
-            border-bottom: 1px solid #e9eef3; font-size: 11px; color: #475569;
+            display: flex; flex-wrap: wrap; gap: 8px 14px;
+            padding: 4px 14px 8px; background: #fafcff;
+            border-bottom: 1px solid #e9eef3; font-size: 12px; color: #475569;
         }
-        .day-stats .stat-item .num { font-weight: 700; font-size: 12px; }
+        .day-stats .stat-item .num { font-weight: 700; font-size: 13px; }
         .day-stats .stat-item .num.purple { color: #8b5cf6; }
         .day-stats .stat-item .num.orange { color: #f59e0b; }
         .day-stats .stat-item .num.indigo { color: #4f46e5; }
@@ -217,7 +234,7 @@
 
         .ticket-item {
             display: flex; flex-wrap: wrap; align-items: center;
-            gap: 4px 10px; padding: 6px 12px; padding-left: 14px;
+            gap: 4px 10px; padding: 8px 14px; padding-left: 16px;
             border-bottom: 1px solid #f1f5f9; position: relative;
         }
         .ticket-item:last-child { border-bottom: none; }
@@ -237,17 +254,17 @@
         .ticket-item .actions { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; }
 
         .tag {
-            font-size: 11px; padding: 1px 6px; border-radius: 20px; background: #e9eef3; color: #334155;
+            font-size: 11px; padding: 1px 8px; border-radius: 20px; background: #e9eef3; color: #334155;
         }
         .tag.software { background: #dbeafe; color: #1e40af; }
         .tag.hardware { background: #fef3c7; color: #92400e; }
         .tag.network { background: #e0e7ff; color: #3730a3; }
         .tag.other { background: #f1f5f9; color: #475569; }
 
-        /* ===== 借出/回收站列表 ===== */
+        /* ===== 借出/回收站 ===== */
         .borrow-item, .recycle-item {
             display: flex; flex-wrap: wrap; align-items: center;
-            gap: 4px 10px; padding: 6px 12px; border-bottom: 1px solid #f1f5f9;
+            gap: 4px 10px; padding: 8px 14px; border-bottom: 1px solid #f1f5f9;
             background: white;
         }
         .borrow-item:last-child, .recycle-item:last-child { border-bottom: none; }
@@ -258,12 +275,12 @@
 
         .borrow-filter {
             display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
-            background: white; padding: 4px 10px; border-radius: 8px;
+            background: white; padding: 6px 14px; border-radius: 8px;
             border: 1px solid #e9eef3; margin-bottom: 10px;
         }
         .borrow-filter .filter-label { font-weight: 500; font-size: 12px; color: #475569; }
         .borrow-filter .filter-btn {
-            padding: 2px 10px; border: 1px solid #d1d9e6; border-radius: 16px;
+            padding: 2px 12px; border: 1px solid #d1d9e6; border-radius: 16px;
             background: white; font-size: 12px; cursor: pointer; transition: 0.15s;
             color: #475569;
         }
@@ -278,20 +295,20 @@
         }
         .modal-overlay.active { display: flex; }
         .modal {
-            background: white; border-radius: 14px; padding: 18px;
+            background: white; border-radius: 14px; padding: 20px;
             max-width: 780px; width: 100%; max-height: 90vh; overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0,0,0,0.12);
         }
-        .modal h2 { font-size: 17px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .modal .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: #94a3b8; padding: 0 6px; }
+        .modal h2 { font-size: 18px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
+        .modal .close-btn { background: none; border: none; font-size: 22px; cursor: pointer; color: #94a3b8; padding: 0 6px; }
         .modal .close-btn:hover { color: #1e293b; }
-        .modal label { font-weight: 500; font-size: 12px; display: block; margin-top: 8px; margin-bottom: 2px; }
+        .modal label { font-weight: 500; font-size: 13px; display: block; margin-top: 10px; margin-bottom: 3px; }
         .modal input, .modal select, .modal textarea {
             width: 100%; padding: 6px 10px; border: 1px solid #d1d9e6;
             border-radius: 6px; font-size: 13px; background: white;
         }
-        .modal textarea { min-height: 40px; resize: vertical; }
-        .modal .form-row { display: flex; gap: 8px; flex-wrap: wrap; }
+        .modal textarea { min-height: 45px; resize: vertical; }
+        .modal .form-row { display: flex; gap: 10px; flex-wrap: wrap; }
         .modal .form-row>div { flex: 1; min-width: 80px; position: relative; }
         .modal .modal-actions { display: flex; gap: 8px; margin-top: 14px; justify-content: flex-end; }
 
@@ -308,7 +325,7 @@
         .dept-dropdown .dept-item .highlight { font-weight: 600; color: #3b82f6; }
         .dept-dropdown .no-result { padding: 6px 10px; color: #94a3b8; text-align: center; font-size: 12px; }
 
-        /* ===== 年度汇总内部 ===== */
+        /* ===== 年度汇总 ===== */
         .year-stats-grid {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(70px,1fr));
             gap: 6px; margin-bottom: 12px;
@@ -349,12 +366,12 @@
         .import-preview th { background: #f8fafc; position: sticky; top: 0; }
 
         /* ===== 空状态 ===== */
-        .empty-state { text-align: center; padding: 24px 16px; color: #94a3b8; font-size: 13px; }
+        .empty-state { text-align: center; padding: 30px 16px; color: #94a3b8; font-size: 13px; }
 
-        /* ===== 隐藏 ===== */
         .hidden { display: none !important; }
+        .highlight { background: #fef9c3; }
 
-        /* ===== 移动端底部栏 ===== */
+        /* ===== 移动端 ===== */
         .bottom-actions {
             display: none; position: fixed; bottom: 0; left: 0; right: 0;
             background: white; padding: 6px 10px; padding-bottom: max(6px, env(safe-area-inset-bottom));
@@ -369,42 +386,38 @@
         .bottom-actions .btn .icon { font-size: 16px; }
         .bottom-actions .btn .label { font-size: 9px; }
 
-        .highlight { background: #fef9c3; }
-
         @media (max-width: 600px) {
-            body { padding: 6px 8px 70px; font-size: 12px; }
-            .header-bar h1 { font-size: 17px; }
-            .toolbar .btn { font-size: 11px; padding: 4px 8px; }
-            .toolbar .sep { font-size: 14px; }
-            .stats-grid { gap: 4px; }
-            .stat-card .num { font-size: 20px; }
-            .stat-card .label { font-size: 10px; }
-            .weekly-stats { padding: 4px 8px; gap: 4px 8px; }
-            .weekly-stats .weekly-item { font-size: 11px; }
-            .weekly-stats .weekly-item .num { font-size: 13px; }
-            .filter-top-row .tab-group .tab-btn { font-size: 11px; padding: 3px 8px; }
-            .filter-top-row .cat-group .cat-btn { font-size: 11px; padding: 2px 6px; }
-            .filter-top-row .month-nav .month-label { font-size: 12px; min-width: 60px; }
+            body { padding: 8px 10px 70px; font-size: 13px; }
+            .header-bar .left h1 { font-size: 18px; }
+            .header-bar .right .sync-status { font-size: 10px; padding: 1px 8px; }
+            .stats-grid { gap: 6px; }
+            .stat-card .num { font-size: 24px; }
+            .category-stats { grid-template-columns: repeat(4, 1fr); gap: 4px; }
+            .cat-stat { padding: 4px 4px; font-size: 12px; }
+            .cat-stat .num { font-size: 15px; }
+            .weekly-card { padding: 6px 10px; gap: 4px 10px; }
+            .weekly-card .weekly-item { font-size: 11px; }
+            .weekly-card .weekly-item .num { font-size: 13px; }
+            .month-nav { padding: 4px 12px; }
+            .month-nav .month-label { font-size: 16px; }
+            .month-nav .nav-btn { font-size: 20px; padding: 2px 12px; }
+            .filter-top-row { flex-direction: column; align-items: stretch; gap: 6px; }
+            .filter-top-row .search-group { padding: 4px 8px; }
+            .filter-top-row .search-group input { min-width: 60px; }
             .chart-wrapper { height: 110px; }
-            .search-bar input { min-width: 80px; font-size: 12px; }
-            .search-bar select { font-size: 12px; }
-            .ticket-item { padding: 4px 8px 4px 12px; gap: 2px 6px; }
+            .ticket-item { padding: 4px 10px 4px 14px; gap: 2px 6px; }
             .ticket-item .info .dept-name { font-size: 12px; }
             .ticket-item .info .issue-text { font-size: 11px; }
-            .day-header { font-size: 12px; padding: 4px 8px; }
-            .day-stats { font-size: 10px; padding: 2px 8px 4px; gap: 4px 8px; }
+            .day-header { font-size: 13px; padding: 4px 10px; }
+            .day-stats { font-size: 11px; padding: 2px 10px 6px; gap: 4px 10px; }
             .btn-sm { font-size: 10px; padding: 2px 6px; }
             .btn-resolve { font-size: 10px; padding: 2px 6px; }
-            .modal { padding: 12px; }
-            .year-chart-row .year-chart-wrapper { height: 130px; }
+            .modal { padding: 14px; }
             .bottom-actions { display: flex; }
-            .toolbar { display: none !important; }
-            .filter-top-row .month-nav { margin-left: 0; }
-            .filter-top-row { flex-direction: column; align-items: stretch; }
+            .dropdown .dropbtn { font-size: 11px; padding: 4px 10px; }
         }
         @media (min-width: 601px) {
             .bottom-actions { display: none !important; }
-            .toolbar { display: flex !important; }
         }
     </style>
 </head>
@@ -437,9 +450,19 @@
 
             <!-- ===== 顶部栏 ===== -->
             <div class="header-bar">
-                <h1>📋 运维</h1>
-                <div class="right-group">
+                <div class="left">
+                    <h1>📋 工单系统</h1>
                     <button class="btn btn-purple" id="openYearModalBtn" style="font-size:13px;padding:4px 12px;">📊 年度汇总</button>
+                </div>
+                <div class="right">
+                    <!-- 更多下拉菜单 -->
+                    <div class="dropdown" id="moreDropdown">
+                        <button class="dropbtn" id="moreBtn">☰ 更多</button>
+                        <div class="dropdown-content" id="dropdownContent">
+                            <button class="item" id="dropdownImport">📤 导入数据</button>
+                            <button class="item" id="dropdownExport">📥 导出数据</button>
+                        </div>
+                    </div>
                     <div class="sync-status">
                         <span class="sync-dot" id="syncDot"></span>
                         <span id="syncLabel">已连接</span>
@@ -447,13 +470,10 @@
                 </div>
             </div>
 
-            <!-- ===== 操作工具栏 ===== -->
-            <div class="toolbar" id="topToolbar">
-                <button class="btn btn-success" id="openAddModal">➕ 工单</button>
-                <button class="btn btn-borrow" id="openBorrowModal">📦 借出</button>
-                <span class="sep">|</span>
-                <button class="btn btn-import" id="openImportModal">📤 导入</button>
-                <button class="btn btn-export" id="exportBtn">📥 导出</button>
+            <!-- ===== 操作按钮行（工单+借出，放在显眼位置） ===== -->
+            <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+                <button class="btn btn-success" id="openAddModal" style="padding:8px 20px;font-size:15px;">➕ 添加工单</button>
+                <button class="btn btn-borrow" id="openBorrowModal" style="padding:8px 20px;font-size:15px;">📦 设备借出</button>
             </div>
 
             <!-- ===== 核心指标 ===== -->
@@ -463,9 +483,17 @@
                 <div class="stat-card red clickable" id="pendingCard"><div class="num" id="pendingCount">0</div><div class="label">未解决 ⏎</div></div>
             </div>
 
-            <!-- ===== 周统计 ===== -->
-            <div class="weekly-stats" id="weeklyStats">
-                <span class="weekly-title">📅 周</span>
+            <!-- ===== 分类统计（第二排） ===== -->
+            <div class="category-stats" id="categoryStats">
+                <div class="cat-stat software"><div class="num" id="catSoftwareNum">0</div><div class="label">💻 软件</div></div>
+                <div class="cat-stat hardware"><div class="num" id="catHardwareNum">0</div><div class="label">🖨️ 硬件</div></div>
+                <div class="cat-stat network"><div class="num" id="catNetworkNum">0</div><div class="label">🌐 网络</div></div>
+                <div class="cat-stat other"><div class="num" id="catOtherNum">0</div><div class="label">📦 其他</div></div>
+            </div>
+
+            <!-- ===== 周统计（独立卡片） ===== -->
+            <div class="weekly-card" id="weeklyStats">
+                <span class="weekly-title">📅 本周统计</span>
                 <div class="weekly-nav">
                     <button id="weekPrev">◀</button>
                     <span class="week-range" id="weekRange">加载中...</span>
@@ -477,32 +505,25 @@
             <!-- ===== 图表 ===== -->
             <div class="chart-wrapper"><canvas id="monthChart"></canvas></div>
 
-            <!-- ===== 统一筛选行 ===== -->
+            <!-- ===== 月份切换（放大） ===== -->
+            <div class="month-nav">
+                <button class="nav-btn" id="prevMonth">‹</button>
+                <span class="month-label" id="currentMonthLabel">2026年7月</span>
+                <button class="nav-btn" id="nextMonth">›</button>
+            </div>
+
+            <!-- ===== Tab + 筛选行 ===== -->
             <div class="filter-top-row">
                 <div class="tab-group">
                     <button class="tab-btn active" data-tab="tickets">📋 工单</button>
                     <button class="tab-btn" data-tab="borrow">📦 借出</button>
                     <button class="tab-btn" data-tab="recycle">♻️ 回收站</button>
                 </div>
-                <div class="cat-group" id="catGroup">
-                    <button class="cat-btn active" data-cat="all">全部</button>
-                    <button class="cat-btn" data-cat="软件">💻 <span class="count" id="catSoftware">0</span></button>
-                    <button class="cat-btn" data-cat="硬件">🖨️ <span class="count" id="catHardware">0</span></button>
-                    <button class="cat-btn" data-cat="网络">🌐 <span class="count" id="catNetwork">0</span></button>
-                    <button class="cat-btn" data-cat="其他">📦 <span class="count" id="catOther">0</span></button>
+                <div class="search-group">
+                    <select id="filterDept"><option value="all">全部部门</option></select>
+                    <input type="text" id="searchInput" placeholder="🔍 搜索关键词">
+                    <button class="clear-filter" id="clearFilter">清除</button>
                 </div>
-                <div class="month-nav">
-                    <button class="nav-btn" id="prevMonth">‹</button>
-                    <span class="month-label" id="currentMonthLabel">2026年7月</span>
-                    <button class="nav-btn" id="nextMonth">›</button>
-                </div>
-            </div>
-
-            <!-- ===== 搜索/部门筛选 ===== -->
-            <div class="search-bar" id="filterBar">
-                <select id="filterDept"><option value="all">全部部门</option></select>
-                <input type="text" id="searchInput" placeholder="🔍 搜索关键词" style="min-width:120px;">
-                <button class="clear-filter" id="clearFilter">清除</button>
             </div>
 
             <!-- ===== 工单列表 ===== -->
@@ -531,7 +552,7 @@
         </div>
     </div>
 
-    <!-- ===== 底部固定操作栏 ===== -->
+    <!-- ===== 底部固定栏 ===== -->
     <div class="bottom-actions" id="bottomActions">
         <button class="btn btn-success" id="bottomAddModal"><span class="icon">➕</span><span class="label">工单</span></button>
         <button class="btn btn-borrow" id="bottomBorrowModal"><span class="icon">📦</span><span class="label">借出</span></button>
@@ -665,13 +686,13 @@
             const weeklyGrid = $('weeklyGrid'), weekRange = $('weekRange'), weekPrev = $('weekPrev'), weekNext = $('weekNext');
             const filterDeptEl = $('filterDept'), searchInput = $('searchInput');
             const clearFilterBtn = $('clearFilter');
-            const catSoftware = $('catSoftware'), catHardware = $('catHardware'), catNetwork = $('catNetwork'), catOther = $('catOther');
-            // 工单模态框
+            const catSoftwareNum = $('catSoftwareNum'), catHardwareNum = $('catHardwareNum');
+            const catNetworkNum = $('catNetworkNum'), catOtherNum = $('catOtherNum');
+            // 模态框
             const modalOverlay = $('ticketModal'), modalTitle = $('modalTitle'), editId = $('editId');
             const formDate = $('formDate'), formDept = $('formDept'), formName = $('formName'), formIssue = $('formIssue');
             const formCategory = $('formCategory'), formResolved = $('formResolved'), modalCancel = $('modalCancel'), modalSave = $('modalSave');
             const deptDropdown = $('deptDropdown');
-            // 借出模态框
             const borrowModal = $('borrowModal'), borrowModalClose = $('borrowModalClose'), borrowEditId = $('borrowEditId');
             const borrowDept = $('borrowDept'), borrowName = $('borrowName'), borrowDevice = $('borrowDevice');
             const borrowDate = $('borrowDate'), borrowNote = $('borrowNote'), borrowModalCancel = $('borrowModalCancel'), borrowModalSave = $('borrowModalSave');
@@ -686,6 +707,9 @@
             const importFileInput = $('importFileInput'), importType = $('importType');
             const importPreviewBtn = $('importPreviewBtn'), importConfirmBtn = $('importConfirmBtn');
             const importPreviewArea = $('importPreviewArea'), importStatus = $('importStatus'), importCancel = $('importCancel');
+            // 下拉菜单
+            const moreBtn = $('moreBtn'), dropdownContent = $('dropdownContent');
+            const dropdownImport = $('dropdownImport'), dropdownExport = $('dropdownExport');
 
             // ===================== 初始化下拉 =====================
             function populateSelects() {
@@ -755,7 +779,7 @@
             }
             function formatDateShort(d){return (d.getMonth()+1)+'/'+d.getDate();}
             function renderWeeklyStats(){
-                if(!allTickets||allTickets.length===0){weeklyGrid.innerHTML='<span style="color:#94a3b8;font-size:12px;">暂无</span>';weekRange.textContent='--';return;}
+                if(!allTickets||allTickets.length===0){weeklyGrid.innerHTML='<span style="color:#94a3b8;font-size:13px;">暂无数据</span>';weekRange.textContent='--';return;}
                 let {start,end}=getWeekRange(currentWeekOffset);
                 let startStr=start.toISOString().slice(0,10), endStr=end.toISOString().slice(0,10);
                 weekRange.textContent=formatDateShort(start)+' - '+formatDateShort(end);
@@ -789,6 +813,13 @@
             function renderStats(tickets){
                 let total=tickets.length, resolved=tickets.filter(t=>t.resolved==1).length, pending=total-resolved;
                 totalCount.textContent=total; resolvedCount.textContent=resolved; pendingCount.textContent=pending;
+                // 更新分类统计
+                let sw=tickets.filter(t=>t.category==='软件').length;
+                let hw=tickets.filter(t=>t.category==='硬件').length;
+                let nw=tickets.filter(t=>t.category==='网络').length;
+                let ot=tickets.filter(t=>t.category==='其他').length;
+                catSoftwareNum.textContent=sw; catHardwareNum.textContent=hw;
+                catNetworkNum.textContent=nw; catOtherNum.textContent=ot;
             }
             function renderChart(tickets,year,month){
                 let daysInMonth=new Date(year,month,0).getDate();
@@ -806,13 +837,6 @@
             async function quickResolve(id){if(!isFirebaseReady){alert('系统未就绪');return;}if(!confirm('标记此工单为已解决？'))return;try{syncDot.className='sync-dot syncing';syncLabel.textContent='更新中...';await updateTicketInFirebase(id,{resolved:1});await refreshData();syncDot.className='sync-dot';syncLabel.textContent='已同步';}catch(err){alert('操作失败: '+err.message);syncDot.className='sync-dot error';syncLabel.textContent='更新失败';}}
             async function softDeleteTicket(id){if(!confirm('确定删除此工单？可恢复'))return;try{syncDot.className='sync-dot syncing';syncLabel.textContent='删除中...';await updateTicketInFirebase(id,{deleted:true});await refreshData();syncDot.className='sync-dot';syncLabel.textContent='已删除';}catch(err){alert('删除失败: '+err.message);syncDot.className='sync-dot error';syncLabel.textContent='删除失败';}}
             function getCategoryColor(cat){const map={'软件':'software','硬件':'hardware','网络':'network','其他':'other'};return map[cat]||'other';}
-            function updateCategoryCounts(tickets){
-                let sw=tickets.filter(t=>t.category==='软件').length;
-                let hw=tickets.filter(t=>t.category==='硬件').length;
-                let nw=tickets.filter(t=>t.category==='网络').length;
-                let ot=tickets.filter(t=>t.category==='其他').length;
-                catSoftware.textContent=sw>0?sw:''; catHardware.textContent=hw>0?hw:''; catNetwork.textContent=nw>0?nw:''; catOther.textContent=ot>0?ot:'';
-            }
             function renderTickets(){
                 let year=currentMonth.getFullYear(), month=currentMonth.getMonth()+1;
                 currentMonthLabel.textContent=`${year}年${month}月`;
@@ -821,7 +845,6 @@
                 renderStats(filtered);
                 renderChart(filtered,year,month);
                 renderWeeklyStats();
-                updateCategoryCounts(filtered);
                 let todayStr=new Date().toISOString().slice(0,10);
                 let groups={};
                 filtered.forEach(t=>{if(t.date){if(!groups[t.date])groups[t.date]=[];groups[t.date].push(t);}});
@@ -904,7 +927,7 @@
             async function restoreItem(id,type){try{syncDot.className='sync-dot syncing';syncLabel.textContent='恢复中...';if(type==='ticket')await updateTicketInFirebase(id,{deleted:false});else await updateBorrowInFirebase(id,{deleted:false});await refreshData();syncDot.className='sync-dot';syncLabel.textContent='已恢复';}catch(err){alert('恢复失败: '+err.message);syncDot.className='sync-dot error';syncLabel.textContent='恢复失败';}}
             async function permanentDeleteItem(id,type){if(!confirm('永久删除不可恢复，确定？'))return;try{syncDot.className='sync-dot syncing';syncLabel.textContent='删除中...';if(type==='ticket')await deleteTicketPermanent(id);else await deleteBorrowPermanent(id);await refreshData();syncDot.className='sync-dot';syncLabel.textContent='已永久删除';}catch(err){alert('删除失败: '+err.message);syncDot.className='sync-dot error';syncLabel.textContent='删除失败';}}
 
-            // ===================== 年度汇总模态框 =====================
+            // ===================== 年度汇总 =====================
             function populateYearSelect(){
                 let currentYear=new Date().getFullYear();
                 yearSelect.innerHTML='';
@@ -922,7 +945,6 @@
                 let network=yearTickets.filter(t=>t.category==='网络').length;
                 yearTotal.textContent=total; yearResolved.textContent=resolved; yearPending.textContent=pending;
                 yearSoftware.textContent=software; yearHardware.textContent=hardware; yearNetwork.textContent=network;
-                // 折线图
                 let monthCounts={}; for(let m=1;m<=12;m++){let ms=`${year}-${String(m).padStart(2,'0')}`;monthCounts[ms]=0;}
                 yearTickets.forEach(t=>{if(t.date){let prefix=t.date.substring(0,7);if(monthCounts[prefix]!==undefined)monthCounts[prefix]++;}});
                 let labels=Object.keys(monthCounts).map(k=>k.substring(5)+'月');
@@ -930,7 +952,6 @@
                 let ctxLine=yearLineChartCanvas.getContext('2d');
                 if(yearLineChartInstance)yearLineChartInstance.destroy();
                 yearLineChartInstance=new Chart(ctxLine,{type:'line',data:{labels,datasets:[{label:'工单数',data,borderColor:'#8b5cf6',backgroundColor:'rgba(139,92,246,0.1)',fill:true,tension:0.3,pointBackgroundColor:'#8b5cf6'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.parsed.y} 条`}}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{size:9}},grid:{color:'#f1f5f9'}},x:{ticks:{font:{size:9}},grid:{display:false}}}}});
-                // 饼图
                 let catData=[software,hardware,network];
                 let catLabels=['💻 软件','🖨️ 硬件','🌐 网络'];
                 let colors=['#8b5cf6','#f59e0b','#4f46e5'];
@@ -939,7 +960,6 @@
                 let ctxPie=yearPieChartCanvas.getContext('2d');
                 if(yearPieChartInstance)yearPieChartInstance.destroy();
                 yearPieChartInstance=new Chart(ctxPie,{type:'doughnut',data:{labels:catLabels,datasets:[{data:catData,backgroundColor:colors,borderWidth:2,borderColor:'white'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10}}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed} 条 (${((ctx.parsed/total)*100).toFixed(1)}%)`}}}}});
-                // 明细
                 let groups={}; yearTickets.forEach(t=>{let m=t.date?t.date.substring(0,7):'未知';if(!groups[m])groups[m]=[];groups[m].push(t);});
                 let sortedMonths=Object.keys(groups).sort();
                 if(sortedMonths.length===0){yearMonthList.innerHTML='<div class="empty-state">📭 该年度暂无工单</div>';return;}
@@ -1075,16 +1095,6 @@
             // Tab
             document.querySelectorAll('.tab-btn').forEach(btn=>{btn.addEventListener('click',function(){switchTab(this.dataset.tab);});});
 
-            // 分类筛选
-            document.querySelectorAll('.cat-group .cat-btn').forEach(btn=>{
-                btn.addEventListener('click',function(){
-                    document.querySelectorAll('.cat-group .cat-btn').forEach(b=>b.classList.remove('active'));
-                    this.classList.add('active');
-                    filterCategory=this.dataset.cat;
-                    if(currentTab==='tickets') renderTickets();
-                });
-            });
-
             // 借出/回收站筛选
             document.querySelectorAll('.borrow-filter .filter-btn').forEach(btn=>{btn.addEventListener('click',function(){document.querySelectorAll('.borrow-filter .filter-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');borrowFilter=this.dataset.filter;renderBorrows();});});
             document.querySelectorAll('.borrow-filter .filter-btn[data-recycle]').forEach(btn=>{btn.addEventListener('click',function(){document.querySelectorAll('.borrow-filter .filter-btn[data-recycle]').forEach(b=>b.classList.remove('active'));this.classList.add('active');recycleFilter=this.dataset.recycle;renderRecycle();});});
@@ -1094,7 +1104,14 @@
             searchInput.addEventListener('input',function(){searchKeyword=this.value;if(currentTab==='tickets')renderTickets();});
             clearFilterBtn.addEventListener('click',function(){filterDeptEl.value='all';searchInput.value='';filterDept='all';searchKeyword='';if(currentTab==='tickets')renderTickets();});
 
-            // 打开模态框 - 使用直接绑定方式确保有效
+            // 下拉菜单
+            moreBtn.addEventListener('click', function(e){ e.stopPropagation(); dropdownContent.classList.toggle('show'); });
+            document.addEventListener('click', function(){ dropdownContent.classList.remove('show'); });
+            dropdownContent.addEventListener('click', function(e){ e.stopPropagation(); });
+            dropdownImport.addEventListener('click', function(e){ e.stopPropagation(); importModal.classList.add('active'); dropdownContent.classList.remove('show'); });
+            dropdownExport.addEventListener('click', function(e){ e.stopPropagation(); exportToCSV(); dropdownContent.classList.remove('show'); });
+
+            // 按钮
             openAddModal.addEventListener('click', function(e){ e.stopPropagation(); resetTicketForm(); modalOverlay.classList.add('active'); });
             openBorrowModalBtn.addEventListener('click', function(e){ e.stopPropagation(); resetBorrowForm(); borrowModal.classList.add('active'); });
             openImportModal.addEventListener('click', function(e){ e.stopPropagation(); importModal.classList.add('active'); });
@@ -1106,7 +1123,7 @@
             bottomImportModal.addEventListener('click', function(e){ e.stopPropagation(); importModal.classList.add('active'); });
             bottomExportBtn.addEventListener('click', exportToCSV);
 
-            // 模态框关闭 - 使用直接绑定
+            // 工单模态框
             modalCancel.addEventListener('click', function(e){ e.stopPropagation(); modalOverlay.classList.remove('active'); });
             modalOverlay.addEventListener('click', function(e){ if(e.target===modalOverlay) modalOverlay.classList.remove('active'); });
             modalSave.addEventListener('click', async function(e){ e.stopPropagation();
@@ -1118,6 +1135,7 @@
                 try{if(id){await updateTicketInFirebase(id,data);}else{await addTicketToFirebase(data);}modalOverlay.classList.remove('active');await refreshData();}catch(err){alert('保存失败: '+err.message);}
             });
 
+            // 借出模态框
             borrowModalClose.addEventListener('click', function(e){ e.stopPropagation(); borrowModal.classList.remove('active'); });
             borrowModalCancel.addEventListener('click', function(e){ e.stopPropagation(); borrowModal.classList.remove('active'); });
             borrowModal.addEventListener('click', function(e){ if(e.target===borrowModal) borrowModal.classList.remove('active'); });
@@ -1150,7 +1168,7 @@
             formDept.addEventListener('blur',function(){setTimeout(()=>{deptDropdown.classList.remove('show');},200);});
             document.addEventListener('click',function(e){if(!e.target.closest('#formDept')&&!e.target.closest('#deptDropdown')){deptDropdown.classList.remove('show');}});
 
-            // 年度汇总模态框
+            // 年度汇总
             yearModalClose.addEventListener('click', function(e){ e.stopPropagation(); yearModal.classList.remove('active'); });
             yearModal.addEventListener('click', function(e){ if(e.target===yearModal) yearModal.classList.remove('active'); });
             yearSelect.addEventListener('change',function(){let year=parseInt(this.value);if(!isNaN(year))renderYearSummary(year);});
@@ -1190,7 +1208,7 @@
             });
 
             resetTicketForm();
-            console.log('运维管理系统 (紧凑布局+弹窗修复) 已加载');
+            console.log('工单系统 (布局优化) 已加载');
         })();
     </script>
 </body>
