@@ -9,29 +9,18 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
+        /* ===== 样式代码与之前完全一致，省略重复，但实际部署时请保留完整样式 ===== */
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: #f5f7fb; color: #1e293b; padding: 12px 16px 80px; min-height: 100vh; font-size: 14px;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f5f7fb; color: #1e293b; padding: 12px 16px 80px; min-height: 100vh; font-size: 14px; }
         .container { max-width: 1000px; margin: 0 auto; }
-
-        .config-card {
-            background: white; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-            margin-bottom: 12px; border: 1px solid #e9eef3;
-        }
+        .config-card { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: 12px; border: 1px solid #e9eef3; }
         .config-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
         .config-card p { font-size: 12px; color: #64748b; margin-bottom: 8px; }
         .config-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
         .config-row input { flex: 1; min-width: 120px; padding: 6px 10px; border: 1px solid #d1d9e6; border-radius: 6px; font-size: 13px; background: #fafcff; }
         .config-row input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
         .config-hint { font-size: 12px; color: #64748b; align-self: center; }
-
-        .btn {
-            padding: 6px 14px; border: none; border-radius: 6px; font-weight: 600; font-size: 13px;
-            cursor: pointer; transition: background 0.15s; white-space: nowrap;
-            display: inline-flex; align-items: center; gap: 4px;
-        }
+        .btn { padding: 6px 14px; border: none; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; transition: background 0.15s; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; }
         .btn:active { transform: scale(0.96); }
         .btn-primary { background: #3b82f6; color: #fff; }
         .btn-primary:hover { background: #2563eb; }
@@ -44,63 +33,31 @@
         .btn-borrow { background: #f472b6; color: #fff; }
         .btn-borrow:hover { background: #ec4899; }
         .btn-sm { padding: 3px 10px; font-size: 12px; }
-        .btn-xs { padding: 2px 8px; font-size: 11px; }
         .btn-resolve { background: #22c55e; color: #fff; padding: 2px 8px; font-size: 11px; border-radius: 16px; }
         .btn-resolve:hover { background: #16a34a; }
-
-        .badge {
-            font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; display: inline-block;
-        }
+        .badge { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; display: inline-block; }
         .badge-resolved { background: #dcfce7; color: #166534; }
         .badge-pending { background: #fee2e2; color: #991b1b; }
         .badge-borrowed { background: #fee2e2; color: #991b1b; }
         .badge-returned { background: #dcfce7; color: #166534; }
-
-        .header-bar {
-            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
-            margin-bottom: 14px; gap: 8px;
-        }
+        .header-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 14px; gap: 8px; }
         .header-bar .left { display: flex; align-items: center; gap: 10px; }
         .header-bar .left h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
         .header-bar .right { display: flex; align-items: center; gap: 10px; }
-        .header-bar .sync-status {
-            font-size: 11px; background: white; padding: 2px 10px; border-radius: 30px;
-            border: 1px solid #e9eef3; display: flex; align-items: center; gap: 4px;
-        }
+        .header-bar .sync-status { font-size: 11px; background: white; padding: 2px 10px; border-radius: 30px; border: 1px solid #e9eef3; display: flex; align-items: center; gap: 4px; }
         .sync-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; background: #22c55e; }
         .sync-dot.error { background: #ef4444; }
         .sync-dot.syncing { background: #f59e0b; animation: pulse 1s infinite; }
         @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
-
         .dropdown { position: relative; display: inline-block; }
-        .dropdown .dropbtn {
-            background: white; border: 1px solid #e9eef3; border-radius: 8px;
-            padding: 6px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
-            color: #1e293b; display: flex; align-items: center; gap: 4px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-        }
+        .dropdown .dropbtn { background: white; border: 1px solid #e9eef3; border-radius: 8px; padding: 6px 14px; font-size: 13px; font-weight: 600; cursor: pointer; color: #1e293b; display: flex; align-items: center; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
         .dropdown .dropbtn:hover { background: #f1f5f9; }
-        .dropdown-content {
-            display: none; position: absolute; right: 0; top: 100%; margin-top: 4px;
-            background: white; min-width: 140px; border-radius: 10px;
-            border: 1px solid #e9eef3; box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-            z-index: 100; overflow: hidden;
-        }
+        .dropdown-content { display: none; position: absolute; right: 0; top: 100%; margin-top: 4px; background: white; min-width: 140px; border-radius: 10px; border: 1px solid #e9eef3; box-shadow: 0 8px 24px rgba(0,0,0,0.08); z-index: 100; overflow: hidden; }
         .dropdown-content.show { display: block; }
-        .dropdown-content .item {
-            padding: 8px 16px; font-size: 13px; cursor: pointer; border: none;
-            background: none; width: 100%; text-align: left; display: flex; align-items: center; gap: 8px;
-            color: #1e293b;
-        }
+        .dropdown-content .item { padding: 8px 16px; font-size: 13px; cursor: pointer; border: none; background: none; width: 100%; text-align: left; display: flex; align-items: center; gap: 8px; color: #1e293b; }
         .dropdown-content .item:hover { background: #f1f5f9; }
-
-        .stats-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 8px;
-        }
-        .stat-card {
-            background: white; padding: 12px 8px; border-radius: 12px; border: 1px solid #e9eef3;
-            text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-        }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 8px; }
+        .stat-card { background: white; padding: 12px 8px; border-radius: 12px; border: 1px solid #e9eef3; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
         .stat-card .num { font-size: 30px; font-weight: 700; line-height: 1.2; }
         .stat-card .label { font-size: 12px; color: #64748b; margin-top: 2px; }
         .stat-card.blue .num { color: #3b82f6; }
@@ -108,52 +65,24 @@
         .stat-card.red .num { color: #ef4444; }
         .stat-card.clickable { cursor: pointer; }
         .stat-card.clickable:hover { background: #f8fafc; border-color: #cbd5e1; }
-
-        .category-stats {
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px;
-        }
-        .cat-stat {
-            background: white; padding: 6px 8px; border-radius: 8px; border: 1px solid #e9eef3;
-            text-align: center; font-size: 13px;
-        }
+        .category-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+        .cat-stat { background: white; padding: 6px 8px; border-radius: 8px; border: 1px solid #e9eef3; text-align: center; font-size: 13px; }
         .cat-stat .num { font-weight: 700; font-size: 18px; }
         .cat-stat .label { font-size: 11px; color: #64748b; }
         .cat-stat.software .num { color: #3b82f6; }
         .cat-stat.hardware .num { color: #f59e0b; }
         .cat-stat.network .num { color: #4f46e5; }
         .cat-stat.other .num { color: #94a3b8; }
-
-        .chart-wrapper {
-            background: white; border-radius: 12px; padding: 10px; border: 1px solid #e9eef3;
-            margin-bottom: 12px; height: 150px; position: relative;
-        }
+        .chart-wrapper { background: white; border-radius: 12px; padding: 10px; border: 1px solid #e9eef3; margin-bottom: 12px; height: 150px; position: relative; }
         .chart-wrapper canvas { width: 100% !important; height: 100% !important; }
-
-        .month-nav {
-            display: flex; align-items: center; justify-content: space-between;
-            background: white; padding: 8px 16px; border-radius: 12px;
-            border: 1px solid #e9eef3; margin-bottom: 12px;
-        }
+        .month-nav { display: flex; align-items: center; justify-content: space-between; background: white; padding: 8px 16px; border-radius: 12px; border: 1px solid #e9eef3; margin-bottom: 12px; }
         .month-nav .month-label { font-weight: 700; font-size: 20px; letter-spacing: 0.5px; }
-        .month-nav .nav-btn {
-            background: none; border: 1px solid #d1d9e6; border-radius: 8px;
-            padding: 4px 18px; font-size: 24px; cursor: pointer; line-height: 1.4;
-            color: #475569; font-weight: 300;
-        }
+        .month-nav .nav-btn { background: none; border: 1px solid #d1d9e6; border-radius: 8px; padding: 4px 18px; font-size: 24px; cursor: pointer; line-height: 1.4; color: #475569; font-weight: 300; }
         .month-nav .nav-btn:hover { background: #f1f5f9; }
-
-        .weekly-card {
-            background: #f8fafc; border-radius: 12px; border: 1px solid #e9eef3;
-            padding: 10px 16px; margin-bottom: 12px;
-            display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px;
-        }
+        .weekly-card { background: #f8fafc; border-radius: 12px; border: 1px solid #e9eef3; padding: 10px 16px; margin-bottom: 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
         .weekly-card .weekly-title { font-weight: 600; font-size: 14px; color: #0f172a; }
         .weekly-card .weekly-nav { display: flex; gap: 4px; align-items: center; }
-        .weekly-card .weekly-nav button {
-            background: none; border: 1px solid #d1d9e6; border-radius: 6px;
-            padding: 0 10px; font-size: 16px; cursor: pointer; line-height: 1.6;
-            color: #475569;
-        }
+        .weekly-card .weekly-nav button { background: none; border: 1px solid #d1d9e6; border-radius: 6px; padding: 0 10px; font-size: 16px; cursor: pointer; line-height: 1.6; color: #475569; }
         .weekly-card .weekly-nav button:hover { background: #e9eef3; }
         .weekly-card .weekly-nav .week-range { font-size: 14px; font-weight: 500; color: #0f172a; min-width: 100px; text-align: center; }
         .weekly-card .weekly-grid { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
@@ -165,250 +94,106 @@
         .weekly-card .weekly-item .num.purple { color: #8b5cf6; }
         .weekly-card .weekly-item .num.orange { color: #f59e0b; }
         .weekly-card .weekly-item .num.indigo { color: #4f46e5; }
-
-        .filter-top-row {
-            display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;
-            align-items: center;
-        }
-        .filter-top-row .tab-group {
-            display: flex; gap: 2px; background: #e9eef3; border-radius: 8px; padding: 3px;
-        }
-        .filter-top-row .tab-group .tab-btn {
-            padding: 6px 16px; border: none; border-radius: 6px; font-weight: 600; font-size: 13px;
-            cursor: pointer; background: transparent; color: #64748b; transition: 0.15s;
-        }
+        .filter-top-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; align-items: center; }
+        .filter-top-row .tab-group { display: flex; gap: 2px; background: #e9eef3; border-radius: 8px; padding: 3px; }
+        .filter-top-row .tab-group .tab-btn { padding: 6px 16px; border: none; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; background: transparent; color: #64748b; transition: 0.15s; }
         .filter-top-row .tab-group .tab-btn.active { background: white; color: #0f172a; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-
-        .filter-top-row .search-group {
-            display: flex; flex-wrap: wrap; gap: 6px; align-items: center; flex: 1;
-            background: white; padding: 4px 12px; border-radius: 8px;
-            border: 1px solid #e9eef3;
-        }
-        .filter-top-row .search-group select {
-            padding: 4px 8px; border: 1px solid #d1d9e6; border-radius: 4px;
-            font-size: 12px; background: white; min-width: 80px;
-        }
-        .filter-top-row .search-group input {
-            padding: 4px 8px; border: 1px solid #d1d9e6; border-radius: 4px;
-            font-size: 12px; background: white; min-width: 120px; flex: 1;
-        }
-        .filter-top-row .search-group .clear-filter {
-            color: #3b82f6; font-size: 12px; cursor: pointer; background: none;
-            border: none; font-weight: 500;
-        }
+        .filter-top-row .search-group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; flex: 1; background: white; padding: 4px 12px; border-radius: 8px; border: 1px solid #e9eef3; }
+        .filter-top-row .search-group select { padding: 4px 8px; border: 1px solid #d1d9e6; border-radius: 4px; font-size: 12px; background: white; min-width: 80px; }
+        .filter-top-row .search-group input { padding: 4px 8px; border: 1px solid #d1d9e6; border-radius: 4px; font-size: 12px; background: white; min-width: 120px; flex: 1; }
+        .filter-top-row .search-group .clear-filter { color: #3b82f6; font-size: 12px; cursor: pointer; background: none; border: none; font-weight: 500; }
         .filter-top-row .search-group .clear-filter:hover { text-decoration: underline; }
-
-        .list-actions {
-            display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;
-        }
-        .list-actions .btn {
-            padding: 8px 20px; font-size: 15px;
-        }
-
-        .day-group {
-            background: white; border-radius: 12px; border: 1px solid #e9eef3;
-            margin-bottom: 10px; overflow: hidden;
-        }
-        .day-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 8px 14px; background: #f8fafc; border-bottom: 1px solid #e9eef3;
-            font-weight: 600; font-size: 14px; cursor: pointer; user-select: none;
-        }
+        .list-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        .list-actions .btn { padding: 8px 20px; font-size: 15px; }
+        .day-group { background: white; border-radius: 12px; border: 1px solid #e9eef3; margin-bottom: 10px; overflow: hidden; }
+        .day-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 14px; background: #f8fafc; border-bottom: 1px solid #e9eef3; font-weight: 600; font-size: 14px; cursor: pointer; user-select: none; }
         .day-header:hover { background: #f1f5f9; }
         .day-header .day-count { font-weight: 400; color: #64748b; font-size: 13px; }
         .day-header .toggle-icon { margin-left: 4px; font-size: 12px; color: #94a3b8; }
-        .day-stats {
-            display: flex; flex-wrap: wrap; gap: 8px 14px;
-            padding: 4px 14px 8px; background: #fafcff;
-            border-bottom: 1px solid #e9eef3; font-size: 12px; color: #475569;
-        }
+        .day-stats { display: flex; flex-wrap: wrap; gap: 8px 14px; padding: 4px 14px 8px; background: #fafcff; border-bottom: 1px solid #e9eef3; font-size: 12px; color: #475569; }
         .day-stats .stat-item .num { font-weight: 700; font-size: 13px; }
         .day-stats .stat-item .num.purple { color: #8b5cf6; }
         .day-stats .stat-item .num.orange { color: #f59e0b; }
         .day-stats .stat-item .num.indigo { color: #4f46e5; }
         .day-content.hidden { display: none !important; }
-
-        .ticket-item {
-            display: flex; flex-wrap: wrap; align-items: center;
-            gap: 4px 10px; padding: 8px 14px; padding-left: 16px;
-            border-bottom: 1px solid #f1f5f9; position: relative;
-        }
+        .ticket-item { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 8px 14px; padding-left: 16px; border-bottom: 1px solid #f1f5f9; position: relative; }
         .ticket-item:last-child { border-bottom: none; }
-        .ticket-item::before {
-            content: ''; position: absolute; left: 4px; top: 4px; bottom: 4px;
-            width: 3px; border-radius: 3px;
-        }
+        .ticket-item::before { content: ''; position: absolute; left: 4px; top: 4px; bottom: 4px; width: 3px; border-radius: 3px; }
         .ticket-item.color-software::before { background: #3b82f6; }
         .ticket-item.color-hardware::before { background: #f59e0b; }
         .ticket-item.color-network::before { background: #4f46e5; }
         .ticket-item.color-other::before { background: #94a3b8; }
-
         .ticket-item .info { flex: 1; min-width: 100px; }
         .ticket-item .info .dept-name { font-weight: 500; font-size: 13px; }
         .ticket-item .info .issue-text { color: #475569; font-size: 12px; display: block; margin-top: 0px; }
         .ticket-item .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; }
         .ticket-item .actions { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; }
-
-        .tag {
-            font-size: 11px; padding: 1px 8px; border-radius: 20px; background: #e9eef3; color: #334155;
-        }
+        .tag { font-size: 11px; padding: 1px 8px; border-radius: 20px; background: #e9eef3; color: #334155; }
         .tag.software { background: #dbeafe; color: #1e40af; }
         .tag.hardware { background: #fef3c7; color: #92400e; }
         .tag.network { background: #e0e7ff; color: #3730a3; }
         .tag.other { background: #f1f5f9; color: #475569; }
-
-        .borrow-item, .recycle-item {
-            display: flex; flex-wrap: wrap; align-items: center;
-            gap: 4px 10px; padding: 8px 14px; border-bottom: 1px solid #f1f5f9;
-            background: white;
-        }
+        .borrow-item, .recycle-item { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 8px 14px; border-bottom: 1px solid #f1f5f9; background: white; }
         .borrow-item:last-child, .recycle-item:last-child { border-bottom: none; }
         .borrow-item .info, .recycle-item .info { flex: 1; min-width: 100px; font-size: 13px; }
         .borrow-item .info .borrow-device { font-weight: 500; }
         .borrow-item .info .borrow-detail { color: #475569; font-size: 12px; display: block; }
         .borrow-item .actions, .recycle-item .actions { display: flex; gap: 4px; }
-
-        .borrow-filter {
-            display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
-            background: white; padding: 6px 14px; border-radius: 8px;
-            border: 1px solid #e9eef3; margin-bottom: 10px;
-        }
+        .borrow-filter { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; background: white; padding: 6px 14px; border-radius: 8px; border: 1px solid #e9eef3; margin-bottom: 10px; }
         .borrow-filter .filter-label { font-weight: 500; font-size: 12px; color: #475569; }
-        .borrow-filter .filter-btn {
-            padding: 2px 12px; border: 1px solid #d1d9e6; border-radius: 16px;
-            background: white; font-size: 12px; cursor: pointer; transition: 0.15s;
-            color: #475569;
-        }
+        .borrow-filter .filter-btn { padding: 2px 12px; border: 1px solid #d1d9e6; border-radius: 16px; background: white; font-size: 12px; cursor: pointer; transition: 0.15s; color: #475569; }
         .borrow-filter .filter-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
         .borrow-filter .filter-btn:hover:not(.active) { background: #f1f5f9; }
-
-        .modal-overlay {
-            display: none; position: fixed; inset: 0;
-            background: rgba(15,23,42,0.35); backdrop-filter: blur(4px);
-            justify-content: center; align-items: center; z-index: 999; padding: 20px;
-        }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.35); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 999; padding: 20px; }
         .modal-overlay.active { display: flex; }
-        .modal {
-            background: white; border-radius: 14px; padding: 20px;
-            max-width: 780px; width: 100%; max-height: 90vh; overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.12);
-        }
+        .modal { background: white; border-radius: 14px; padding: 20px; max-width: 780px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.12); }
         .modal h2 { font-size: 18px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
         .modal .close-btn { background: none; border: none; font-size: 22px; cursor: pointer; color: #94a3b8; padding: 0 6px; }
         .modal .close-btn:hover { color: #1e293b; }
         .modal label { font-weight: 500; font-size: 13px; display: block; margin-top: 10px; margin-bottom: 3px; }
-        .modal input, .modal select, .modal textarea {
-            width: 100%; padding: 6px 10px; border: 1px solid #d1d9e6;
-            border-radius: 6px; font-size: 13px; background: white;
-        }
+        .modal input, .modal select, .modal textarea { width: 100%; padding: 6px 10px; border: 1px solid #d1d9e6; border-radius: 6px; font-size: 13px; background: white; }
         .modal textarea { min-height: 45px; resize: vertical; }
         .modal .form-row { display: flex; gap: 10px; flex-wrap: wrap; }
         .modal .form-row>div { flex: 1; min-width: 80px; position: relative; }
         .modal .modal-actions { display: flex; gap: 8px; margin-top: 14px; justify-content: flex-end; }
-
-        .dept-dropdown {
-            position: absolute; top: 100%; left: 0; right: 0;
-            background: white; border: 1px solid #d1d9e6; border-top: none;
-            border-radius: 0 0 6px 6px; max-height: 120px; overflow-y: auto;
-            z-index: 1000; box-shadow: 0 8px 20px rgba(0,0,0,0.08); display: none;
-        }
+        .dept-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #d1d9e6; border-top: none; border-radius: 0 0 6px 6px; max-height: 120px; overflow-y: auto; z-index: 1000; box-shadow: 0 8px 20px rgba(0,0,0,0.08); display: none; }
         .dept-dropdown.show { display: block; }
         .dept-dropdown .dept-item { padding: 4px 10px; cursor: pointer; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
         .dept-dropdown .dept-item:hover { background: #f1f5f9; }
         .dept-dropdown .dept-item:last-child { border-bottom: none; }
         .dept-dropdown .dept-item .highlight { font-weight: 600; color: #3b82f6; }
         .dept-dropdown .no-result { padding: 6px 10px; color: #94a3b8; text-align: center; font-size: 12px; }
-
-        .year-stats-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(70px,1fr));
-            gap: 6px; margin-bottom: 12px;
-        }
-        .year-chart-wrapper {
-            background: #f8fafc; border-radius: 10px; padding: 8px;
-            margin-bottom: 12px; height: 160px; position: relative;
-        }
+        .year-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(70px,1fr)); gap: 6px; margin-bottom: 12px; }
+        .year-chart-wrapper { background: #f8fafc; border-radius: 10px; padding: 8px; margin-bottom: 12px; height: 160px; position: relative; }
         .year-chart-wrapper canvas { width: 100% !important; height: 100% !important; }
         .year-chart-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
         .year-chart-row .year-chart-wrapper { flex: 1; min-width: 180px; height: 160px; }
-        .year-month-group {
-            border: 1px solid #e9eef3; border-radius: 6px; margin-bottom: 6px; overflow: hidden;
-        }
-        .year-month-header {
-            background: #f8fafc; padding: 6px 12px; font-weight: 600; font-size: 13px;
-            display: flex; justify-content: space-between; cursor: pointer; user-select: none;
-        }
+        .year-month-group { border: 1px solid #e9eef3; border-radius: 6px; margin-bottom: 6px; overflow: hidden; }
+        .year-month-header { background: #f8fafc; padding: 6px 12px; font-weight: 600; font-size: 13px; display: flex; justify-content: space-between; cursor: pointer; user-select: none; }
         .year-month-header:hover { background: #f1f5f9; }
         .year-month-header .arrow { transition: transform 0.2s; }
         .year-month-header .arrow.collapsed { transform: rotate(-90deg); }
         .year-month-details { padding: 0 12px 8px; }
         .year-month-details.hidden { display: none; }
-        .year-ticket-item {
-            display: flex; flex-wrap: wrap; gap: 4px 10px; padding: 4px 0;
-            border-bottom: 1px solid #f1f5f9; font-size: 12px;
-        }
+        .year-ticket-item { display: flex; flex-wrap: wrap; gap: 4px 10px; padding: 4px 0; border-bottom: 1px solid #f1f5f9; font-size: 12px; }
         .year-ticket-item:last-child { border-bottom: none; }
         .year-ticket-item .info { flex: 1; min-width: 100px; }
         .year-ticket-item .meta { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; }
         .year-selector { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
         .year-selector select { padding: 4px 10px; border-radius: 6px; border: 1px solid #d1d9e6; font-size: 13px; }
-
         .import-preview { max-height: 200px; overflow: auto; border: 1px solid #e9eef3; border-radius: 6px; margin: 8px 0; }
         .import-preview table { width: 100%; border-collapse: collapse; font-size: 12px; }
         .import-preview th, .import-preview td { border: 1px solid #e9eef3; padding: 3px 6px; text-align: left; }
         .import-preview th { background: #f8fafc; position: sticky; top: 0; }
-
         .empty-state { text-align: center; padding: 30px 16px; color: #94a3b8; font-size: 13px; }
         .hidden { display: none !important; }
         .highlight { background: #fef9c3; }
-
-        .bottom-actions {
-            display: none; position: fixed; bottom: 0; left: 0; right: 0;
-            background: white; padding: 6px 10px; padding-bottom: max(6px, env(safe-area-inset-bottom));
-            border-top: 1px solid #e9eef3; box-shadow: 0 -4px 12px rgba(0,0,0,0.06);
-            z-index: 100; gap: 4px; justify-content: space-around;
-        }
-        .bottom-actions .btn {
-            flex: 1; padding: 4px 2px; font-size: 10px; border-radius: 8px;
-            text-align: center; min-width: 0; display: flex; flex-direction: column;
-            align-items: center; gap: 0px; line-height: 1.2;
-        }
+        .bottom-actions { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 6px 10px; padding-bottom: max(6px, env(safe-area-inset-bottom)); border-top: 1px solid #e9eef3; box-shadow: 0 -4px 12px rgba(0,0,0,0.06); z-index: 100; gap: 4px; justify-content: space-around; }
+        .bottom-actions .btn { flex: 1; padding: 4px 2px; font-size: 10px; border-radius: 8px; text-align: center; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 0px; line-height: 1.2; }
         .bottom-actions .btn .icon { font-size: 16px; }
         .bottom-actions .btn .label { font-size: 9px; }
-
-        @media (max-width: 600px) {
-            body { padding: 8px 10px 70px; font-size: 13px; }
-            .header-bar .left h1 { font-size: 18px; }
-            .header-bar .right .sync-status { font-size: 10px; padding: 1px 8px; }
-            .stats-grid { gap: 6px; }
-            .stat-card .num { font-size: 24px; }
-            .category-stats { grid-template-columns: repeat(4, 1fr); gap: 4px; }
-            .cat-stat { padding: 4px 4px; font-size: 12px; }
-            .cat-stat .num { font-size: 15px; }
-            .weekly-card { padding: 6px 10px; gap: 4px 10px; }
-            .weekly-card .weekly-item { font-size: 11px; }
-            .weekly-card .weekly-item .num { font-size: 13px; }
-            .month-nav { padding: 4px 12px; }
-            .month-nav .month-label { font-size: 16px; }
-            .month-nav .nav-btn { font-size: 20px; padding: 2px 12px; }
-            .filter-top-row { flex-direction: column; align-items: stretch; gap: 6px; }
-            .filter-top-row .search-group { padding: 4px 8px; }
-            .filter-top-row .search-group input { min-width: 60px; }
-            .chart-wrapper { height: 110px; }
-            .list-actions .btn { font-size: 13px; padding: 6px 14px; }
-            .ticket-item { padding: 4px 10px 4px 14px; gap: 2px 6px; }
-            .ticket-item .info .dept-name { font-size: 12px; }
-            .ticket-item .info .issue-text { font-size: 11px; }
-            .day-header { font-size: 13px; padding: 4px 10px; }
-            .day-stats { font-size: 11px; padding: 2px 10px 6px; gap: 4px 10px; }
-            .btn-sm { font-size: 10px; padding: 2px 6px; }
-            .btn-resolve { font-size: 10px; padding: 2px 6px; }
-            .modal { padding: 14px; }
-            .bottom-actions { display: flex; }
-            .dropdown .dropbtn { font-size: 11px; padding: 4px 10px; }
-        }
-        @media (min-width: 601px) {
-            .bottom-actions { display: none !important; }
-        }
+        @media (max-width: 600px) { body { padding: 8px 10px 70px; font-size: 13px; } .header-bar .left h1 { font-size: 18px; } .header-bar .right .sync-status { font-size: 10px; padding: 1px 8px; } .stats-grid { gap: 6px; } .stat-card .num { font-size: 24px; } .category-stats { grid-template-columns: repeat(4, 1fr); gap: 4px; } .cat-stat { padding: 4px 4px; font-size: 12px; } .cat-stat .num { font-size: 15px; } .weekly-card { padding: 6px 10px; gap: 4px 10px; } .weekly-card .weekly-item { font-size: 11px; } .weekly-card .weekly-item .num { font-size: 13px; } .month-nav { padding: 4px 12px; } .month-nav .month-label { font-size: 16px; } .month-nav .nav-btn { font-size: 20px; padding: 2px 12px; } .filter-top-row { flex-direction: column; align-items: stretch; gap: 6px; } .filter-top-row .search-group { padding: 4px 8px; } .filter-top-row .search-group input { min-width: 60px; } .chart-wrapper { height: 110px; } .list-actions .btn { font-size: 13px; padding: 6px 14px; } .ticket-item { padding: 4px 10px 4px 14px; gap: 2px 6px; } .ticket-item .info .dept-name { font-size: 12px; } .ticket-item .info .issue-text { font-size: 11px; } .day-header { font-size: 13px; padding: 4px 10px; } .day-stats { font-size: 11px; padding: 2px 10px 6px; gap: 4px 10px; } .btn-sm { font-size: 10px; padding: 2px 6px; } .btn-resolve { font-size: 10px; padding: 2px 6px; } .modal { padding: 14px; } .bottom-actions { display: flex; } .dropdown .dropbtn { font-size: 11px; padding: 4px 10px; } }
+        @media (min-width: 601px) { .bottom-actions { display: none !important; } }
     </style>
 </head>
 <body>
@@ -973,7 +758,7 @@
                 });
                 ticketList.innerHTML=html;
 
-                // 绑定折叠事件（每个日期头部）
+                // 绑定折叠事件
                 document.querySelectorAll('.day-group .day-header').forEach(header => {
                     header.onclick = function() {
                         let content = this.parentElement.querySelector('.day-content');
@@ -984,7 +769,7 @@
                         }
                     };
                 });
-                // 绑定按钮事件（解决、编辑、删除）
+                // 绑定按钮事件
                 document.querySelectorAll('.resolve-ticket').forEach(btn => {
                     btn.onclick = function(e){ e.stopPropagation(); quickResolve(this.dataset.id); };
                 });
@@ -1023,7 +808,6 @@
                 });
                 borrowItems.innerHTML=html;
 
-                // 绑定按钮事件
                 document.querySelectorAll('.return-borrow').forEach(btn => {
                     btn.onclick = function(e){ e.stopPropagation(); if(confirm('确认此设备已归还？')) performReturnBorrow(this.dataset.id); };
                 });
@@ -1314,11 +1098,303 @@
                 URL.revokeObjectURL(link.href);
             }
 
-            // ===================== 模态框打开/关闭辅助 =====================
-            function openModal(modal){ modal.classList.add('active'); }
-            function closeModal(modal){ modal.classList.remove('active'); }
+            // ===================== 模态框打开/关闭（使用独立事件绑定） =====================
+            // 打开模态框的辅助函数
+            function openModal(modal) { modal.classList.add('active'); }
+            function closeModal(modal) { modal.classList.remove('active'); }
 
-            // ===================== 工单编辑 =====================
+            // --- 工单模态框 ---
+            openAddModal.addEventListener('click', function(){
+                resetTicketForm();
+                openModal(modalOverlay);
+            });
+            modalCancel.addEventListener('click', function(){
+                closeModal(modalOverlay);
+            });
+            modalOverlay.addEventListener('click', function(e){
+                if(e.target === modalOverlay) closeModal(modalOverlay);
+            });
+
+            // --- 借出模态框 ---
+            openBorrowModalBtn.addEventListener('click', function(){
+                resetBorrowForm();
+                openModal(borrowModal);
+            });
+            borrowModalClose.addEventListener('click', function(){
+                closeModal(borrowModal);
+            });
+            borrowModalCancel.addEventListener('click', function(){
+                closeModal(borrowModal);
+            });
+            borrowModal.addEventListener('click', function(e){
+                if(e.target === borrowModal) closeModal(borrowModal);
+            });
+
+            // --- 未解决模态框 ---
+            pendingCard.addEventListener('click', function(){
+                openPendingModal();
+            });
+            pendingModalClose.addEventListener('click', function(){
+                closeModal(pendingModal);
+            });
+            pendingModal.addEventListener('click', function(e){
+                if(e.target === pendingModal) closeModal(pendingModal);
+            });
+
+            // --- 年度汇总模态框 ---
+            openYearModalBtn.addEventListener('click', function(){
+                openYearModalFunc();
+            });
+            yearModalClose.addEventListener('click', function(){
+                closeModal(yearModal);
+            });
+            yearModal.addEventListener('click', function(e){
+                if(e.target === yearModal) closeModal(yearModal);
+            });
+
+            // --- 导入模态框 ---
+            openImportModal.addEventListener('click', function(){
+                openModal(importModal);
+            });
+            dropdownImport.addEventListener('click', function(e){
+                e.stopPropagation();
+                openModal(importModal);
+                dropdownContent.classList.remove('show');
+            });
+            importModalClose.addEventListener('click', function(){
+                closeModal(importModal);
+            });
+            importCancel.addEventListener('click', function(){
+                closeModal(importModal);
+            });
+            importModal.addEventListener('click', function(e){
+                if(e.target === importModal) closeModal(importModal);
+            });
+
+            // 底部按钮
+            bottomAddModal.addEventListener('click', function(){
+                resetTicketForm();
+                openModal(modalOverlay);
+            });
+            bottomBorrowModal.addEventListener('click', function(){
+                resetBorrowForm();
+                openModal(borrowModal);
+            });
+            bottomImportModal.addEventListener('click', function(){
+                openModal(importModal);
+            });
+            bottomExportBtn.addEventListener('click', exportToCSV);
+
+            // ===================== 其他事件绑定 =====================
+            // 连接
+            connectBtn.addEventListener('click', async function(){
+                try {
+                    initFirebase();
+                    await refreshData();
+                    configCard.style.display='none';
+                    mainArea.classList.remove('hidden');
+                    $('configHint').textContent='✅ 连接成功！';
+                } catch(err) {
+                    alert('连接失败：'+err.message);
+                }
+            });
+            resetConfigBtn.addEventListener('click', function(){
+                if(confirm('清除本地配置？')){
+                    localStorage.removeItem(CONFIG_KEY);
+                    fillConfigForm();
+                    configCard.style.display='block';
+                    mainArea.classList.add('hidden');
+                    $('configHint').textContent='💡 配置已清除';
+                    isFirebaseReady=false;
+                }
+            });
+
+            // 自动连接
+            (async function autoConnect(){
+                let cfg=loadConfig();
+                if(cfg.apiKey && cfg.databaseURL && cfg.projectId){
+                    try {
+                        fbApiKey.value=cfg.apiKey;
+                        fbAuthDomain.value=cfg.authDomain||'';
+                        fbDatabaseURL.value=cfg.databaseURL;
+                        fbProjectId.value=cfg.projectId;
+                        fbStorageBucket.value=cfg.storageBucket||'';
+                        fbAppId.value=cfg.appId||'';
+                        initFirebase();
+                        await refreshData();
+                        configCard.style.display='none';
+                        mainArea.classList.remove('hidden');
+                        $('configHint').textContent='✅ 自动连接成功';
+                    } catch(e) {
+                        console.warn('自动连接失败', e);
+                        configCard.style.display='block';
+                        $('configHint').textContent='⚠️ 自动连接失败，请手动点击连接';
+                    }
+                }
+            })();
+
+            // 周切换
+            weekPrev.addEventListener('click', function(){ currentWeekOffset--; renderWeeklyStats(); });
+            weekNext.addEventListener('click', function(){ currentWeekOffset++; renderWeeklyStats(); });
+
+            // 月份切换
+            prevMonthBtn.addEventListener('click', function(){
+                currentMonth.setMonth(currentMonth.getMonth()-1);
+                if(currentTab==='tickets') renderTickets();
+            });
+            nextMonthBtn.addEventListener('click', function(){
+                currentMonth.setMonth(currentMonth.getMonth()+1);
+                if(currentTab==='tickets') renderTickets();
+            });
+
+            // Tab切换
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function(){ switchTab(this.dataset.tab); });
+            });
+
+            // 借出/回收站筛选
+            document.querySelectorAll('.borrow-filter .filter-btn').forEach(btn => {
+                btn.addEventListener('click', function(){
+                    document.querySelectorAll('.borrow-filter .filter-btn').forEach(b=>b.classList.remove('active'));
+                    this.classList.add('active');
+                    if(this.dataset.filter) borrowFilter=this.dataset.filter;
+                    else if(this.dataset.recycle) recycleFilter=this.dataset.recycle;
+                    if(currentTab==='borrow') renderBorrows();
+                    else if(currentTab==='recycle') renderRecycle();
+                });
+            });
+
+            // 搜索/部门
+            filterDeptEl.addEventListener('change', function(){ filterDept=this.value; if(currentTab==='tickets') renderTickets(); });
+            searchInput.addEventListener('input', function(){ searchKeyword=this.value; if(currentTab==='tickets') renderTickets(); });
+            clearFilterBtn.addEventListener('click', function(){
+                filterDeptEl.value='all';
+                searchInput.value='';
+                filterDept='all';
+                searchKeyword='';
+                if(currentTab==='tickets') renderTickets();
+            });
+
+            // 下拉菜单
+            moreBtn.addEventListener('click', function(e){ e.stopPropagation(); dropdownContent.classList.toggle('show'); });
+            document.addEventListener('click', function(){ dropdownContent.classList.remove('show'); });
+            dropdownContent.addEventListener('click', function(e){ e.stopPropagation(); });
+            dropdownExport.addEventListener('click', function(e){ e.stopPropagation(); exportToCSV(); dropdownContent.classList.remove('show'); });
+
+            // 导出
+            exportBtn.addEventListener('click', exportToCSV);
+
+            // 工单保存
+            modalSave.addEventListener('click', async function(){
+                let date=formDate.value;
+                let dept=formDept.value.trim();
+                let name=formName.value.trim();
+                let issue=formIssue.value.trim();
+                let category=formCategory.value;
+                let resolved=parseInt(formResolved.value);
+                if(!date){ alert('请选择日期'); return; }
+                if(!issue){ alert('请输入问题描述'); return; }
+                let data={ date, department:dept, name, issue, category, resolved, deleted:false };
+                let id=editId.value;
+                try {
+                    if(id) await updateTicketInFirebase(id, data);
+                    else await addTicketToFirebase(data);
+                    closeModal(modalOverlay);
+                    await refreshData();
+                } catch(err) {
+                    alert('保存失败: '+err.message);
+                }
+            });
+
+            // 借出保存
+            borrowModalSave.addEventListener('click', async function(){
+                let dept=borrowDept.value;
+                let name=borrowName.value.trim();
+                let device=borrowDevice.value.trim();
+                let date=borrowDate.value;
+                let note=borrowNote.value.trim();
+                if(!dept){ alert('请选择部门'); return; }
+                if(!name){ alert('请输入借用人'); return; }
+                if(!device){ alert('请输入借用设备'); return; }
+                if(!date){ alert('请选择借出日期'); return; }
+                let data={ department:dept, name, device, borrowDate:date, note, status:'未归还', deleted:false };
+                try {
+                    await addBorrowToFirebase(data);
+                    closeModal(borrowModal);
+                    await refreshData();
+                } catch(err) {
+                    alert('保存失败: '+err.message);
+                }
+            });
+
+            // 年度汇总年份切换
+            yearSelect.addEventListener('change', function(){
+                let year=parseInt(this.value);
+                if(!isNaN(year)) renderYearSummary(year);
+            });
+
+            // 导入预览/确认
+            importPreviewBtn.addEventListener('click', handleImportPreview);
+            importConfirmBtn.addEventListener('click', handleImportConfirm);
+
+            // 部门搜索
+            formDept.addEventListener('input', function(){
+                let q=this.value||'';
+                let matched=[];
+                if(q.trim()==='') matched=DEPARTMENTS;
+                else matched=DEPARTMENTS.filter(d=>matchDepartment(q,d));
+                if(matched.length===0){
+                    deptDropdown.innerHTML='<div class="no-result">未找到，可自定义</div>';
+                    deptDropdown.classList.add('show');
+                    return;
+                }
+                let html='';
+                matched.forEach(dept => {
+                    let display=dept;
+                    if(q.trim()!==''){
+                        let idx=dept.indexOf(q.trim());
+                        if(idx!==-1){
+                            display=dept.substring(0,idx)+'<span class="highlight">'+dept.substring(idx,idx+q.trim().length)+'</span>'+dept.substring(idx+q.trim().length);
+                        }
+                    }
+                    html+=`<div class="dept-item" data-dept="${dept}">${display}</div>`;
+                });
+                deptDropdown.innerHTML=html;
+                deptDropdown.classList.add('show');
+                deptDropdown.querySelectorAll('.dept-item').forEach(el => {
+                    el.addEventListener('click', function(){
+                        formDept.value=this.dataset.dept;
+                        deptDropdown.classList.remove('show');
+                    });
+                });
+            });
+            formDept.addEventListener('focus', function(){ this.dispatchEvent(new Event('input')); });
+            formDept.addEventListener('blur', function(){ setTimeout(()=>{ deptDropdown.classList.remove('show'); }, 200); });
+            document.addEventListener('click', function(e){
+                if(!e.target.closest('#formDept') && !e.target.closest('#deptDropdown')){
+                    deptDropdown.classList.remove('show');
+                }
+            });
+
+            // 前台刷新
+            document.addEventListener('visibilitychange', async () => {
+                if(document.visibilityState==='visible' && !mainArea.classList.contains('hidden') && isFirebaseReady){
+                    await refreshData();
+                }
+            });
+
+            // ===================== 辅助函数 =====================
+            function resetTicketForm(){
+                editId.value='';
+                modalTitle.textContent='添加工单';
+                formDate.value=new Date().toISOString().slice(0,10);
+                formDept.value='';
+                formName.value='';
+                formIssue.value='';
+                formCategory.value='软件';
+                formResolved.value='0';
+                deptDropdown.classList.remove('show');
+            }
             function openEditTicketModal(id){
                 let ticket=allTickets.find(t=>t.id===id);
                 if(!ticket) return;
@@ -1333,17 +1409,6 @@
                 openModal(modalOverlay);
                 deptDropdown.classList.remove('show');
             }
-            function resetTicketForm(){
-                editId.value='';
-                modalTitle.textContent='添加工单';
-                formDate.value=new Date().toISOString().slice(0,10);
-                formDept.value='';
-                formName.value='';
-                formIssue.value='';
-                formCategory.value='软件';
-                formResolved.value='0';
-                deptDropdown.classList.remove('show');
-            }
             function resetBorrowForm(){
                 borrowEditId.value='';
                 borrowDept.value='';
@@ -1352,8 +1417,6 @@
                 borrowDate.value=new Date().toISOString().slice(0,10);
                 borrowNote.value='';
             }
-
-            // ===================== 未解决弹窗 =====================
             function openPendingModal(){
                 if(!isFirebaseReady){ alert('数据未加载'); return; }
                 let pendingTickets=allTickets.filter(t=>t.resolved==0&&!t.deleted);
@@ -1383,8 +1446,6 @@
                 pendingList.innerHTML=html;
                 openModal(pendingModal);
             }
-
-            // ===================== 年度汇总打开 =====================
             function openYearModalFunc(){
                 if(!isFirebaseReady || allTickets.length===0){ alert('暂无工单数据'); return; }
                 populateYearSelect();
@@ -1393,247 +1454,9 @@
                 openModal(yearModal);
             }
 
-            // ===================== 事件绑定 =====================
-            // 连接
-            connectBtn.onclick = async function(){
-                try {
-                    initFirebase();
-                    await refreshData();
-                    configCard.style.display='none';
-                    mainArea.classList.remove('hidden');
-                    $('configHint').textContent='✅ 连接成功！';
-                } catch(err) {
-                    alert('连接失败：'+err.message);
-                }
-            };
-            resetConfigBtn.onclick = function(){
-                if(confirm('清除本地配置？')){
-                    localStorage.removeItem(CONFIG_KEY);
-                    fillConfigForm();
-                    configCard.style.display='block';
-                    mainArea.classList.add('hidden');
-                    $('configHint').textContent='💡 配置已清除';
-                    isFirebaseReady=false;
-                }
-            };
-
-            // 自动连接
-            (async function autoConnect(){
-                let cfg=loadConfig();
-                if(cfg.apiKey && cfg.databaseURL && cfg.projectId){
-                    try {
-                        fbApiKey.value=cfg.apiKey;
-                        fbAuthDomain.value=cfg.authDomain||'';
-                        fbDatabaseURL.value=cfg.databaseURL;
-                        fbProjectId.value=cfg.projectId;
-                        fbStorageBucket.value=cfg.storageBucket||'';
-                        fbAppId.value=cfg.appId||'';
-                        initFirebase();
-                        await refreshData();
-                        configCard.style.display='none';
-                        mainArea.classList.remove('hidden');
-                        $('configHint').textContent='✅ 自动连接成功';
-                    } catch(e) {
-                        console.warn('自动连接失败', e);
-                        configCard.style.display='block';
-                        $('configHint').textContent='⚠️ 自动连接失败，请手动点击连接';
-                    }
-                }
-            })();
-
-            // 周切换
-            weekPrev.onclick = function(){ currentWeekOffset--; renderWeeklyStats(); };
-            weekNext.onclick = function(){ currentWeekOffset++; renderWeeklyStats(); };
-
-            // 月份切换
-            prevMonthBtn.onclick = function(){
-                currentMonth.setMonth(currentMonth.getMonth()-1);
-                if(currentTab==='tickets') renderTickets();
-            };
-            nextMonthBtn.onclick = function(){
-                currentMonth.setMonth(currentMonth.getMonth()+1);
-                if(currentTab==='tickets') renderTickets();
-            };
-
-            // Tab切换
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.onclick = function(){ switchTab(this.dataset.tab); };
-            });
-
-            // 借出/回收站筛选
-            document.querySelectorAll('.borrow-filter .filter-btn').forEach(btn => {
-                btn.onclick = function(){
-                    document.querySelectorAll('.borrow-filter .filter-btn').forEach(b=>b.classList.remove('active'));
-                    this.classList.add('active');
-                    if(this.dataset.filter) borrowFilter=this.dataset.filter;
-                    else if(this.dataset.recycle) recycleFilter=this.dataset.recycle;
-                    if(currentTab==='borrow') renderBorrows();
-                    else if(currentTab==='recycle') renderRecycle();
-                };
-            });
-
-            // 搜索/部门
-            filterDeptEl.onchange = function(){ filterDept=this.value; if(currentTab==='tickets') renderTickets(); };
-            searchInput.oninput = function(){ searchKeyword=this.value; if(currentTab==='tickets') renderTickets(); };
-            clearFilterBtn.onclick = function(){
-                filterDeptEl.value='all';
-                searchInput.value='';
-                filterDept='all';
-                searchKeyword='';
-                if(currentTab==='tickets') renderTickets();
-            };
-
-            // 下拉菜单
-            moreBtn.onclick = function(e){ e.stopPropagation(); dropdownContent.classList.toggle('show'); };
-            document.addEventListener('click', function(){ dropdownContent.classList.remove('show'); });
-            dropdownContent.addEventListener('click', function(e){ e.stopPropagation(); });
-            dropdownImport.onclick = function(e){ e.stopPropagation(); openModal(importModal); dropdownContent.classList.remove('show'); };
-            dropdownExport.onclick = function(e){ e.stopPropagation(); exportToCSV(); dropdownContent.classList.remove('show'); };
-
-            // 打开模态框的按钮
-            openAddModal.onclick = function(){ resetTicketForm(); openModal(modalOverlay); };
-            openBorrowModalBtn.onclick = function(){ resetBorrowForm(); openModal(borrowModal); };
-            openYearModalBtn.onclick = function(){ openYearModalFunc(); };
-            openImportModal.onclick = function(){ openModal(importModal); };
-            exportBtn.onclick = function(){ exportToCSV(); };
-
-            // 底部按钮
-            bottomAddModal.onclick = function(){ resetTicketForm(); openModal(modalOverlay); };
-            bottomBorrowModal.onclick = function(){ resetBorrowForm(); openModal(borrowModal); };
-            bottomImportModal.onclick = function(){ openModal(importModal); };
-            bottomExportBtn.onclick = function(){ exportToCSV(); };
-
-            // ===== 模态框关闭（使用统一关闭函数） =====
-            function closeAllModals(){
-                closeModal(modalOverlay);
-                closeModal(borrowModal);
-                closeModal(pendingModal);
-                closeModal(yearModal);
-                closeModal(importModal);
-            }
-            // 工单模态框关闭
-            modalCancel.onclick = function(){ closeModal(modalOverlay); };
-            modalOverlay.onclick = function(e){ if(e.target===modalOverlay) closeModal(modalOverlay); };
-            // 借出模态框关闭
-            borrowModalClose.onclick = function(){ closeModal(borrowModal); };
-            borrowModalCancel.onclick = function(){ closeModal(borrowModal); };
-            borrowModal.onclick = function(e){ if(e.target===borrowModal) closeModal(borrowModal); };
-            // 未解决关闭
-            pendingModalClose.onclick = function(){ closeModal(pendingModal); };
-            pendingModal.onclick = function(e){ if(e.target===pendingModal) closeModal(pendingModal); };
-            // 年度汇总关闭
-            yearModalClose.onclick = function(){ closeModal(yearModal); };
-            yearModal.onclick = function(e){ if(e.target===yearModal) closeModal(yearModal); };
-            // 导入关闭
-            importModalClose.onclick = function(){ closeModal(importModal); };
-            importCancel.onclick = function(){ closeModal(importModal); };
-            importModal.onclick = function(e){ if(e.target===importModal) closeModal(importModal); };
-
-            // ===== 工单保存 =====
-            modalSave.onclick = async function(){
-                let date=formDate.value;
-                let dept=formDept.value.trim();
-                let name=formName.value.trim();
-                let issue=formIssue.value.trim();
-                let category=formCategory.value;
-                let resolved=parseInt(formResolved.value);
-                if(!date){ alert('请选择日期'); return; }
-                if(!issue){ alert('请输入问题描述'); return; }
-                let data={ date, department:dept, name, issue, category, resolved, deleted:false };
-                let id=editId.value;
-                try {
-                    if(id) await updateTicketInFirebase(id, data);
-                    else await addTicketToFirebase(data);
-                    closeModal(modalOverlay);
-                    await refreshData();
-                } catch(err) {
-                    alert('保存失败: '+err.message);
-                }
-            };
-
-            // ===== 借出保存 =====
-            borrowModalSave.onclick = async function(){
-                let dept=borrowDept.value;
-                let name=borrowName.value.trim();
-                let device=borrowDevice.value.trim();
-                let date=borrowDate.value;
-                let note=borrowNote.value.trim();
-                if(!dept){ alert('请选择部门'); return; }
-                if(!name){ alert('请输入借用人'); return; }
-                if(!device){ alert('请输入借用设备'); return; }
-                if(!date){ alert('请选择借出日期'); return; }
-                let data={ department:dept, name, device, borrowDate:date, note, status:'未归还', deleted:false };
-                try {
-                    await addBorrowToFirebase(data);
-                    closeModal(borrowModal);
-                    await refreshData();
-                } catch(err) {
-                    alert('保存失败: '+err.message);
-                }
-            };
-
-            // ===== 年度汇总年份切换 =====
-            yearSelect.onchange = function(){
-                let year=parseInt(this.value);
-                if(!isNaN(year)) renderYearSummary(year);
-            };
-
-            // ===== 未解决卡片点击 =====
-            pendingCard.onclick = function(){ openPendingModal(); };
-
-            // ===== 导入预览/确认 =====
-            importPreviewBtn.onclick = handleImportPreview;
-            importConfirmBtn.onclick = handleImportConfirm;
-
-            // ===== 部门搜索 =====
-            formDept.oninput = function(){
-                let q=this.value||'';
-                let matched=[];
-                if(q.trim()==='') matched=DEPARTMENTS;
-                else matched=DEPARTMENTS.filter(d=>matchDepartment(q,d));
-                if(matched.length===0){
-                    deptDropdown.innerHTML='<div class="no-result">未找到，可自定义</div>';
-                    deptDropdown.classList.add('show');
-                    return;
-                }
-                let html='';
-                matched.forEach(dept => {
-                    let display=dept;
-                    if(q.trim()!==''){
-                        let idx=dept.indexOf(q.trim());
-                        if(idx!==-1){
-                            display=dept.substring(0,idx)+'<span class="highlight">'+dept.substring(idx,idx+q.trim().length)+'</span>'+dept.substring(idx+q.trim().length);
-                        }
-                    }
-                    html+=`<div class="dept-item" data-dept="${dept}">${display}</div>`;
-                });
-                deptDropdown.innerHTML=html;
-                deptDropdown.classList.add('show');
-                deptDropdown.querySelectorAll('.dept-item').forEach(el => {
-                    el.onclick = function(){
-                        formDept.value=this.dataset.dept;
-                        deptDropdown.classList.remove('show');
-                    };
-                });
-            };
-            formDept.onfocus = function(){ this.dispatchEvent(new Event('input')); };
-            formDept.onblur = function(){ setTimeout(()=>{ deptDropdown.classList.remove('show'); }, 200); };
-            document.addEventListener('click', function(e){
-                if(!e.target.closest('#formDept') && !e.target.closest('#deptDropdown')){
-                    deptDropdown.classList.remove('show');
-                }
-            });
-
-            // ===== 前台刷新 =====
-            document.addEventListener('visibilitychange', async () => {
-                if(document.visibilityState==='visible' && !mainArea.classList.contains('hidden') && isFirebaseReady){
-                    await refreshData();
-                }
-            });
-
-            // ===== 初始化 =====
+            // 初始化
             resetTicketForm();
-            console.log('工单系统 (修复版) 已加载');
+            console.log('工单系统 (弹窗全面修复) 已加载');
         })();
     </script>
 </body>
