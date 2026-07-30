@@ -9,6 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
+        /* ===== 完整样式（与之前一致） ===== */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f5f7fb; color: #1e293b; padding: 12px 16px 80px; min-height: 100vh; font-size: 14px; }
         .container { max-width: 1000px; margin: 0 auto; }
@@ -221,8 +222,7 @@
 
         <!-- ===== 主界面 ===== -->
         <div id="mainArea" class="hidden">
-
-            <!-- ===== 顶部栏 ===== -->
+            <!-- 顶部栏 -->
             <div class="header-bar">
                 <div class="left">
                     <h1>📋 工单系统</h1>
@@ -243,14 +243,14 @@
                 </div>
             </div>
 
-            <!-- ===== 核心指标 ===== -->
+            <!-- 统计卡片 -->
             <div class="stats-grid" id="statsGrid">
                 <div class="stat-card blue"><div class="num" id="totalCount">0</div><div class="label">总工单</div></div>
                 <div class="stat-card green"><div class="num" id="resolvedCount">0</div><div class="label">已解决</div></div>
                 <div class="stat-card red clickable" id="pendingCard"><div class="num" id="pendingCount">0</div><div class="label">未解决 ⏎</div></div>
             </div>
 
-            <!-- ===== 分类统计 ===== -->
+            <!-- 分类统计 -->
             <div class="category-stats" id="categoryStats">
                 <div class="cat-stat software"><div class="num" id="catSoftwareNum">0</div><div class="label">软件</div></div>
                 <div class="cat-stat hardware"><div class="num" id="catHardwareNum">0</div><div class="label">硬件</div></div>
@@ -258,17 +258,17 @@
                 <div class="cat-stat other"><div class="num" id="catOtherNum">0</div><div class="label">其他</div></div>
             </div>
 
-            <!-- ===== 图表 ===== -->
+            <!-- 图表 -->
             <div class="chart-wrapper"><canvas id="monthChart"></canvas></div>
 
-            <!-- ===== 月份切换 ===== -->
+            <!-- 月份切换 -->
             <div class="month-nav">
                 <button class="nav-btn" id="prevMonth">‹</button>
                 <span class="month-label" id="currentMonthLabel">2026年7月</span>
                 <button class="nav-btn" id="nextMonth">›</button>
             </div>
 
-            <!-- ===== 周统计 ===== -->
+            <!-- 周统计 -->
             <div class="weekly-card" id="weeklyStats">
                 <span class="weekly-title">📅 本周统计</span>
                 <div class="weekly-nav">
@@ -279,7 +279,7 @@
                 <div class="weekly-grid" id="weeklyGrid"></div>
             </div>
 
-            <!-- ===== Tab + 筛选 ===== -->
+            <!-- Tab + 筛选 -->
             <div class="filter-top-row">
                 <div class="tab-group">
                     <button class="tab-btn active" data-tab="tickets">📋 工单</button>
@@ -293,16 +293,16 @@
                 </div>
             </div>
 
-            <!-- ===== 列表上方操作按钮 ===== -->
+            <!-- 列表上方操作按钮 -->
             <div class="list-actions">
                 <button class="btn btn-success" id="openAddModal">➕ 添加工单</button>
                 <button class="btn btn-borrow" id="openBorrowModal">📦 设备借出</button>
             </div>
 
-            <!-- ===== 工单列表 ===== -->
+            <!-- 工单列表 -->
             <div id="ticketList"></div>
 
-            <!-- ===== 借出列表 ===== -->
+            <!-- 借出列表 -->
             <div id="borrowList" class="hidden">
                 <div class="borrow-filter">
                     <span class="filter-label">筛选：</span>
@@ -312,7 +312,7 @@
                 <div id="borrowItems"></div>
             </div>
 
-            <!-- ===== 回收站列表 ===== -->
+            <!-- 回收站列表 -->
             <div id="recycleList" class="hidden">
                 <div class="borrow-filter">
                     <span class="filter-label">类型：</span>
@@ -459,6 +459,7 @@
             const connectBtn = $('connectBtn'), resetConfigBtn = $('resetConfigBtn');
             const fbApiKey = $('fbApiKey'), fbAuthDomain = $('fbAuthDomain'), fbDatabaseURL = $('fbDatabaseURL');
             const fbProjectId = $('fbProjectId'), fbStorageBucket = $('fbStorageBucket'), fbAppId = $('fbAppId');
+            const configHint = $('configHint');
             const syncDot = $('syncDot'), syncLabel = $('syncLabel');
             const totalCount = $('totalCount'), resolvedCount = $('resolvedCount'), pendingCount = $('pendingCount');
             const pendingCard = $('pendingCard'), pendingModal = $('pendingModal'), pendingModalClose = $('pendingModalClose');
@@ -1135,7 +1136,7 @@
             bottomImportModal.addEventListener('click', function(){ openModal(importModal); });
             bottomExportBtn.addEventListener('click', exportToCSV);
 
-            // ===================== 连接按钮（使用 onclick 直接绑定） =====================
+            // ===================== 连接按钮（稳定版） =====================
             connectBtn.onclick = async function() {
                 console.log('连接按钮被点击');
                 const apiKey = fbApiKey.value.trim();
@@ -1164,12 +1165,19 @@
                             firebase.initializeApp(config);
                         }
                     }
+                    // 验证连接
+                    const db = firebase.database();
+                    await db.ref('.info/connected').once('value', snap => {
+                        if (snap.val() !== true) {
+                            throw new Error('无法连接到数据库，请检查安全规则');
+                        }
+                    });
                     isFirebaseReady = true;
                     saveConfig(config);
-                    await refreshData();
                     configCard.style.display = 'none';
                     mainArea.classList.remove('hidden');
                     configHint.textContent = '✅ 连接成功！';
+                    await refreshData();
                 } catch (err) {
                     alert('连接失败：' + err.message);
                     console.error(err);
@@ -1212,11 +1220,15 @@
                                 firebase.initializeApp(config);
                             }
                         }
+                        const db = firebase.database();
+                        await db.ref('.info/connected').once('value', snap => {
+                            if (snap.val() !== true) throw new Error('无法连接');
+                        });
                         isFirebaseReady = true;
-                        await refreshData();
                         configCard.style.display = 'none';
                         mainArea.classList.remove('hidden');
                         configHint.textContent = '✅ 自动连接成功';
+                        await refreshData();
                     } catch (e) {
                         console.warn('自动连接失败，请手动连接', e);
                         configCard.style.display = 'block';
@@ -1449,7 +1461,7 @@
 
             // 初始化
             resetTicketForm();
-            console.log('工单系统 (连接修复版) 已加载');
+            console.log('工单系统 (完整功能稳定版) 已加载');
         })();
     </script>
 </body>
