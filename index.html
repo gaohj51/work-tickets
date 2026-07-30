@@ -9,7 +9,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
-        /* ===== 全局重置 ===== */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -17,7 +16,6 @@
         }
         .container { max-width: 1000px; margin: 0 auto; }
 
-        /* ===== 配置卡片 ===== */
         .config-card {
             background: white; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
             margin-bottom: 12px; border: 1px solid #e9eef3;
@@ -29,7 +27,6 @@
         .config-row input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
         .config-hint { font-size: 12px; color: #64748b; align-self: center; }
 
-        /* ===== 通用按钮 ===== */
         .btn {
             padding: 6px 14px; border: none; border-radius: 6px; font-weight: 600; font-size: 13px;
             cursor: pointer; transition: background 0.15s; white-space: nowrap;
@@ -59,7 +56,6 @@
         .badge-borrowed { background: #fee2e2; color: #991b1b; }
         .badge-returned { background: #dcfce7; color: #166534; }
 
-        /* ===== 顶部栏 ===== */
         .header-bar {
             display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
             margin-bottom: 14px; gap: 8px;
@@ -76,7 +72,6 @@
         .sync-dot.syncing { background: #f59e0b; animation: pulse 1s infinite; }
         @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
-        /* 下拉菜单 */
         .dropdown { position: relative; display: inline-block; }
         .dropdown .dropbtn {
             background: white; border: 1px solid #e9eef3; border-radius: 8px;
@@ -99,7 +94,6 @@
         }
         .dropdown-content .item:hover { background: #f1f5f9; }
 
-        /* ===== 核心指标 ===== */
         .stats-grid {
             display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 8px;
         }
@@ -115,7 +109,6 @@
         .stat-card.clickable { cursor: pointer; }
         .stat-card.clickable:hover { background: #f8fafc; border-color: #cbd5e1; }
 
-        /* ===== 分类统计 ===== */
         .category-stats {
             display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px;
         }
@@ -130,14 +123,12 @@
         .cat-stat.network .num { color: #4f46e5; }
         .cat-stat.other .num { color: #94a3b8; }
 
-        /* ===== 图表 ===== */
         .chart-wrapper {
             background: white; border-radius: 12px; padding: 10px; border: 1px solid #e9eef3;
             margin-bottom: 12px; height: 150px; position: relative;
         }
         .chart-wrapper canvas { width: 100% !important; height: 100% !important; }
 
-        /* ===== 月份切换 ===== */
         .month-nav {
             display: flex; align-items: center; justify-content: space-between;
             background: white; padding: 8px 16px; border-radius: 12px;
@@ -151,7 +142,6 @@
         }
         .month-nav .nav-btn:hover { background: #f1f5f9; }
 
-        /* ===== 周统计（放在月份下方） ===== */
         .weekly-card {
             background: #f8fafc; border-radius: 12px; border: 1px solid #e9eef3;
             padding: 10px 16px; margin-bottom: 12px;
@@ -176,7 +166,6 @@
         .weekly-card .weekly-item .num.orange { color: #f59e0b; }
         .weekly-card .weekly-item .num.indigo { color: #4f46e5; }
 
-        /* ===== Tab + 筛选 ===== */
         .filter-top-row {
             display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;
             align-items: center;
@@ -209,7 +198,6 @@
         }
         .filter-top-row .search-group .clear-filter:hover { text-decoration: underline; }
 
-        /* ===== 工单列表上方操作按钮 ===== */
         .list-actions {
             display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;
         }
@@ -217,7 +205,6 @@
             padding: 8px 20px; font-size: 15px;
         }
 
-        /* ===== 工单列表 ===== */
         .day-group {
             background: white; border-radius: 12px; border: 1px solid #e9eef3;
             margin-bottom: 10px; overflow: hidden;
@@ -270,7 +257,6 @@
         .tag.network { background: #e0e7ff; color: #3730a3; }
         .tag.other { background: #f1f5f9; color: #475569; }
 
-        /* ===== 借出/回收站 ===== */
         .borrow-item, .recycle-item {
             display: flex; flex-wrap: wrap; align-items: center;
             gap: 4px 10px; padding: 8px 14px; border-bottom: 1px solid #f1f5f9;
@@ -296,7 +282,6 @@
         .borrow-filter .filter-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
         .borrow-filter .filter-btn:hover:not(.active) { background: #f1f5f9; }
 
-        /* ===== 模态框 ===== */
         .modal-overlay {
             display: none; position: fixed; inset: 0;
             background: rgba(15,23,42,0.35); backdrop-filter: blur(4px);
@@ -334,7 +319,6 @@
         .dept-dropdown .dept-item .highlight { font-weight: 600; color: #3b82f6; }
         .dept-dropdown .no-result { padding: 6px 10px; color: #94a3b8; text-align: center; font-size: 12px; }
 
-        /* ===== 年度汇总 ===== */
         .year-stats-grid {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(70px,1fr));
             gap: 6px; margin-bottom: 12px;
@@ -368,19 +352,15 @@
         .year-selector { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
         .year-selector select { padding: 4px 10px; border-radius: 6px; border: 1px solid #d1d9e6; font-size: 13px; }
 
-        /* ===== 导入预览 ===== */
         .import-preview { max-height: 200px; overflow: auto; border: 1px solid #e9eef3; border-radius: 6px; margin: 8px 0; }
         .import-preview table { width: 100%; border-collapse: collapse; font-size: 12px; }
         .import-preview th, .import-preview td { border: 1px solid #e9eef3; padding: 3px 6px; text-align: left; }
         .import-preview th { background: #f8fafc; position: sticky; top: 0; }
 
-        /* ===== 空状态 ===== */
         .empty-state { text-align: center; padding: 30px 16px; color: #94a3b8; font-size: 13px; }
-
         .hidden { display: none !important; }
         .highlight { background: #fef9c3; }
 
-        /* ===== 移动端 ===== */
         .bottom-actions {
             display: none; position: fixed; bottom: 0; left: 0; right: 0;
             background: white; padding: 6px 10px; padding-bottom: max(6px, env(safe-area-inset-bottom));
@@ -465,7 +445,6 @@
                     <button class="btn btn-purple" id="openYearModalBtn" style="font-size:13px;padding:4px 12px;">📊 年度汇总</button>
                 </div>
                 <div class="right">
-                    <!-- 更多下拉菜单 -->
                     <div class="dropdown" id="moreDropdown">
                         <button class="dropbtn" id="moreBtn">☰ 更多</button>
                         <div class="dropdown-content" id="dropdownContent">
@@ -505,7 +484,7 @@
                 <button class="nav-btn" id="nextMonth">›</button>
             </div>
 
-            <!-- ===== 周统计（放在月份下方） ===== -->
+            <!-- ===== 周统计 ===== -->
             <div class="weekly-card" id="weeklyStats">
                 <span class="weekly-title">📅 本周统计</span>
                 <div class="weekly-nav">
@@ -530,7 +509,7 @@
                 </div>
             </div>
 
-            <!-- ===== 列表上方操作按钮（添加工单/设备借出） ===== -->
+            <!-- ===== 列表上方操作按钮 ===== -->
             <div class="list-actions">
                 <button class="btn btn-success" id="openAddModal">➕ 添加工单</button>
                 <button class="btn btn-borrow" id="openBorrowModal">📦 设备借出</button>
@@ -585,7 +564,10 @@
                 <div><label>分类</label><select id="formCategory"><option value="软件">软件</option><option value="硬件">硬件</option><option value="网络">网络</option><option value="其他">其他</option></select></div>
                 <div><label>状态</label><select id="formResolved"><option value="0">未解决</option><option value="1">已解决</option></select></div>
             </div>
-            <div class="modal-actions"><button class="btn" id="modalCancel">取消</button><button class="btn btn-primary" id="modalSave">保存</button></div>
+            <div class="modal-actions">
+                <button class="btn" id="modalCancel">取消</button>
+                <button class="btn btn-primary" id="modalSave">保存</button>
+            </div>
         </div>
     </div>
 
@@ -603,7 +585,10 @@
                 <div><label>借出日期</label><input type="date" id="borrowDate"></div>
                 <div><label>备注</label><input type="text" id="borrowNote" placeholder="选填"></div>
             </div>
-            <div class="modal-actions"><button class="btn" id="borrowModalCancel">取消</button><button class="btn btn-primary" id="borrowModalSave">保存</button></div>
+            <div class="modal-actions">
+                <button class="btn" id="borrowModalCancel">取消</button>
+                <button class="btn btn-primary" id="borrowModalSave">保存</button>
+            </div>
         </div>
     </div>
 
@@ -664,11 +649,17 @@
             // ===================== 部门列表 =====================
             const DEPARTMENTS = ['美本三部','美国中学部','美本一部','新马港二部','美研一部','美研二部','就业力','加拿大部','美本二部','英国一部','新马港一部','澳新部','英国三部','全球高端部','学术部','英国二部','市场部','客服部','人力资源部','财务部','总经办','国贸英国部','国贸加拿大部','国贸澳新部','国贸新马港部','国贸美中部','国贸美研部','国贸美本部'];
 
-            // ===================== 拼音匹配 =====================
-            const PINYIN_MAP = {'美':'mei','本':'ben','三':'san','部':'bu','国':'guo','中':'zhong','学':'xue','一':'yi','新':'xin','马':'ma','港':'gang','二':'er','研':'yan','就':'jiu','业':'ye','力':'li','加':'jia','拿':'na','大':'da','英':'ying','澳':'ao','全':'quan','球':'qiu','高':'gao','端':'duan','术':'shu','市':'shi','场':'chang','客':'ke','服':'fu','人':'ren','资':'zi','源':'yuan','财':'cai','务':'wu','总':'zong','经':'jing','办':'ban'};
-            function getPinyin(text){if(!text)return'';let r='';for(let c of text)r+=PINYIN_MAP[c]||c;return r;}
-            function getPinyinInitial(text){if(!text)return'';let r='';for(let c of text){let p=PINYIN_MAP[c];r+=p?p.charAt(0):c;}return r;}
-            function matchDepartment(query,dept){if(!query)return true;let q=query.toLowerCase().trim();if(q==='')return true;if(dept.includes(q))return true;let init=getPinyinInitial(dept).toLowerCase();if(init.includes(q))return true;let full=getPinyin(dept).toLowerCase();if(full.includes(q))return true;let hanzi=q.replace(/[a-z]/g,'');let py=q.replace(/[^a-z]/g,'');if(hanzi&&py){let idx=dept.indexOf(hanzi);if(idx!==-1){let remain=dept.substring(idx+hanzi.length);let remInit=getPinyinInitial(remain).toLowerCase();if(remInit.startsWith(py))return true;let fullInit=getPinyinInitial(dept).toLowerCase();if(fullInit.includes(hanzi+py))return true;}}return false;}
+            // ===================== 拼音工具 =====================
+            const PINYIN_MAP = {
+                '美':'mei','本':'ben','三':'san','部':'bu','国':'guo','中':'zhong','学':'xue','一':'yi',
+                '新':'xin','马':'ma','港':'gang','二':'er','研':'yan','就':'jiu','业':'ye','力':'li',
+                '加':'jia','拿':'na','大':'da','英':'ying','澳':'ao','全':'quan','球':'qiu','高':'gao',
+                '端':'duan','术':'shu','市':'shi','场':'chang','客':'ke','服':'fu','人':'ren','资':'zi',
+                '源':'yuan','财':'cai','务':'wu','总':'zong','经':'jing','办':'ban'
+            };
+            function getPinyin(text){ if(!text) return ''; let r=''; for(let c of text) r+=PINYIN_MAP[c]||c; return r; }
+            function getPinyinInitial(text){ if(!text) return ''; let r=''; for(let c of text){ let p=PINYIN_MAP[c]; r+=p?p.charAt(0):c; } return r; }
+            function matchDepartment(query,dept){ if(!query) return true; let q=query.toLowerCase().trim(); if(q==='') return true; if(dept.includes(q)) return true; let init=getPinyinInitial(dept).toLowerCase(); if(init.includes(q)) return true; let full=getPinyin(dept).toLowerCase(); if(full.includes(q)) return true; let hanzi=q.replace(/[a-z]/g,''); let py=q.replace(/[^a-z]/g,''); if(hanzi&&py){ let idx=dept.indexOf(hanzi); if(idx!==-1){ let remain=dept.substring(idx+hanzi.length); let remInit=getPinyinInitial(remain).toLowerCase(); if(remInit.startsWith(py)) return true; let fullInit=getPinyinInitial(dept).toLowerCase(); if(fullInit.includes(hanzi+py)) return true; } } return false; }
 
             // ===================== 全局状态 =====================
             let currentMonth = new Date();
@@ -745,46 +736,30 @@
 
             // ===================== 配置管理 =====================
             const CONFIG_KEY = 'firebase_ticket_config';
-            function loadConfig(){try{let raw=localStorage.getItem(CONFIG_KEY);if(raw)return JSON.parse(raw);}catch(e){}return {};}
-            function saveConfig(cfg){localStorage.setItem(CONFIG_KEY,JSON.stringify(cfg));}
-            function fillConfigForm(){let cfg=loadConfig();fbApiKey.value=cfg.apiKey||'';fbAuthDomain.value=cfg.authDomain||'';fbDatabaseURL.value=cfg.databaseURL||'';fbProjectId.value=cfg.projectId||'';fbStorageBucket.value=cfg.storageBucket||'';fbAppId.value=cfg.appId||'';}
+            function loadConfig(){ try{ let raw=localStorage.getItem(CONFIG_KEY); if(raw) return JSON.parse(raw); }catch(e){} return {}; }
+            function saveConfig(cfg){ localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg)); }
+            function fillConfigForm(){ let cfg=loadConfig(); fbApiKey.value=cfg.apiKey||''; fbAuthDomain.value=cfg.authDomain||''; fbDatabaseURL.value=cfg.databaseURL||''; fbProjectId.value=cfg.projectId||''; fbStorageBucket.value=cfg.storageBucket||''; fbAppId.value=cfg.appId||''; }
             fillConfigForm();
 
-            // ===================== Firebase 初始化 =====================
+            // ===================== Firebase =====================
             function initFirebase(){
-                let config={
-                    apiKey: fbApiKey.value.trim(),
-                    authDomain: fbAuthDomain.value.trim(),
-                    databaseURL: fbDatabaseURL.value.trim(),
-                    projectId: fbProjectId.value.trim(),
-                    storageBucket: fbStorageBucket.value.trim(),
-                    appId: fbAppId.value.trim()
-                };
+                let config={ apiKey:fbApiKey.value.trim(), authDomain:fbAuthDomain.value.trim(), databaseURL:fbDatabaseURL.value.trim(), projectId:fbProjectId.value.trim(), storageBucket:fbStorageBucket.value.trim(), appId:fbAppId.value.trim() };
                 if(!config.apiKey||!config.databaseURL||!config.projectId) throw new Error('请至少填写 apiKey、databaseURL 和 projectId');
                 saveConfig(config);
-                if(!firebase.apps.length){
-                    firebase.initializeApp(config);
-                }else{
-                    let existing = firebase.apps[0];
-                    if(existing.options.databaseURL !== config.databaseURL){
-                        firebase.apps[0].delete();
-                        firebase.initializeApp(config);
-                    }
-                }
-                isFirebaseReady = true;
+                if(!firebase.apps.length){ firebase.initializeApp(config); }else{ let existing=firebase.apps[0]; if(existing.options.databaseURL!==config.databaseURL){ firebase.apps[0].delete(); firebase.initializeApp(config); } }
+                isFirebaseReady=true;
                 return firebase.database();
             }
-            function getTicketsRef(){return firebase.database().ref('tickets');}
-            function getBorrowRef(){return firebase.database().ref('borrow_records');}
+            function getTicketsRef(){ return firebase.database().ref('tickets'); }
+            function getBorrowRef(){ return firebase.database().ref('borrow_records'); }
 
             // ===================== 数据操作 =====================
             function fetchAllTickets(){
                 return new Promise((resolve,reject)=>{
                     getTicketsRef().once('value', snap => {
-                        let data = snap.val();
-                        if(!data){ resolve([]); return; }
-                        let tickets = Object.keys(data).map(key => ({id: key, ...data[key]}));
-                        tickets.sort((a,b) => (a.date < b.date ? 1 : -1));
+                        let data=snap.val(); if(!data){ resolve([]); return; }
+                        let tickets=Object.keys(data).map(key=>({id:key,...data[key]}));
+                        tickets.sort((a,b)=>(a.date<b.date?1:-1));
                         resolve(tickets);
                     }, reject);
                 });
@@ -792,242 +767,176 @@
             function fetchAllBorrows(){
                 return new Promise((resolve,reject)=>{
                     getBorrowRef().once('value', snap => {
-                        let data = snap.val();
-                        if(!data){ resolve([]); return; }
-                        let borrows = Object.keys(data).map(key => ({id: key, ...data[key]}));
-                        borrows.sort((a,b) => (a.borrowDate < b.borrowDate ? 1 : -1));
+                        let data=snap.val(); if(!data){ resolve([]); return; }
+                        let borrows=Object.keys(data).map(key=>({id:key,...data[key]}));
+                        borrows.sort((a,b)=>(a.borrowDate<b.borrowDate?1:-1));
                         resolve(borrows);
                     }, reject);
                 });
             }
-            function addTicketToFirebase(ticket){
-                return new Promise((resolve,reject)=>{
-                    let ref = getTicketsRef().push();
-                    ref.set(ticket, err => err ? reject(err) : resolve(ref.key));
-                });
-            }
-            function updateTicketInFirebase(id, ticket){
-                return new Promise((resolve,reject)=>{
-                    getTicketsRef().child(id).update(ticket, err => err ? reject(err) : resolve());
-                });
-            }
-            function deleteTicketPermanent(id){
-                return new Promise((resolve,reject)=>{
-                    getTicketsRef().child(id).remove(err => err ? reject(err) : resolve());
-                });
-            }
-            function addBorrowToFirebase(record){
-                return new Promise((resolve,reject)=>{
-                    let ref = getBorrowRef().push();
-                    ref.set(record, err => err ? reject(err) : resolve(ref.key));
-                });
-            }
-            function updateBorrowInFirebase(id, record){
-                return new Promise((resolve,reject)=>{
-                    getBorrowRef().child(id).update(record, err => err ? reject(err) : resolve());
-                });
-            }
-            function deleteBorrowPermanent(id){
-                return new Promise((resolve,reject)=>{
-                    getBorrowRef().child(id).remove(err => err ? reject(err) : resolve());
-                });
-            }
+            function addTicketToFirebase(ticket){ return new Promise((resolve,reject)=>{ let ref=getTicketsRef().push(); ref.set(ticket, err=>err?reject(err):resolve(ref.key)); }); }
+            function updateTicketInFirebase(id, ticket){ return new Promise((resolve,reject)=>{ getTicketsRef().child(id).update(ticket, err=>err?reject(err):resolve()); }); }
+            function deleteTicketPermanent(id){ return new Promise((resolve,reject)=>{ getTicketsRef().child(id).remove(err=>err?reject(err):resolve()); }); }
+            function addBorrowToFirebase(record){ return new Promise((resolve,reject)=>{ let ref=getBorrowRef().push(); ref.set(record, err=>err?reject(err):resolve(ref.key)); }); }
+            function updateBorrowInFirebase(id, record){ return new Promise((resolve,reject)=>{ getBorrowRef().child(id).update(record, err=>err?reject(err):resolve()); }); }
+            function deleteBorrowPermanent(id){ return new Promise((resolve,reject)=>{ getBorrowRef().child(id).remove(err=>err?reject(err):resolve()); }); }
 
             // ===================== 周统计 =====================
             function getWeekRange(offset){
-                let now = new Date();
-                let dayOfWeek = now.getDay();
-                let diff = (dayOfWeek === 0) ? 6 : dayOfWeek - 1;
-                let monday = new Date(now);
-                monday.setDate(now.getDate() - diff + offset * 7);
-                monday.setHours(0,0,0,0);
-                let sunday = new Date(monday);
-                sunday.setDate(monday.getDate() + 6);
-                sunday.setHours(23,59,59,999);
-                return { start: monday, end: sunday };
+                let now=new Date(); let dayOfWeek=now.getDay(); let diff=(dayOfWeek===0)?6:dayOfWeek-1;
+                let monday=new Date(now); monday.setDate(now.getDate()-diff+offset*7); monday.setHours(0,0,0,0);
+                let sunday=new Date(monday); sunday.setDate(monday.getDate()+6); sunday.setHours(23,59,59,999);
+                return { start:monday, end:sunday };
             }
             function formatDateShort(d){ return (d.getMonth()+1)+'/'+d.getDate(); }
             function renderWeeklyStats(){
-                if(!allTickets || allTickets.length===0){
-                    weeklyGrid.innerHTML = '<span style="color:#94a3b8;font-size:13px;">暂无数据</span>';
-                    weekRange.textContent = '--';
-                    return;
-                }
-                let {start, end} = getWeekRange(currentWeekOffset);
-                let startStr = start.toISOString().slice(0,10);
-                let endStr = end.toISOString().slice(0,10);
-                weekRange.textContent = formatDateShort(start) + ' - ' + formatDateShort(end);
-                let weekTickets = allTickets.filter(t => t.date && t.date >= startStr && t.date <= endStr && !t.deleted);
-                let total = weekTickets.length;
-                let resolved = weekTickets.filter(t => t.resolved == 1).length;
-                let pending = total - resolved;
-                let software = weekTickets.filter(t => t.category === '软件').length;
-                let hardware = weekTickets.filter(t => t.category === '硬件').length;
-                let network = weekTickets.filter(t => t.category === '网络').length;
-                let other = weekTickets.filter(t => t.category === '其他').length;
-                weeklyGrid.innerHTML = `
+                if(!allTickets || allTickets.length===0){ weeklyGrid.innerHTML='<span style="color:#94a3b8;font-size:13px;">暂无数据</span>'; weekRange.textContent='--'; return; }
+                let {start,end}=getWeekRange(currentWeekOffset);
+                let startStr=start.toISOString().slice(0,10), endStr=end.toISOString().slice(0,10);
+                weekRange.textContent=formatDateShort(start)+' - '+formatDateShort(end);
+                let weekTickets=allTickets.filter(t=>t.date&&t.date>=startStr&&t.date<=endStr&&!t.deleted);
+                let total=weekTickets.length, resolved=weekTickets.filter(t=>t.resolved==1).length, pending=total-resolved;
+                let software=weekTickets.filter(t=>t.category==='软件').length;
+                let hardware=weekTickets.filter(t=>t.category==='硬件').length;
+                let network=weekTickets.filter(t=>t.category==='网络').length;
+                let other=weekTickets.filter(t=>t.category==='其他').length;
+                weeklyGrid.innerHTML=`
                     <span class="weekly-item">总工单 <span class="num blue">${total}</span></span>
                     <span class="weekly-item">已解决 <span class="num green">${resolved}</span></span>
                     <span class="weekly-item">未解决 <span class="num red">${pending}</span></span>
                     <span class="weekly-item">软件 <span class="num purple">${software}</span></span>
                     <span class="weekly-item">硬件 <span class="num orange">${hardware}</span></span>
                     <span class="weekly-item">网络 <span class="num indigo">${network}</span></span>
-                    ${other > 0 ? `<span class="weekly-item">其他 <span style="color:#64748b;font-weight:700;">${other}</span></span>` : ''}
+                    ${other>0?`<span class="weekly-item">其他 <span style="color:#64748b;font-weight:700;">${other}</span></span>`:''}
                 `;
             }
 
-            // ===================== 工单渲染 =====================
-            function getMonthTickets(tickets, year, month){
-                let m = `${year}-${String(month).padStart(2,'0')}`;
-                return tickets.filter(t => t.date && t.date.startsWith(m) && !t.deleted);
-            }
+            // ===================== 核心渲染 =====================
+            function getMonthTickets(tickets, year, month){ let m=`${year}-${String(month).padStart(2,'0')}`; return tickets.filter(t=>t.date&&t.date.startsWith(m)&&!t.deleted); }
             function applyFilters(tickets){
-                let result = tickets;
-                if(filterDept !== 'all') result = result.filter(t => t.department === filterDept);
-                if(filterCategory !== 'all') result = result.filter(t => t.category === filterCategory);
-                if(searchKeyword.trim() !== ''){
-                    let kw = searchKeyword.trim().toLowerCase();
-                    result = result.filter(t =>
-                        (t.department||'').toLowerCase().includes(kw) ||
-                        (t.name||'').toLowerCase().includes(kw) ||
-                        (t.issue||'').toLowerCase().includes(kw)
-                    );
+                let result=tickets;
+                if(filterDept!=='all') result=result.filter(t=>t.department===filterDept);
+                if(filterCategory!=='all') result=result.filter(t=>t.category===filterCategory);
+                if(searchKeyword.trim()!==''){
+                    let kw=searchKeyword.trim().toLowerCase();
+                    result=result.filter(t=>(t.department||'').toLowerCase().includes(kw)||(t.name||'').toLowerCase().includes(kw)||(t.issue||'').toLowerCase().includes(kw));
                 }
                 return result;
             }
             function renderStats(tickets){
-                let total = tickets.length;
-                let resolved = tickets.filter(t => t.resolved == 1).length;
-                let pending = total - resolved;
-                totalCount.textContent = total;
-                resolvedCount.textContent = resolved;
-                pendingCount.textContent = pending;
-
-                // 分类统计
-                let sw = tickets.filter(t => t.category === '软件').length;
-                let hw = tickets.filter(t => t.category === '硬件').length;
-                let nw = tickets.filter(t => t.category === '网络').length;
-                let ot = tickets.filter(t => t.category === '其他').length;
-                catSoftwareNum.textContent = sw;
-                catHardwareNum.textContent = hw;
-                catNetworkNum.textContent = nw;
-                catOtherNum.textContent = ot;
+                let total=tickets.length, resolved=tickets.filter(t=>t.resolved==1).length, pending=total-resolved;
+                totalCount.textContent=total; resolvedCount.textContent=resolved; pendingCount.textContent=pending;
+                let sw=tickets.filter(t=>t.category==='软件').length;
+                let hw=tickets.filter(t=>t.category==='硬件').length;
+                let nw=tickets.filter(t=>t.category==='网络').length;
+                let ot=tickets.filter(t=>t.category==='其他').length;
+                catSoftwareNum.textContent=sw; catHardwareNum.textContent=hw; catNetworkNum.textContent=nw; catOtherNum.textContent=ot;
             }
             function renderChart(tickets, year, month){
-                let daysInMonth = new Date(year, month, 0).getDate();
-                let dayCounts = {};
-                for(let i=1; i<=daysInMonth; i++){
-                    let d = `${year}-${String(month).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-                    dayCounts[d] = 0;
-                }
-                tickets.forEach(t => { if(t.date && dayCounts[t.date] !== undefined) dayCounts[t.date]++; });
-                let labels = Object.keys(dayCounts).map(d => d.slice(5));
-                let data = Object.values(dayCounts);
-                let ctx = document.getElementById('monthChart').getContext('2d');
+                let daysInMonth=new Date(year, month, 0).getDate();
+                let dayCounts={};
+                for(let i=1;i<=daysInMonth;i++){ let d=`${year}-${String(month).padStart(2,'0')}-${String(i).padStart(2,'0')}`; dayCounts[d]=0; }
+                tickets.forEach(t=>{ if(t.date&&dayCounts[t.date]!==undefined) dayCounts[t.date]++; });
+                let labels=Object.keys(dayCounts).map(d=>d.slice(5));
+                let data=Object.values(dayCounts);
+                let ctx=document.getElementById('monthChart').getContext('2d');
                 if(chartInstance) chartInstance.destroy();
-                chartInstance = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels,
-                        datasets: [{
-                            label: '工单',
-                            data,
-                            backgroundColor: 'rgba(59,130,246,0.6)',
-                            borderColor: 'rgba(59,130,246,1)',
-                            borderWidth: 1,
-                            borderRadius: 3
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.parsed.y} 条` } } },
-                        scales: {
-                            y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 9 } }, grid: { color: '#f1f5f9' } },
-                            x: { ticks: { maxRotation: 30, font: { size: 8 } }, grid: { display: false } }
-                        }
-                    }
-                });
+                chartInstance=new Chart(ctx,{ type:'bar', data:{ labels, datasets:[{ label:'工单', data, backgroundColor:'rgba(59,130,246,0.6)', borderColor:'rgba(59,130,246,1)', borderWidth:1, borderRadius:3 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label:ctx=>`${ctx.parsed.y} 条` } } }, scales:{ y:{ beginAtZero:true, ticks:{ stepSize:1, font:{ size:9 } }, grid:{ color:'#f1f5f9' } }, x:{ ticks:{ maxRotation:30, font:{ size:8 } }, grid:{ display:false } } } } });
             }
-            function escapeHtml(text){ if(!text) return ''; let d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
+            function escapeHtml(text){ if(!text) return ''; let d=document.createElement('div'); d.textContent=text; return d.innerHTML; }
             function getCategoryEmoji(cat){ let map={'软件':'💻','硬件':'🖨️','网络':'🌐','其他':'📦'}; return map[cat]||''; }
-            function highlightText(text, keyword){ if(!keyword || !text) return escapeHtml(text); let idx = text.toLowerCase().indexOf(keyword.toLowerCase()); if(idx === -1) return escapeHtml(text); let before = text.substring(0, idx), match = text.substring(idx, idx+keyword.length), after = text.substring(idx+keyword.length); return escapeHtml(before) + '<span class="highlight">'+escapeHtml(match)+'</span>' + escapeHtml(after); }
+            function highlightText(text, keyword){ if(!keyword||!text) return escapeHtml(text); let idx=text.toLowerCase().indexOf(keyword.toLowerCase()); if(idx===-1) return escapeHtml(text); let before=text.substring(0,idx), match=text.substring(idx,idx+keyword.length), after=text.substring(idx+keyword.length); return escapeHtml(before)+'<span class="highlight">'+escapeHtml(match)+'</span>'+escapeHtml(after); }
             function getCategoryColor(cat){ const map={'软件':'software','硬件':'hardware','网络':'network','其他':'other'}; return map[cat]||'other'; }
 
+            // ===== 异步操作 =====
             async function quickResolve(id){
                 if(!isFirebaseReady){ alert('系统未就绪'); return; }
                 if(!confirm('标记此工单为已解决？')) return;
                 try {
-                    syncDot.className = 'sync-dot syncing';
-                    syncLabel.textContent = '更新中...';
+                    syncDot.className='sync-dot syncing'; syncLabel.textContent='更新中...';
                     await updateTicketInFirebase(id, { resolved: 1 });
                     await refreshData();
-                    syncDot.className = 'sync-dot';
-                    syncLabel.textContent = '已同步';
+                    syncDot.className='sync-dot'; syncLabel.textContent='已同步';
                 } catch(err) {
                     alert('操作失败: '+err.message);
-                    syncDot.className = 'sync-dot error';
-                    syncLabel.textContent = '更新失败';
+                    syncDot.className='sync-dot error'; syncLabel.textContent='更新失败';
                 }
             }
             async function softDeleteTicket(id){
                 if(!confirm('确定删除此工单？可恢复')) return;
                 try {
-                    syncDot.className = 'sync-dot syncing';
-                    syncLabel.textContent = '删除中...';
+                    syncDot.className='sync-dot syncing'; syncLabel.textContent='删除中...';
                     await updateTicketInFirebase(id, { deleted: true });
                     await refreshData();
-                    syncDot.className = 'sync-dot';
-                    syncLabel.textContent = '已删除';
+                    syncDot.className='sync-dot'; syncLabel.textContent='已删除';
                 } catch(err) {
                     alert('删除失败: '+err.message);
-                    syncDot.className = 'sync-dot error';
-                    syncLabel.textContent = '删除失败';
+                    syncDot.className='sync-dot error'; syncLabel.textContent='删除失败';
+                }
+            }
+            async function softDeleteBorrow(id){
+                if(!confirm('确定删除此借出记录？可恢复')) return;
+                try {
+                    syncDot.className='sync-dot syncing'; syncLabel.textContent='删除中...';
+                    await updateBorrowInFirebase(id, { deleted: true });
+                    await refreshData();
+                    syncDot.className='sync-dot'; syncLabel.textContent='已删除';
+                } catch(err) {
+                    alert('删除失败: '+err.message);
+                    syncDot.className='sync-dot error'; syncLabel.textContent='删除失败';
+                }
+            }
+            async function performReturnBorrow(id){
+                if(!isFirebaseReady) return;
+                try {
+                    syncDot.className='sync-dot syncing'; syncLabel.textContent='更新中...';
+                    let today=new Date().toISOString().slice(0,10);
+                    await updateBorrowInFirebase(id, { status:'已归还', returnDate:today });
+                    await refreshData();
+                    syncDot.className='sync-dot'; syncLabel.textContent='已同步';
+                } catch(err) {
+                    alert('操作失败: '+err.message);
+                    syncDot.className='sync-dot error'; syncLabel.textContent='更新失败';
                 }
             }
 
+            // ===== 渲染工单列表 =====
             function renderTickets(){
-                let year = currentMonth.getFullYear(), month = currentMonth.getMonth()+1;
-                currentMonthLabel.textContent = `${year}年${month}月`;
-                let monthTickets = getMonthTickets(allTickets, year, month);
-                let filtered = applyFilters(monthTickets);
+                let year=currentMonth.getFullYear(), month=currentMonth.getMonth()+1;
+                currentMonthLabel.textContent=`${year}年${month}月`;
+                let monthTickets=getMonthTickets(allTickets, year, month);
+                let filtered=applyFilters(monthTickets);
                 renderStats(filtered);
                 renderChart(filtered, year, month);
                 renderWeeklyStats();
 
-                let todayStr = new Date().toISOString().slice(0,10);
-                let groups = {};
-                filtered.forEach(t => { if(t.date){ if(!groups[t.date]) groups[t.date]=[]; groups[t.date].push(t); } });
-                let sortedDates = Object.keys(groups).sort((a,b) => b.localeCompare(a));
-                if(sortedDates.length === 0){
-                    ticketList.innerHTML = `<div class="empty-state">📭 本月暂无工单${(filterDept!=='all'||filterCategory!=='all'||searchKeyword.trim()!=='')?'（已筛选）':''}</div>`;
+                let todayStr=new Date().toISOString().slice(0,10);
+                let groups={};
+                filtered.forEach(t=>{ if(t.date){ if(!groups[t.date]) groups[t.date]=[]; groups[t.date].push(t); } });
+                let sortedDates=Object.keys(groups).sort((a,b)=>b.localeCompare(a));
+                if(sortedDates.length===0){
+                    ticketList.innerHTML=`<div class="empty-state">📭 本月暂无工单${(filterDept!=='all'||filterCategory!=='all'||searchKeyword.trim()!=='')?'（已筛选）':''}</div>`;
                     return;
                 }
-                let html = '';
+                let html='';
                 sortedDates.forEach(date => {
-                    let items = groups[date];
+                    let items=groups[date];
                     let sw=0,hw=0,nw=0,ot=0;
-                    items.forEach(t => {
-                        let cat = t.category || '其他';
-                        if(cat === '软件') sw++;
-                        else if(cat === '硬件') hw++;
-                        else if(cat === '网络') nw++;
-                        else ot++;
-                    });
-                    let isToday = (date === todayStr);
-                    let contentHidden = isToday ? '' : ' hidden';
-                    let icon = isToday ? '▼' : '▶';
-                    let statsHtml = '';
+                    items.forEach(t=>{ let cat=t.category||'其他'; if(cat==='软件') sw++; else if(cat==='硬件') hw++; else if(cat==='网络') nw++; else ot++; });
+                    let isToday=(date===todayStr);
+                    let contentHidden=isToday?'':' hidden';
+                    let icon=isToday?'▼':'▶';
+                    let statsHtml='';
                     if(sw>0||hw>0||nw>0||ot>0){
-                        statsHtml = '<div class="day-stats">';
-                        if(sw>0) statsHtml += `<span class="stat-item">软件 <span class="num purple">${sw}</span></span>`;
-                        if(hw>0) statsHtml += `<span class="stat-item">硬件 <span class="num orange">${hw}</span></span>`;
-                        if(nw>0) statsHtml += `<span class="stat-item">网络 <span class="num indigo">${nw}</span></span>`;
-                        if(ot>0) statsHtml += `<span class="stat-item">其他 <span class="num" style="color:#64748b;">${ot}</span></span>`;
-                        statsHtml += '</div>';
+                        statsHtml='<div class="day-stats">';
+                        if(sw>0) statsHtml+=`<span class="stat-item">软件 <span class="num purple">${sw}</span></span>`;
+                        if(hw>0) statsHtml+=`<span class="stat-item">硬件 <span class="num orange">${hw}</span></span>`;
+                        if(nw>0) statsHtml+=`<span class="stat-item">网络 <span class="num indigo">${nw}</span></span>`;
+                        if(ot>0) statsHtml+=`<span class="stat-item">其他 <span class="num" style="color:#64748b;">${ot}</span></span>`;
+                        statsHtml+='</div>';
                     }
-                    html += `<div class="day-group">
-                        <div class="day-header" data-date="${date}">
+                    html+=`<div class="day-group" data-date="${date}">
+                        <div class="day-header">
                             <span>📅 ${date}</span>
                             <span class="day-count">${items.length} 条 <span class="toggle-icon">${icon}</span></span>
                         </div>
@@ -1035,16 +944,16 @@
                         <div class="day-content${contentHidden}">
                     `;
                     items.forEach(t => {
-                        let resolvedText = t.resolved == 1 ? '已解决' : '未解决';
-                        let badgeCls = t.resolved == 1 ? 'resolved' : 'pending';
-                        let catCls = (t.category || '其他').toLowerCase();
-                        let emoji = getCategoryEmoji(t.category);
-                        let isResolved = t.resolved == 1;
-                        let colorClass = getCategoryColor(t.category);
-                        let deptDisplay = searchKeyword.trim() ? highlightText(t.department||'', searchKeyword.trim()) : escapeHtml(t.department||'');
-                        let nameDisplay = searchKeyword.trim() ? highlightText(t.name||'', searchKeyword.trim()) : escapeHtml(t.name||'');
-                        let issueDisplay = searchKeyword.trim() ? highlightText(t.issue||'', searchKeyword.trim()) : escapeHtml(t.issue||'');
-                        html += `<div class="ticket-item color-${colorClass}" data-id="${t.id}">
+                        let resolvedText=t.resolved==1?'已解决':'未解决';
+                        let badgeCls=t.resolved==1?'resolved':'pending';
+                        let catCls=(t.category||'其他').toLowerCase();
+                        let emoji=getCategoryEmoji(t.category);
+                        let isResolved=t.resolved==1;
+                        let colorClass=getCategoryColor(t.category);
+                        let deptDisplay=searchKeyword.trim()?highlightText(t.department||'', searchKeyword.trim()):escapeHtml(t.department||'');
+                        let nameDisplay=searchKeyword.trim()?highlightText(t.name||'', searchKeyword.trim()):escapeHtml(t.name||'');
+                        let issueDisplay=searchKeyword.trim()?highlightText(t.issue||'', searchKeyword.trim()):escapeHtml(t.issue||'');
+                        html+=`<div class="ticket-item color-${colorClass}" data-id="${t.id}">
                             <div class="info">
                                 <span class="dept-name">${deptDisplay} ${nameDisplay}</span>
                                 <span class="issue-text">${issueDisplay}</span>
@@ -1054,81 +963,90 @@
                                 <span class="badge badge-${badgeCls}">${resolvedText}</span>
                             </div>
                             <div class="actions">
-                                ${!isResolved ? `<button class="btn btn-resolve resolve-ticket" data-id="${t.id}">✅ 解决</button>` : ''}
+                                ${!isResolved?`<button class="btn btn-resolve resolve-ticket" data-id="${t.id}">✅ 解决</button>`:''}
                                 <button class="btn btn-sm btn-primary edit-ticket" data-id="${t.id}">✏️</button>
                                 <button class="btn btn-sm btn-danger delete-ticket" data-id="${t.id}">🗑️</button>
                             </div>
                         </div>`;
                     });
-                    html += `</div></div>`;
+                    html+=`</div></div>`;
                 });
-                ticketList.innerHTML = html;
+                ticketList.innerHTML=html;
+
+                // 绑定折叠事件（每个日期头部）
+                document.querySelectorAll('.day-group .day-header').forEach(header => {
+                    header.onclick = function() {
+                        let content = this.parentElement.querySelector('.day-content');
+                        if(content){
+                            content.classList.toggle('hidden');
+                            let iconSpan = this.querySelector('.toggle-icon');
+                            if(iconSpan) iconSpan.textContent = content.classList.contains('hidden') ? '▶' : '▼';
+                        }
+                    };
+                });
+                // 绑定按钮事件（解决、编辑、删除）
+                document.querySelectorAll('.resolve-ticket').forEach(btn => {
+                    btn.onclick = function(e){ e.stopPropagation(); quickResolve(this.dataset.id); };
+                });
+                document.querySelectorAll('.edit-ticket').forEach(btn => {
+                    btn.onclick = function(e){ e.stopPropagation(); openEditTicketModal(this.dataset.id); };
+                });
+                document.querySelectorAll('.delete-ticket').forEach(btn => {
+                    btn.onclick = function(e){ e.stopPropagation(); softDeleteTicket(this.dataset.id); };
+                });
             }
 
-            // ===================== 借出渲染 =====================
-            async function softDeleteBorrow(id){
-                if(!confirm('确定删除此借出记录？可恢复')) return;
-                try {
-                    syncDot.className = 'sync-dot syncing';
-                    syncLabel.textContent = '删除中...';
-                    await updateBorrowInFirebase(id, { deleted: true });
-                    await refreshData();
-                    syncDot.className = 'sync-dot';
-                    syncLabel.textContent = '已删除';
-                } catch(err) {
-                    alert('删除失败: '+err.message);
-                    syncDot.className = 'sync-dot error';
-                    syncLabel.textContent = '删除失败';
-                }
-            }
+            // ===== 渲染借出列表 =====
             function renderBorrows(){
-                let filtered = allBorrows.filter(b => !b.deleted);
-                if(borrowFilter === 'unreturned') filtered = filtered.filter(b => b.status !== '已归还');
-                if(filtered.length === 0){
-                    borrowItems.innerHTML = '<div class="empty-state">📦 暂无借出记录</div>';
-                    return;
-                }
-                let html = '';
+                let filtered=allBorrows.filter(b=>!b.deleted);
+                if(borrowFilter==='unreturned') filtered=filtered.filter(b=>b.status!=='已归还');
+                if(filtered.length===0){ borrowItems.innerHTML='<div class="empty-state">📦 暂无借出记录</div>'; return; }
+                let html='';
                 filtered.forEach(b => {
-                    let status = b.status || '未归还';
-                    let badgeCls = status === '已归还' ? 'returned' : 'borrowed';
-                    let returnDateHtml = b.returnDate ? `<span style="font-size:11px;color:#64748b;">归还: ${b.returnDate}</span>` : '';
-                    html += `<div class="borrow-item" data-id="${b.id}">
+                    let status=b.status||'未归还';
+                    let badgeCls=status==='已归还'?'returned':'borrowed';
+                    let returnDateHtml=b.returnDate?`<span style="font-size:11px;color:#64748b;">归还: ${b.returnDate}</span>`:'';
+                    html+=`<div class="borrow-item" data-id="${b.id}">
                         <div class="info">
                             <span class="borrow-device">${escapeHtml(b.device||'')}</span>
-                            <span class="borrow-detail">${escapeHtml(b.department||'')} ${escapeHtml(b.name||'')}  |  借出: ${escapeHtml(b.borrowDate||'')}${b.note ? `  |  ${escapeHtml(b.note)}` : ''}</span>
+                            <span class="borrow-detail">${escapeHtml(b.department||'')} ${escapeHtml(b.name||'')}  |  借出: ${escapeHtml(b.borrowDate||'')}${b.note?`  |  ${escapeHtml(b.note)}`:''}</span>
                         </div>
                         <div class="meta">
                             <span class="badge badge-${badgeCls}">${status}</span>
                             ${returnDateHtml}
                         </div>
                         <div class="actions">
-                            ${status !== '已归还' ? `<button class="btn btn-sm btn-success return-borrow" data-id="${b.id}">归还</button>` : ''}
+                            ${status!=='已归还'?`<button class="btn btn-sm btn-success return-borrow" data-id="${b.id}">归还</button>`:''}
                             <button class="btn btn-sm btn-danger delete-borrow" data-id="${b.id}">删除</button>
                         </div>
                     </div>`;
                 });
-                borrowItems.innerHTML = html;
+                borrowItems.innerHTML=html;
+
+                // 绑定按钮事件
+                document.querySelectorAll('.return-borrow').forEach(btn => {
+                    btn.onclick = function(e){ e.stopPropagation(); if(confirm('确认此设备已归还？')) performReturnBorrow(this.dataset.id); };
+                });
+                document.querySelectorAll('.delete-borrow').forEach(btn => {
+                    btn.onclick = function(e){ e.stopPropagation(); softDeleteBorrow(this.dataset.id); };
+                });
             }
 
-            // ===================== 回收站 =====================
+            // ===== 渲染回收站 =====
             function renderRecycle(){
-                let tickets = allTickets.filter(t => t.deleted === true);
-                let borrows = allBorrows.filter(b => b.deleted === true);
-                let items = [];
-                if(recycleFilter === 'tickets' || recycleFilter === 'all') items.push(...tickets.map(t => ({...t, type:'ticket'})));
-                if(recycleFilter === 'borrow' || recycleFilter === 'all') items.push(...borrows.map(b => ({...b, type:'borrow'})));
-                items.sort((a,b) => (a.date||a.borrowDate||'') > (b.date||b.borrowDate||'') ? -1 : 1);
-                if(items.length === 0){
-                    recycleItems.innerHTML = '<div class="empty-state">♻️ 回收站为空</div>';
-                    return;
-                }
-                let html = '';
+                let tickets=allTickets.filter(t=>t.deleted===true);
+                let borrows=allBorrows.filter(b=>b.deleted===true);
+                let items=[];
+                if(recycleFilter==='tickets'||recycleFilter==='all') items.push(...tickets.map(t=>({...t,type:'ticket'})));
+                if(recycleFilter==='borrow'||recycleFilter==='all') items.push(...borrows.map(b=>({...b,type:'borrow'})));
+                items.sort((a,b)=>(a.date||a.borrowDate||'')>(b.date||b.borrowDate||'')?-1:1);
+                if(items.length===0){ recycleItems.innerHTML='<div class="empty-state">♻️ 回收站为空</div>'; return; }
+                let html='';
                 items.forEach(item => {
-                    let typeLabel = item.type === 'ticket' ? '工单' : '借出';
-                    let detail = item.type === 'ticket' ? `${escapeHtml(item.department||'')} ${escapeHtml(item.name||'')} - ${escapeHtml(item.issue||'')}` : `${escapeHtml(item.department||'')} ${escapeHtml(item.name||'')} 借出 ${escapeHtml(item.device||'')}`;
-                    let date = item.date || item.borrowDate || '';
-                    html += `<div class="recycle-item" data-id="${item.id}" data-type="${item.type}">
+                    let typeLabel=item.type==='ticket'?'工单':'借出';
+                    let detail=item.type==='ticket'?`${escapeHtml(item.department||'')} ${escapeHtml(item.name||'')} - ${escapeHtml(item.issue||'')}`:`${escapeHtml(item.department||'')} ${escapeHtml(item.name||'')} 借出 ${escapeHtml(item.device||'')}`;
+                    let date=item.date||item.borrowDate||'';
+                    html+=`<div class="recycle-item" data-id="${item.id}" data-type="${item.type}">
                         <div class="info"><span style="font-weight:500;">${typeLabel}</span> ${escapeHtml(date)} ${detail}</div>
                         <div class="actions">
                             <button class="btn btn-sm btn-success restore-item" data-id="${item.id}" data-type="${item.type}">恢复</button>
@@ -1136,143 +1054,89 @@
                         </div>
                     </div>`;
                 });
-                recycleItems.innerHTML = html;
+                recycleItems.innerHTML=html;
+
+                document.querySelectorAll('.restore-item').forEach(btn => {
+                    btn.onclick = function(e){ e.stopPropagation(); restoreItem(this.dataset.id, this.dataset.type); };
+                });
+                document.querySelectorAll('.permanent-delete').forEach(btn => {
+                    btn.onclick = function(e){ e.stopPropagation(); permanentDeleteItem(this.dataset.id, this.dataset.type); };
+                });
             }
 
-            // ===================== 恢复/永久删除 =====================
+            // ===== 恢复/永久删除 =====
             async function restoreItem(id, type){
                 try {
-                    syncDot.className = 'sync-dot syncing';
-                    syncLabel.textContent = '恢复中...';
-                    if(type === 'ticket') await updateTicketInFirebase(id, { deleted: false });
+                    syncDot.className='sync-dot syncing'; syncLabel.textContent='恢复中...';
+                    if(type==='ticket') await updateTicketInFirebase(id, { deleted: false });
                     else await updateBorrowInFirebase(id, { deleted: false });
                     await refreshData();
-                    syncDot.className = 'sync-dot';
-                    syncLabel.textContent = '已恢复';
+                    syncDot.className='sync-dot'; syncLabel.textContent='已恢复';
                 } catch(err) {
                     alert('恢复失败: '+err.message);
-                    syncDot.className = 'sync-dot error';
-                    syncLabel.textContent = '恢复失败';
+                    syncDot.className='sync-dot error'; syncLabel.textContent='恢复失败';
                 }
             }
             async function permanentDeleteItem(id, type){
                 if(!confirm('永久删除不可恢复，确定？')) return;
                 try {
-                    syncDot.className = 'sync-dot syncing';
-                    syncLabel.textContent = '删除中...';
-                    if(type === 'ticket') await deleteTicketPermanent(id);
+                    syncDot.className='sync-dot syncing'; syncLabel.textContent='删除中...';
+                    if(type==='ticket') await deleteTicketPermanent(id);
                     else await deleteBorrowPermanent(id);
                     await refreshData();
-                    syncDot.className = 'sync-dot';
-                    syncLabel.textContent = '已永久删除';
+                    syncDot.className='sync-dot'; syncLabel.textContent='已永久删除';
                 } catch(err) {
                     alert('删除失败: '+err.message);
-                    syncDot.className = 'sync-dot error';
-                    syncLabel.textContent = '删除失败';
+                    syncDot.className='sync-dot error'; syncLabel.textContent='删除失败';
                 }
             }
 
             // ===================== 年度汇总 =====================
             function populateYearSelect(){
-                let currentYear = new Date().getFullYear();
-                yearSelect.innerHTML = '';
-                let minYear = currentYear;
-                allTickets.forEach(t => { if(t.date && !t.deleted){ let y = parseInt(t.date.substring(0,4)); if(!isNaN(y) && y < minYear) minYear = y; } });
-                if(minYear > currentYear) minYear = currentYear;
-                for(let y = currentYear; y >= minYear; y--){
-                    let opt = document.createElement('option');
-                    opt.value = y;
-                    opt.textContent = y + '年';
-                    yearSelect.appendChild(opt);
-                }
-                yearSelect.value = currentYear;
+                let currentYear=new Date().getFullYear();
+                yearSelect.innerHTML='';
+                let minYear=currentYear;
+                allTickets.forEach(t=>{ if(t.date&&!t.deleted){ let y=parseInt(t.date.substring(0,4)); if(!isNaN(y)&&y<minYear) minYear=y; } });
+                if(minYear>currentYear) minYear=currentYear;
+                for(let y=currentYear; y>=minYear; y--){ let opt=document.createElement('option'); opt.value=y; opt.textContent=y+'年'; yearSelect.appendChild(opt); }
+                yearSelect.value=currentYear;
             }
             function renderYearSummary(year){
-                let yearTickets = allTickets.filter(t => t.date && t.date.startsWith(String(year)) && !t.deleted);
-                let total = yearTickets.length;
-                let resolved = yearTickets.filter(t => t.resolved == 1).length;
-                let pending = total - resolved;
-                let software = yearTickets.filter(t => t.category === '软件').length;
-                let hardware = yearTickets.filter(t => t.category === '硬件').length;
-                let network = yearTickets.filter(t => t.category === '网络').length;
-                yearTotal.textContent = total;
-                yearResolved.textContent = resolved;
-                yearPending.textContent = pending;
-                yearSoftware.textContent = software;
-                yearHardware.textContent = hardware;
-                yearNetwork.textContent = network;
+                let yearTickets=allTickets.filter(t=>t.date&&t.date.startsWith(String(year))&&!t.deleted);
+                let total=yearTickets.length, resolved=yearTickets.filter(t=>t.resolved==1).length, pending=total-resolved;
+                let software=yearTickets.filter(t=>t.category==='软件').length;
+                let hardware=yearTickets.filter(t=>t.category==='硬件').length;
+                let network=yearTickets.filter(t=>t.category==='网络').length;
+                yearTotal.textContent=total; yearResolved.textContent=resolved; yearPending.textContent=pending;
+                yearSoftware.textContent=software; yearHardware.textContent=hardware; yearNetwork.textContent=network;
 
                 // 折线图
-                let monthCounts = {};
-                for(let m=1; m<=12; m++){ let ms = `${year}-${String(m).padStart(2,'0')}`; monthCounts[ms] = 0; }
-                yearTickets.forEach(t => { if(t.date){ let prefix = t.date.substring(0,7); if(monthCounts[prefix] !== undefined) monthCounts[prefix]++; } });
-                let labels = Object.keys(monthCounts).map(k => k.substring(5) + '月');
-                let data = Object.values(monthCounts);
-                let ctxLine = yearLineChartCanvas.getContext('2d');
+                let monthCounts={};
+                for(let m=1; m<=12; m++){ let ms=`${year}-${String(m).padStart(2,'0')}`; monthCounts[ms]=0; }
+                yearTickets.forEach(t=>{ if(t.date){ let prefix=t.date.substring(0,7); if(monthCounts[prefix]!==undefined) monthCounts[prefix]++; } });
+                let labels=Object.keys(monthCounts).map(k=>k.substring(5)+'月');
+                let data=Object.values(monthCounts);
+                let ctxLine=yearLineChartCanvas.getContext('2d');
                 if(yearLineChartInstance) yearLineChartInstance.destroy();
-                yearLineChartInstance = new Chart(ctxLine, {
-                    type: 'line',
-                    data: {
-                        labels,
-                        datasets: [{
-                            label: '工单数',
-                            data,
-                            borderColor: '#8b5cf6',
-                            backgroundColor: 'rgba(139,92,246,0.1)',
-                            fill: true,
-                            tension: 0.3,
-                            pointBackgroundColor: '#8b5cf6'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.parsed.y} 条` } } },
-                        scales: {
-                            y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 9 } }, grid: { color: '#f1f5f9' } },
-                            x: { ticks: { font: { size: 9 } }, grid: { display: false } }
-                        }
-                    }
-                });
-
+                yearLineChartInstance=new Chart(ctxLine, { type:'line', data:{ labels, datasets:[{ label:'工单数', data, borderColor:'#8b5cf6', backgroundColor:'rgba(139,92,246,0.1)', fill:true, tension:0.3, pointBackgroundColor:'#8b5cf6' }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label:ctx=>`${ctx.parsed.y} 条` } } }, scales:{ y:{ beginAtZero:true, ticks:{ stepSize:1, font:{ size:9 } }, grid:{ color:'#f1f5f9' } }, x:{ ticks:{ font:{ size:9 } }, grid:{ display:false } } } } });
                 // 饼图
-                let catData = [software, hardware, network];
-                let catLabels = ['软件', '硬件', '网络'];
-                let colors = ['#8b5cf6', '#f59e0b', '#4f46e5'];
-                let other = total - software - hardware - network;
-                if(other > 0){ catData.push(other); catLabels.push('其他'); colors.push('#94a3b8'); }
-                let ctxPie = yearPieChartCanvas.getContext('2d');
+                let catData=[software, hardware, network];
+                let catLabels=['软件', '硬件', '网络'];
+                let colors=['#8b5cf6','#f59e0b','#4f46e5'];
+                let other=total-software-hardware-network;
+                if(other>0){ catData.push(other); catLabels.push('其他'); colors.push('#94a3b8'); }
+                let ctxPie=yearPieChartCanvas.getContext('2d');
                 if(yearPieChartInstance) yearPieChartInstance.destroy();
-                yearPieChartInstance = new Chart(ctxPie, {
-                    type: 'doughnut',
-                    data: {
-                        labels: catLabels,
-                        datasets: [{
-                            data: catData,
-                            backgroundColor: colors,
-                            borderWidth: 2,
-                            borderColor: 'white'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { position: 'bottom', labels: { font: { size: 10 } } },
-                            tooltip: { callbacks: { label: ctx => `${ctx.label}: ${ctx.parsed} 条 (${((ctx.parsed/total)*100).toFixed(1)}%)` } }
-                        }
-                    }
-                });
-
+                yearPieChartInstance=new Chart(ctxPie, { type:'doughnut', data:{ labels:catLabels, datasets:[{ data:catData, backgroundColor:colors, borderWidth:2, borderColor:'white' }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom', labels:{ font:{ size:10 } } }, tooltip:{ callbacks:{ label:ctx=>`${ctx.label}: ${ctx.parsed} 条 (${((ctx.parsed/total)*100).toFixed(1)}%)` } } } } });
                 // 明细
-                let groups = {};
-                yearTickets.forEach(t => { let m = t.date ? t.date.substring(0,7) : '未知'; if(!groups[m]) groups[m] = []; groups[m].push(t); });
-                let sortedMonths = Object.keys(groups).sort();
-                if(sortedMonths.length === 0){ yearMonthList.innerHTML = '<div class="empty-state">📭 该年度暂无工单</div>'; return; }
-                let html = '';
+                let groups={};
+                yearTickets.forEach(t=>{ let m=t.date?t.date.substring(0,7):'未知'; if(!groups[m]) groups[m]=[]; groups[m].push(t); });
+                let sortedMonths=Object.keys(groups).sort();
+                if(sortedMonths.length===0){ yearMonthList.innerHTML='<div class="empty-state">📭 该年度暂无工单</div>'; return; }
+                let html='';
                 sortedMonths.forEach(monthKey => {
-                    let items = groups[monthKey];
-                    html += `<div class="year-month-group">
+                    let items=groups[monthKey];
+                    html+=`<div class="year-month-group">
                         <div class="year-month-header" data-target="month-${monthKey}">
                             <span>📅 ${monthKey} (${items.length} 条)</span>
                             <span class="arrow">▼</span>
@@ -1280,11 +1144,11 @@
                         <div class="year-month-details" id="month-${monthKey}">
                     `;
                     items.forEach(t => {
-                        let resolvedText = t.resolved == 1 ? '已解决' : '未解决';
-                        let badgeCls = t.resolved == 1 ? 'resolved' : 'pending';
-                        let catCls = (t.category || '其他').toLowerCase();
-                        let emoji = getCategoryEmoji(t.category);
-                        html += `<div class="year-ticket-item">
+                        let resolvedText=t.resolved==1?'已解决':'未解决';
+                        let badgeCls=t.resolved==1?'resolved':'pending';
+                        let catCls=(t.category||'其他').toLowerCase();
+                        let emoji=getCategoryEmoji(t.category);
+                        html+=`<div class="year-ticket-item">
                             <div class="info">
                                 <strong>${escapeHtml(t.date||'')}</strong>
                                 ${escapeHtml(t.department||'')} ${escapeHtml(t.name||'')}
@@ -1296,513 +1160,215 @@
                             </div>
                         </div>`;
                     });
-                    html += `</div></div>`;
+                    html+=`</div></div>`;
                 });
-                yearMonthList.innerHTML = html;
+                yearMonthList.innerHTML=html;
                 document.querySelectorAll('.year-month-header').forEach(h => {
-                    h.addEventListener('click', function(){
-                        let target = document.getElementById(this.dataset.target);
+                    h.onclick = function(){
+                        let target=document.getElementById(this.dataset.target);
                         if(target){
                             target.classList.toggle('hidden');
-                            let arrow = this.querySelector('.arrow');
+                            let arrow=this.querySelector('.arrow');
                             if(arrow) arrow.classList.toggle('collapsed');
                         }
-                    });
+                    };
                 });
-                let firstHeader = document.querySelector('.year-month-header');
+                let firstHeader=document.querySelector('.year-month-header');
                 if(firstHeader){
-                    let target = document.getElementById(firstHeader.dataset.target);
-                    if(target){ target.classList.remove('hidden'); let arrow = firstHeader.querySelector('.arrow'); if(arrow) arrow.classList.remove('collapsed'); }
+                    let target=document.getElementById(firstHeader.dataset.target);
+                    if(target){ target.classList.remove('hidden'); let arrow=firstHeader.querySelector('.arrow'); if(arrow) arrow.classList.remove('collapsed'); }
                 }
             }
-            function openYearModalFunc(){
-                if(!isFirebaseReady || allTickets.length === 0){ alert('暂无工单数据'); return; }
-                populateYearSelect();
-                let selectedYear = parseInt(yearSelect.value) || new Date().getFullYear();
-                renderYearSummary(selectedYear);
-                yearModal.classList.add('active');
-            }
 
-            // ===================== Tab切换 =====================
+            // ===================== 切换Tab =====================
             function switchTab(tab){
-                currentTab = tab;
-                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
-                ticketList.classList.toggle('hidden', tab !== 'tickets');
-                borrowList.classList.toggle('hidden', tab !== 'borrow');
-                recycleList.classList.toggle('hidden', tab !== 'recycle');
-                if(tab === 'tickets') renderTickets();
-                else if(tab === 'borrow') renderBorrows();
-                else if(tab === 'recycle') renderRecycle();
+                currentTab=tab;
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab===tab));
+                ticketList.classList.toggle('hidden', tab!=='tickets');
+                borrowList.classList.toggle('hidden', tab!=='borrow');
+                recycleList.classList.toggle('hidden', tab!=='recycle');
+                if(tab==='tickets') renderTickets();
+                else if(tab==='borrow') renderBorrows();
+                else renderRecycle();
             }
 
-            // ===================== 核心刷新 =====================
+            // ===================== 刷新数据 =====================
             async function refreshData(){
                 if(!isFirebaseReady) return;
                 try {
-                    syncDot.className = 'sync-dot syncing';
-                    syncLabel.textContent = '加载中...';
+                    syncDot.className='sync-dot syncing'; syncLabel.textContent='加载中...';
                     let [tickets, borrows] = await Promise.all([fetchAllTickets(), fetchAllBorrows()]);
-                    allTickets = tickets;
-                    allBorrows = borrows;
-                    if(currentTab === 'tickets') renderTickets();
-                    else if(currentTab === 'borrow') renderBorrows();
+                    allTickets=tickets; allBorrows=borrows;
+                    if(currentTab==='tickets') renderTickets();
+                    else if(currentTab==='borrow') renderBorrows();
                     else renderRecycle();
-                    syncDot.className = 'sync-dot';
-                    syncLabel.textContent = '已同步';
+                    syncDot.className='sync-dot'; syncLabel.textContent='已同步';
                 } catch(err) {
                     console.error(err);
-                    syncDot.className = 'sync-dot error';
-                    syncLabel.textContent = '加载失败';
+                    syncDot.className='sync-dot error'; syncLabel.textContent='加载失败';
                 }
             }
 
             // ===================== 导入功能 =====================
             let importData = [];
             async function handleImportPreview(){
-                let file = importFileInput.files[0];
+                let file=importFileInput.files[0];
                 if(!file){ alert('请选择文件'); return; }
-                let type = importType.value;
+                let type=importType.value;
                 try {
                     let data;
                     if(file.name.endsWith('.csv')){
-                        let text = await file.text();
-                        data = XLSX.read(text, {type: 'string'});
+                        let text=await file.text();
+                        data=XLSX.read(text, {type:'string'});
                     } else {
-                        let buffer = await file.arrayBuffer();
-                        data = XLSX.read(buffer, {type: 'array'});
+                        let buffer=await file.arrayBuffer();
+                        data=XLSX.read(buffer, {type:'array'});
                     }
-                    let sheet = data.Sheets[data.SheetNames[0]];
-                    let json = XLSX.utils.sheet_to_json(sheet);
-                    if(!json || json.length === 0){ alert('文件为空或格式不正确'); return; }
-                    importData = json;
-                    let headers = Object.keys(json[0]);
-                    let previewHtml = '<table><thead><tr>';
-                    headers.forEach(h => previewHtml += `<th>${escapeHtml(h)}</th>`);
-                    previewHtml += '</tr></thead><tbody>';
-                    let showRows = Math.min(json.length, 10);
-                    for(let i=0; i<showRows; i++){
-                        previewHtml += '<tr>';
-                        headers.forEach(h => previewHtml += `<td>${escapeHtml(String(json[i][h]||''))}</td>`);
-                        previewHtml += '</tr>';
+                    let sheet=data.Sheets[data.SheetNames[0]];
+                    let json=XLSX.utils.sheet_to_json(sheet);
+                    if(!json || json.length===0){ alert('文件为空或格式不正确'); return; }
+                    importData=json;
+                    let headers=Object.keys(json[0]);
+                    let previewHtml='<table><thead><tr>';
+                    headers.forEach(h => previewHtml+=`<th>${escapeHtml(h)}</th>`);
+                    previewHtml+='</tr></thead><tbody>';
+                    let showRows=Math.min(json.length, 10);
+                    for(let i=0;i<showRows;i++){
+                        previewHtml+='<tr>';
+                        headers.forEach(h => previewHtml+=`<td>${escapeHtml(String(json[i][h]||''))}</td>`);
+                        previewHtml+='</tr>';
                     }
-                    if(json.length > 10) previewHtml += `<tr><td colspan="${headers.length}" style="text-align:center;color:#94a3b8;">... 共 ${json.length} 行</td></tr>`;
-                    previewHtml += '</tbody></table>';
-                    importPreviewArea.innerHTML = previewHtml;
-                    importPreviewArea.style.display = 'block';
-                    importConfirmBtn.disabled = false;
-                    importStatus.textContent = `预览成功，共 ${json.length} 条`;
+                    if(json.length>10) previewHtml+=`<tr><td colspan="${headers.length}" style="text-align:center;color:#94a3b8;">... 共 ${json.length} 行</td></tr>`;
+                    previewHtml+='</tbody></table>';
+                    importPreviewArea.innerHTML=previewHtml;
+                    importPreviewArea.style.display='block';
+                    importConfirmBtn.disabled=false;
+                    importStatus.textContent=`预览成功，共 ${json.length} 条`;
                 } catch(err) {
                     alert('解析失败: '+err.message);
-                    importStatus.textContent = '解析失败';
+                    importStatus.textContent='解析失败';
                 }
             }
             async function handleImportConfirm(){
-                if(!importData || importData.length === 0){ alert('请先预览'); return; }
-                let type = importType.value;
+                if(!importData || importData.length===0){ alert('请先预览'); return; }
+                let type=importType.value;
                 if(!confirm(`确认导入 ${importData.length} 条${type==='tickets'?'工单':'借出'}？`)) return;
                 try {
-                    syncDot.className = 'sync-dot syncing';
-                    syncLabel.textContent = '导入中...';
-                    importConfirmBtn.disabled = true;
-                    importStatus.textContent = '正在导入...';
-                    let success = 0, fail = 0;
-                    let batchSize = 50;
-                    for(let i=0; i<importData.length; i+=batchSize){
-                        let batch = importData.slice(i, i+batchSize);
+                    syncDot.className='sync-dot syncing'; syncLabel.textContent='导入中...';
+                    importConfirmBtn.disabled=true;
+                    importStatus.textContent='正在导入...';
+                    let success=0, fail=0;
+                    let batchSize=50;
+                    for(let i=0;i<importData.length;i+=batchSize){
+                        let batch=importData.slice(i, i+batchSize);
                         await Promise.all(batch.map(async (row) => {
                             try {
-                                let record = {};
-                                if(type === 'tickets'){
-                                    let date = row['日期'] || row['date'] || '';
-                                    if(!date) date = new Date().toISOString().slice(0,10);
-                                    record = {
-                                        date: date,
-                                        department: row['部门'] || row['department'] || '',
-                                        name: row['姓名'] || row['name'] || '',
-                                        issue: row['问题描述'] || row['问题'] || row['issue'] || '',
-                                        category: row['分类'] || row['category'] || '其他',
-                                        resolved: (row['状态'] === '已解决' || row['status'] === '已解决') ? 1 : 0,
-                                        deleted: false
-                                    };
+                                let record={};
+                                if(type==='tickets'){
+                                    let date=row['日期']||row['date']||'';
+                                    if(!date) date=new Date().toISOString().slice(0,10);
+                                    record={ date, department:row['部门']||row['department']||'', name:row['姓名']||row['name']||'', issue:row['问题描述']||row['问题']||row['issue']||'', category:row['分类']||row['category']||'其他', resolved:(row['状态']==='已解决'||row['status']==='已解决')?1:0, deleted:false };
                                 } else {
-                                    let borrowDate = row['借出日期'] || row['borrowDate'] || new Date().toISOString().slice(0,10);
-                                    record = {
-                                        department: row['部门'] || row['department'] || '',
-                                        name: row['姓名'] || row['name'] || '',
-                                        device: row['设备'] || row['借用设备'] || row['device'] || '',
-                                        borrowDate: borrowDate,
-                                        note: row['备注'] || row['note'] || '',
-                                        status: row['状态'] || row['status'] || '未归还',
-                                        returnDate: row['归还日期'] || row['returnDate'] || '',
-                                        deleted: false
-                                    };
+                                    let borrowDate=row['借出日期']||row['borrowDate']||new Date().toISOString().slice(0,10);
+                                    record={ department:row['部门']||row['department']||'', name:row['姓名']||row['name']||'', device:row['设备']||row['借用设备']||row['device']||'', borrowDate, note:row['备注']||row['note']||'', status:row['状态']||row['status']||'未归还', returnDate:row['归还日期']||row['returnDate']||'', deleted:false };
                                 }
-                                if(type === 'tickets') await addTicketToFirebase(record);
+                                if(type==='tickets') await addTicketToFirebase(record);
                                 else await addBorrowToFirebase(record);
                                 success++;
                             } catch(e){ fail++; console.error(e); }
                         }));
                         await new Promise(r => setTimeout(r, 100));
                     }
-                    importStatus.textContent = `导入完成：成功 ${success} 条，失败 ${fail} 条`;
-                    importConfirmBtn.disabled = false;
+                    importStatus.textContent=`导入完成：成功 ${success} 条，失败 ${fail} 条`;
+                    importConfirmBtn.disabled=false;
                     await refreshData();
-                    syncDot.className = 'sync-dot';
-                    syncLabel.textContent = '已同步';
+                    syncDot.className='sync-dot'; syncLabel.textContent='已同步';
                 } catch(err) {
                     alert('导入失败: '+err.message);
-                    importConfirmBtn.disabled = false;
-                    syncDot.className = 'sync-dot error';
-                    syncLabel.textContent = '导入失败';
+                    importConfirmBtn.disabled=false;
+                    syncDot.className='sync-dot error'; syncLabel.textContent='导入失败';
                 }
             }
 
             // ===================== 导出功能 =====================
             function exportToCSV(){
                 if(!allTickets && !allBorrows){ alert('没有数据可导出'); return; }
-                let csv = '=== 工单记录 ===\n日期,部门,姓名,问题描述,分类,状态\n';
-                allTickets.filter(t => !t.deleted).forEach(t => {
-                    let status = t.resolved == 1 ? '已解决' : '未解决';
-                    csv += `${t.date||''},${t.department||''},${t.name||''},${t.issue||''},${t.category||'其他'},${status}\n`;
+                let csv='=== 工单记录 ===\n日期,部门,姓名,问题描述,分类,状态\n';
+                allTickets.filter(t=>!t.deleted).forEach(t => {
+                    let status=t.resolved==1?'已解决':'未解决';
+                    csv+=`${t.date||''},${t.department||''},${t.name||''},${t.issue||''},${t.category||'其他'},${status}\n`;
                 });
-                csv += '\n=== 借出记录 ===\n部门,姓名,设备,借出日期,状态,归还日期,备注\n';
-                allBorrows.filter(b => !b.deleted).forEach(b => {
-                    csv += `${b.department||''},${b.name||''},${b.device||''},${b.borrowDate||''},${b.status||'未归还'},${b.returnDate||''},${b.note||''}\n`;
+                csv+='\n=== 借出记录 ===\n部门,姓名,设备,借出日期,状态,归还日期,备注\n';
+                allBorrows.filter(b=>!b.deleted).forEach(b => {
+                    csv+=`${b.department||''},${b.name||''},${b.device||''},${b.borrowDate||''},${b.status||'未归还'},${b.returnDate||''},${b.note||''}\n`;
                 });
-                let blob = new Blob(['\uFEFF' + csv], {type: 'text/csv;charset=utf-8;'});
-                let link = document.createElement('a');
-                let now = new Date();
-                let dateStr = now.toISOString().slice(0,10);
-                link.href = URL.createObjectURL(blob);
-                link.download = `运维数据_${dateStr}.csv`;
+                let blob=new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+                let link=document.createElement('a');
+                let now=new Date();
+                let dateStr=now.toISOString().slice(0,10);
+                link.href=URL.createObjectURL(blob);
+                link.download=`运维数据_${dateStr}.csv`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
                 URL.revokeObjectURL(link.href);
             }
 
-            // ===================== 事件绑定 =====================
-            // 连接
-            connectBtn.addEventListener('click', async () => {
-                try {
-                    initFirebase();
-                    await refreshData();
-                    configCard.style.display = 'none';
-                    mainArea.classList.remove('hidden');
-                    $('configHint').textContent = '✅ 连接成功！';
-                } catch(err) {
-                    alert('连接失败：'+err.message);
-                }
-            });
+            // ===================== 模态框打开/关闭辅助 =====================
+            function openModal(modal){ modal.classList.add('active'); }
+            function closeModal(modal){ modal.classList.remove('active'); }
 
-            resetConfigBtn.addEventListener('click', () => {
-                if(confirm('清除本地配置？')){
-                    localStorage.removeItem(CONFIG_KEY);
-                    fillConfigForm();
-                    configCard.style.display = 'block';
-                    mainArea.classList.add('hidden');
-                    $('configHint').textContent = '💡 配置已清除';
-                    isFirebaseReady = false;
-                }
-            });
-
-            // 自动连接
-            (async function autoConnect(){
-                let cfg = loadConfig();
-                if(cfg.apiKey && cfg.databaseURL && cfg.projectId){
-                    try {
-                        fbApiKey.value = cfg.apiKey;
-                        fbAuthDomain.value = cfg.authDomain || '';
-                        fbDatabaseURL.value = cfg.databaseURL;
-                        fbProjectId.value = cfg.projectId;
-                        fbStorageBucket.value = cfg.storageBucket || '';
-                        fbAppId.value = cfg.appId || '';
-                        initFirebase();
-                        await refreshData();
-                        configCard.style.display = 'none';
-                        mainArea.classList.remove('hidden');
-                        $('configHint').textContent = '✅ 自动连接成功';
-                    } catch(e) {
-                        console.warn('自动连接失败', e);
-                        configCard.style.display = 'block';
-                        $('configHint').textContent = '⚠️ 自动连接失败，请手动点击连接';
-                    }
-                }
-            })();
-
-            // 周切换
-            weekPrev.addEventListener('click', () => { currentWeekOffset--; renderWeeklyStats(); });
-            weekNext.addEventListener('click', () => { currentWeekOffset++; renderWeeklyStats(); });
-
-            // 月份切换
-            prevMonthBtn.addEventListener('click', () => {
-                currentMonth.setMonth(currentMonth.getMonth() - 1);
-                if(currentTab === 'tickets') renderTickets();
-            });
-            nextMonthBtn.addEventListener('click', () => {
-                currentMonth.setMonth(currentMonth.getMonth() + 1);
-                if(currentTab === 'tickets') renderTickets();
-            });
-
-            // Tab 切换
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.addEventListener('click', function(){ switchTab(this.dataset.tab); });
-            });
-
-            // 借出/回收站筛选
-            document.querySelectorAll('.borrow-filter .filter-btn').forEach(btn => {
-                btn.addEventListener('click', function(){
-                    document.querySelectorAll('.borrow-filter .filter-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    if(this.dataset.filter) borrowFilter = this.dataset.filter;
-                    else if(this.dataset.recycle) recycleFilter = this.dataset.recycle;
-                    if(currentTab === 'borrow') renderBorrows();
-                    else if(currentTab === 'recycle') renderRecycle();
-                });
-            });
-            // 回收站筛选单独处理（因为data-recycle）
-            document.querySelectorAll('.borrow-filter .filter-btn[data-recycle]').forEach(btn => {
-                btn.addEventListener('click', function(){
-                    document.querySelectorAll('.borrow-filter .filter-btn[data-recycle]').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    recycleFilter = this.dataset.recycle;
-                    renderRecycle();
-                });
-            });
-
-            // 搜索/部门
-            filterDeptEl.addEventListener('change', function(){ filterDept = this.value; if(currentTab === 'tickets') renderTickets(); });
-            searchInput.addEventListener('input', function(){ searchKeyword = this.value; if(currentTab === 'tickets') renderTickets(); });
-            clearFilterBtn.addEventListener('click', function(){ filterDeptEl.value = 'all'; searchInput.value = ''; filterDept = 'all'; searchKeyword = ''; if(currentTab === 'tickets') renderTickets(); });
-
-            // 下拉菜单
-            moreBtn.addEventListener('click', function(e){ e.stopPropagation(); dropdownContent.classList.toggle('show'); });
-            document.addEventListener('click', function(){ dropdownContent.classList.remove('show'); });
-            dropdownContent.addEventListener('click', function(e){ e.stopPropagation(); });
-            dropdownImport.addEventListener('click', function(e){ e.stopPropagation(); importModal.classList.add('active'); dropdownContent.classList.remove('show'); });
-            dropdownExport.addEventListener('click', function(e){ e.stopPropagation(); exportToCSV(); dropdownContent.classList.remove('show'); });
-
-            // 工单/借出按钮
-            openAddModal.addEventListener('click', function(){ resetTicketForm(); modalOverlay.classList.add('active'); });
-            openBorrowModalBtn.addEventListener('click', function(){ resetBorrowForm(); borrowModal.classList.add('active'); });
-
-            // 年度汇总
-            openYearModalBtn.addEventListener('click', function(){ openYearModalFunc(); });
-
-            // 导入/导出（顶部按钮）
-            openImportModal.addEventListener('click', function(){ importModal.classList.add('active'); });
-            exportBtn.addEventListener('click', exportToCSV);
-
-            // 底部按钮
-            bottomAddModal.addEventListener('click', function(){ resetTicketForm(); modalOverlay.classList.add('active'); });
-            bottomBorrowModal.addEventListener('click', function(){ resetBorrowForm(); borrowModal.classList.add('active'); });
-            bottomImportModal.addEventListener('click', function(){ importModal.classList.add('active'); });
-            bottomExportBtn.addEventListener('click', exportToCSV);
-
-            // ===== 模态框：工单 =====
-            modalCancel.addEventListener('click', function(){ modalOverlay.classList.remove('active'); });
-            modalOverlay.addEventListener('click', function(e){ if(e.target === modalOverlay) modalOverlay.classList.remove('active'); });
-            modalSave.addEventListener('click', async function(){
-                let date = formDate.value;
-                let dept = formDept.value.trim();
-                let name = formName.value.trim();
-                let issue = formIssue.value.trim();
-                let category = formCategory.value;
-                let resolved = parseInt(formResolved.value);
-                if(!date){ alert('请选择日期'); return; }
-                if(!issue){ alert('请输入问题描述'); return; }
-                let data = { date, department: dept, name, issue, category, resolved, deleted: false };
-                let id = editId.value;
-                try {
-                    if(id) await updateTicketInFirebase(id, data);
-                    else await addTicketToFirebase(data);
-                    modalOverlay.classList.remove('active');
-                    await refreshData();
-                } catch(err) {
-                    alert('保存失败: '+err.message);
-                }
-            });
-
-            // ===== 模态框：借出 =====
-            borrowModalClose.addEventListener('click', function(){ borrowModal.classList.remove('active'); });
-            borrowModalCancel.addEventListener('click', function(){ borrowModal.classList.remove('active'); });
-            borrowModal.addEventListener('click', function(e){ if(e.target === borrowModal) borrowModal.classList.remove('active'); });
-            borrowModalSave.addEventListener('click', async function(){
-                let dept = borrowDept.value;
-                let name = borrowName.value.trim();
-                let device = borrowDevice.value.trim();
-                let date = borrowDate.value;
-                let note = borrowNote.value.trim();
-                if(!dept){ alert('请选择部门'); return; }
-                if(!name){ alert('请输入借用人'); return; }
-                if(!device){ alert('请输入借用设备'); return; }
-                if(!date){ alert('请选择借出日期'); return; }
-                let data = { department: dept, name, device, borrowDate: date, note, status: '未归还', deleted: false };
-                try {
-                    await addBorrowToFirebase(data);
-                    borrowModal.classList.remove('active');
-                    await refreshData();
-                } catch(err) {
-                    alert('保存失败: '+err.message);
-                }
-            });
-
-            // ===== 借出列表事件（归还/删除） =====
-            borrowItems.addEventListener('click', function(e){
-                let target = e.target.closest('button');
-                if(!target) return;
-                let id = target.dataset.id;
-                if(!id) return;
-                if(target.classList.contains('return-borrow')){
-                    if(confirm('确认此设备已归还？')) performReturnBorrow(id);
-                } else if(target.classList.contains('delete-borrow')){
-                    softDeleteBorrow(id);
-                }
-            });
-
-            // ===== 工单列表事件（折叠/解决/编辑/删除） =====
-            ticketList.addEventListener('click', function(e){
-                // 折叠
-                let header = e.target.closest('.day-header');
-                if(header){
-                    let group = header.closest('.day-group');
-                    let content = group.querySelector('.day-content');
-                    if(content){
-                        content.classList.toggle('hidden');
-                        let icon = header.querySelector('.toggle-icon');
-                        if(icon) icon.textContent = content.classList.contains('hidden') ? '▶' : '▼';
-                    }
-                    return;
-                }
-                // 按钮
-                let target = e.target.closest('button');
-                if(!target) return;
-                let id = target.dataset.id;
-                if(!id) return;
-                if(target.classList.contains('resolve-ticket')){
-                    quickResolve(id);
-                } else if(target.classList.contains('edit-ticket')){
-                    openEditTicketModal(id);
-                } else if(target.classList.contains('delete-ticket')){
-                    softDeleteTicket(id);
-                }
-            });
-
-            // ===== 回收站事件（恢复/永久删除） =====
-            recycleItems.addEventListener('click', function(e){
-                let target = e.target.closest('button');
-                if(!target) return;
-                let id = target.dataset.id;
-                let type = target.dataset.type;
-                if(!id || !type) return;
-                if(target.classList.contains('restore-item')){
-                    restoreItem(id, type);
-                } else if(target.classList.contains('permanent-delete')){
-                    permanentDeleteItem(id, type);
-                }
-            });
-
-            // ===== 部门搜索 =====
-            formDept.addEventListener('input', function(){
-                let q = this.value || '';
-                let matched = [];
-                if(q.trim() === '') matched = DEPARTMENTS;
-                else matched = DEPARTMENTS.filter(d => matchDepartment(q, d));
-                if(matched.length === 0){
-                    deptDropdown.innerHTML = '<div class="no-result">未找到，可自定义</div>';
-                    deptDropdown.classList.add('show');
-                    return;
-                }
-                let html = '';
-                matched.forEach(dept => {
-                    let display = dept;
-                    if(q.trim() !== ''){
-                        let idx = dept.indexOf(q.trim());
-                        if(idx !== -1){
-                            display = dept.substring(0, idx) + '<span class="highlight">' + dept.substring(idx, idx+q.trim().length) + '</span>' + dept.substring(idx+q.trim().length);
-                        }
-                    }
-                    html += `<div class="dept-item" data-dept="${dept}">${display}</div>`;
-                });
-                deptDropdown.innerHTML = html;
-                deptDropdown.classList.add('show');
-                deptDropdown.querySelectorAll('.dept-item').forEach(el => {
-                    el.addEventListener('click', function(){
-                        formDept.value = this.dataset.dept;
-                        deptDropdown.classList.remove('show');
-                    });
-                });
-            });
-            formDept.addEventListener('focus', function(){ this.dispatchEvent(new Event('input')); });
-            formDept.addEventListener('blur', function(){ setTimeout(() => { deptDropdown.classList.remove('show'); }, 200); });
-            document.addEventListener('click', function(e){ if(!e.target.closest('#formDept') && !e.target.closest('#deptDropdown')){ deptDropdown.classList.remove('show'); } });
-
-            // ===== 年度汇总模态框 =====
-            yearModalClose.addEventListener('click', function(){ yearModal.classList.remove('active'); });
-            yearModal.addEventListener('click', function(e){ if(e.target === yearModal) yearModal.classList.remove('active'); });
-            yearSelect.addEventListener('change', function(){ let year = parseInt(this.value); if(!isNaN(year)) renderYearSummary(year); });
-
-            // ===== 未解决 =====
-            pendingCard.addEventListener('click', openPendingModal);
-            pendingModalClose.addEventListener('click', function(){ pendingModal.classList.remove('active'); });
-            pendingModal.addEventListener('click', function(e){ if(e.target === pendingModal) pendingModal.classList.remove('active'); });
-
-            // ===== 导入模态框 =====
-            importModalClose.addEventListener('click', function(){ importModal.classList.remove('active'); });
-            importCancel.addEventListener('click', function(){ importModal.classList.remove('active'); });
-            importModal.addEventListener('click', function(e){ if(e.target === importModal) importModal.classList.remove('active'); });
-            importPreviewBtn.addEventListener('click', handleImportPreview);
-            importConfirmBtn.addEventListener('click', handleImportConfirm);
-
-            // ===== 辅助函数 =====
-            function resetTicketForm(){
-                editId.value = '';
-                modalTitle.textContent = '添加工单';
-                formDate.value = new Date().toISOString().slice(0,10);
-                formDept.value = '';
-                formName.value = '';
-                formIssue.value = '';
-                formCategory.value = '软件';
-                formResolved.value = '0';
+            // ===================== 工单编辑 =====================
+            function openEditTicketModal(id){
+                let ticket=allTickets.find(t=>t.id===id);
+                if(!ticket) return;
+                editId.value=ticket.id;
+                modalTitle.textContent='编辑工单';
+                formDate.value=ticket.date||'';
+                formDept.value=ticket.department||'';
+                formName.value=ticket.name||'';
+                formIssue.value=ticket.issue||'';
+                formCategory.value=ticket.category||'其他';
+                formResolved.value=ticket.resolved||0;
+                openModal(modalOverlay);
                 deptDropdown.classList.remove('show');
             }
-            function openEditTicketModal(id){
-                let ticket = allTickets.find(t => t.id === id);
-                if(!ticket) return;
-                editId.value = ticket.id;
-                modalTitle.textContent = '编辑工单';
-                formDate.value = ticket.date || '';
-                formDept.value = ticket.department || '';
-                formName.value = ticket.name || '';
-                formIssue.value = ticket.issue || '';
-                formCategory.value = ticket.category || '其他';
-                formResolved.value = ticket.resolved || 0;
-                modalOverlay.classList.add('active');
+            function resetTicketForm(){
+                editId.value='';
+                modalTitle.textContent='添加工单';
+                formDate.value=new Date().toISOString().slice(0,10);
+                formDept.value='';
+                formName.value='';
+                formIssue.value='';
+                formCategory.value='软件';
+                formResolved.value='0';
                 deptDropdown.classList.remove('show');
             }
             function resetBorrowForm(){
-                borrowEditId.value = '';
-                borrowDept.value = '';
-                borrowName.value = '';
-                borrowDevice.value = '';
-                borrowDate.value = new Date().toISOString().slice(0,10);
-                borrowNote.value = '';
+                borrowEditId.value='';
+                borrowDept.value='';
+                borrowName.value='';
+                borrowDevice.value='';
+                borrowDate.value=new Date().toISOString().slice(0,10);
+                borrowNote.value='';
             }
+
+            // ===================== 未解决弹窗 =====================
             function openPendingModal(){
                 if(!isFirebaseReady){ alert('数据未加载'); return; }
-                let pendingTickets = allTickets.filter(t => t.resolved == 0 && !t.deleted);
-                pendingCountTitle.textContent = pendingTickets.length;
-                if(pendingTickets.length === 0){
-                    pendingList.innerHTML = '<div class="empty-state">🎉 没有未解决工单</div>';
-                    pendingModal.classList.add('active');
+                let pendingTickets=allTickets.filter(t=>t.resolved==0&&!t.deleted);
+                pendingCountTitle.textContent=pendingTickets.length;
+                if(pendingTickets.length===0){
+                    pendingList.innerHTML='<div class="empty-state">🎉 没有未解决工单</div>';
+                    openModal(pendingModal);
                     return;
                 }
-                pendingTickets.sort((a,b) => (a.date < b.date ? 1 : -1));
-                let html = '';
+                pendingTickets.sort((a,b)=>(a.date<b.date?1:-1));
+                let html='';
                 pendingTickets.forEach(t => {
-                    let catCls = (t.category || '其他').toLowerCase();
-                    let emoji = getCategoryEmoji(t.category);
-                    html += `<div class="pending-item">
+                    let catCls=(t.category||'其他').toLowerCase();
+                    let emoji=getCategoryEmoji(t.category);
+                    html+=`<div class="pending-item">
                         <div class="info">
                             <strong>${escapeHtml(t.date||'')}</strong>
                             ${escapeHtml(t.department||'')} ${escapeHtml(t.name||'')}
@@ -1814,36 +1380,260 @@
                         </div>
                     </div>`;
                 });
-                pendingList.innerHTML = html;
-                pendingModal.classList.add('active');
-            }
-            async function performReturnBorrow(id){
-                if(!isFirebaseReady) return;
-                try {
-                    syncDot.className = 'sync-dot syncing';
-                    syncLabel.textContent = '更新中...';
-                    let today = new Date().toISOString().slice(0,10);
-                    await updateBorrowInFirebase(id, { status: '已归还', returnDate: today });
-                    await refreshData();
-                    syncDot.className = 'sync-dot';
-                    syncLabel.textContent = '已同步';
-                } catch(err) {
-                    alert('操作失败: '+err.message);
-                    syncDot.className = 'sync-dot error';
-                    syncLabel.textContent = '更新失败';
-                }
+                pendingList.innerHTML=html;
+                openModal(pendingModal);
             }
 
-            // 前台刷新
+            // ===================== 年度汇总打开 =====================
+            function openYearModalFunc(){
+                if(!isFirebaseReady || allTickets.length===0){ alert('暂无工单数据'); return; }
+                populateYearSelect();
+                let selectedYear=parseInt(yearSelect.value)||new Date().getFullYear();
+                renderYearSummary(selectedYear);
+                openModal(yearModal);
+            }
+
+            // ===================== 事件绑定 =====================
+            // 连接
+            connectBtn.onclick = async function(){
+                try {
+                    initFirebase();
+                    await refreshData();
+                    configCard.style.display='none';
+                    mainArea.classList.remove('hidden');
+                    $('configHint').textContent='✅ 连接成功！';
+                } catch(err) {
+                    alert('连接失败：'+err.message);
+                }
+            };
+            resetConfigBtn.onclick = function(){
+                if(confirm('清除本地配置？')){
+                    localStorage.removeItem(CONFIG_KEY);
+                    fillConfigForm();
+                    configCard.style.display='block';
+                    mainArea.classList.add('hidden');
+                    $('configHint').textContent='💡 配置已清除';
+                    isFirebaseReady=false;
+                }
+            };
+
+            // 自动连接
+            (async function autoConnect(){
+                let cfg=loadConfig();
+                if(cfg.apiKey && cfg.databaseURL && cfg.projectId){
+                    try {
+                        fbApiKey.value=cfg.apiKey;
+                        fbAuthDomain.value=cfg.authDomain||'';
+                        fbDatabaseURL.value=cfg.databaseURL;
+                        fbProjectId.value=cfg.projectId;
+                        fbStorageBucket.value=cfg.storageBucket||'';
+                        fbAppId.value=cfg.appId||'';
+                        initFirebase();
+                        await refreshData();
+                        configCard.style.display='none';
+                        mainArea.classList.remove('hidden');
+                        $('configHint').textContent='✅ 自动连接成功';
+                    } catch(e) {
+                        console.warn('自动连接失败', e);
+                        configCard.style.display='block';
+                        $('configHint').textContent='⚠️ 自动连接失败，请手动点击连接';
+                    }
+                }
+            })();
+
+            // 周切换
+            weekPrev.onclick = function(){ currentWeekOffset--; renderWeeklyStats(); };
+            weekNext.onclick = function(){ currentWeekOffset++; renderWeeklyStats(); };
+
+            // 月份切换
+            prevMonthBtn.onclick = function(){
+                currentMonth.setMonth(currentMonth.getMonth()-1);
+                if(currentTab==='tickets') renderTickets();
+            };
+            nextMonthBtn.onclick = function(){
+                currentMonth.setMonth(currentMonth.getMonth()+1);
+                if(currentTab==='tickets') renderTickets();
+            };
+
+            // Tab切换
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.onclick = function(){ switchTab(this.dataset.tab); };
+            });
+
+            // 借出/回收站筛选
+            document.querySelectorAll('.borrow-filter .filter-btn').forEach(btn => {
+                btn.onclick = function(){
+                    document.querySelectorAll('.borrow-filter .filter-btn').forEach(b=>b.classList.remove('active'));
+                    this.classList.add('active');
+                    if(this.dataset.filter) borrowFilter=this.dataset.filter;
+                    else if(this.dataset.recycle) recycleFilter=this.dataset.recycle;
+                    if(currentTab==='borrow') renderBorrows();
+                    else if(currentTab==='recycle') renderRecycle();
+                };
+            });
+
+            // 搜索/部门
+            filterDeptEl.onchange = function(){ filterDept=this.value; if(currentTab==='tickets') renderTickets(); };
+            searchInput.oninput = function(){ searchKeyword=this.value; if(currentTab==='tickets') renderTickets(); };
+            clearFilterBtn.onclick = function(){
+                filterDeptEl.value='all';
+                searchInput.value='';
+                filterDept='all';
+                searchKeyword='';
+                if(currentTab==='tickets') renderTickets();
+            };
+
+            // 下拉菜单
+            moreBtn.onclick = function(e){ e.stopPropagation(); dropdownContent.classList.toggle('show'); };
+            document.addEventListener('click', function(){ dropdownContent.classList.remove('show'); });
+            dropdownContent.addEventListener('click', function(e){ e.stopPropagation(); });
+            dropdownImport.onclick = function(e){ e.stopPropagation(); openModal(importModal); dropdownContent.classList.remove('show'); };
+            dropdownExport.onclick = function(e){ e.stopPropagation(); exportToCSV(); dropdownContent.classList.remove('show'); };
+
+            // 打开模态框的按钮
+            openAddModal.onclick = function(){ resetTicketForm(); openModal(modalOverlay); };
+            openBorrowModalBtn.onclick = function(){ resetBorrowForm(); openModal(borrowModal); };
+            openYearModalBtn.onclick = function(){ openYearModalFunc(); };
+            openImportModal.onclick = function(){ openModal(importModal); };
+            exportBtn.onclick = function(){ exportToCSV(); };
+
+            // 底部按钮
+            bottomAddModal.onclick = function(){ resetTicketForm(); openModal(modalOverlay); };
+            bottomBorrowModal.onclick = function(){ resetBorrowForm(); openModal(borrowModal); };
+            bottomImportModal.onclick = function(){ openModal(importModal); };
+            bottomExportBtn.onclick = function(){ exportToCSV(); };
+
+            // ===== 模态框关闭（使用统一关闭函数） =====
+            function closeAllModals(){
+                closeModal(modalOverlay);
+                closeModal(borrowModal);
+                closeModal(pendingModal);
+                closeModal(yearModal);
+                closeModal(importModal);
+            }
+            // 工单模态框关闭
+            modalCancel.onclick = function(){ closeModal(modalOverlay); };
+            modalOverlay.onclick = function(e){ if(e.target===modalOverlay) closeModal(modalOverlay); };
+            // 借出模态框关闭
+            borrowModalClose.onclick = function(){ closeModal(borrowModal); };
+            borrowModalCancel.onclick = function(){ closeModal(borrowModal); };
+            borrowModal.onclick = function(e){ if(e.target===borrowModal) closeModal(borrowModal); };
+            // 未解决关闭
+            pendingModalClose.onclick = function(){ closeModal(pendingModal); };
+            pendingModal.onclick = function(e){ if(e.target===pendingModal) closeModal(pendingModal); };
+            // 年度汇总关闭
+            yearModalClose.onclick = function(){ closeModal(yearModal); };
+            yearModal.onclick = function(e){ if(e.target===yearModal) closeModal(yearModal); };
+            // 导入关闭
+            importModalClose.onclick = function(){ closeModal(importModal); };
+            importCancel.onclick = function(){ closeModal(importModal); };
+            importModal.onclick = function(e){ if(e.target===importModal) closeModal(importModal); };
+
+            // ===== 工单保存 =====
+            modalSave.onclick = async function(){
+                let date=formDate.value;
+                let dept=formDept.value.trim();
+                let name=formName.value.trim();
+                let issue=formIssue.value.trim();
+                let category=formCategory.value;
+                let resolved=parseInt(formResolved.value);
+                if(!date){ alert('请选择日期'); return; }
+                if(!issue){ alert('请输入问题描述'); return; }
+                let data={ date, department:dept, name, issue, category, resolved, deleted:false };
+                let id=editId.value;
+                try {
+                    if(id) await updateTicketInFirebase(id, data);
+                    else await addTicketToFirebase(data);
+                    closeModal(modalOverlay);
+                    await refreshData();
+                } catch(err) {
+                    alert('保存失败: '+err.message);
+                }
+            };
+
+            // ===== 借出保存 =====
+            borrowModalSave.onclick = async function(){
+                let dept=borrowDept.value;
+                let name=borrowName.value.trim();
+                let device=borrowDevice.value.trim();
+                let date=borrowDate.value;
+                let note=borrowNote.value.trim();
+                if(!dept){ alert('请选择部门'); return; }
+                if(!name){ alert('请输入借用人'); return; }
+                if(!device){ alert('请输入借用设备'); return; }
+                if(!date){ alert('请选择借出日期'); return; }
+                let data={ department:dept, name, device, borrowDate:date, note, status:'未归还', deleted:false };
+                try {
+                    await addBorrowToFirebase(data);
+                    closeModal(borrowModal);
+                    await refreshData();
+                } catch(err) {
+                    alert('保存失败: '+err.message);
+                }
+            };
+
+            // ===== 年度汇总年份切换 =====
+            yearSelect.onchange = function(){
+                let year=parseInt(this.value);
+                if(!isNaN(year)) renderYearSummary(year);
+            };
+
+            // ===== 未解决卡片点击 =====
+            pendingCard.onclick = function(){ openPendingModal(); };
+
+            // ===== 导入预览/确认 =====
+            importPreviewBtn.onclick = handleImportPreview;
+            importConfirmBtn.onclick = handleImportConfirm;
+
+            // ===== 部门搜索 =====
+            formDept.oninput = function(){
+                let q=this.value||'';
+                let matched=[];
+                if(q.trim()==='') matched=DEPARTMENTS;
+                else matched=DEPARTMENTS.filter(d=>matchDepartment(q,d));
+                if(matched.length===0){
+                    deptDropdown.innerHTML='<div class="no-result">未找到，可自定义</div>';
+                    deptDropdown.classList.add('show');
+                    return;
+                }
+                let html='';
+                matched.forEach(dept => {
+                    let display=dept;
+                    if(q.trim()!==''){
+                        let idx=dept.indexOf(q.trim());
+                        if(idx!==-1){
+                            display=dept.substring(0,idx)+'<span class="highlight">'+dept.substring(idx,idx+q.trim().length)+'</span>'+dept.substring(idx+q.trim().length);
+                        }
+                    }
+                    html+=`<div class="dept-item" data-dept="${dept}">${display}</div>`;
+                });
+                deptDropdown.innerHTML=html;
+                deptDropdown.classList.add('show');
+                deptDropdown.querySelectorAll('.dept-item').forEach(el => {
+                    el.onclick = function(){
+                        formDept.value=this.dataset.dept;
+                        deptDropdown.classList.remove('show');
+                    };
+                });
+            };
+            formDept.onfocus = function(){ this.dispatchEvent(new Event('input')); };
+            formDept.onblur = function(){ setTimeout(()=>{ deptDropdown.classList.remove('show'); }, 200); };
+            document.addEventListener('click', function(e){
+                if(!e.target.closest('#formDept') && !e.target.closest('#deptDropdown')){
+                    deptDropdown.classList.remove('show');
+                }
+            });
+
+            // ===== 前台刷新 =====
             document.addEventListener('visibilitychange', async () => {
-                if(document.visibilityState === 'visible' && !mainArea.classList.contains('hidden') && isFirebaseReady){
+                if(document.visibilityState==='visible' && !mainArea.classList.contains('hidden') && isFirebaseReady){
                     await refreshData();
                 }
             });
 
-            // 初始化
+            // ===== 初始化 =====
             resetTicketForm();
-            console.log('工单系统 (布局优化+弹窗修复) 已加载');
+            console.log('工单系统 (修复版) 已加载');
         })();
     </script>
 </body>
