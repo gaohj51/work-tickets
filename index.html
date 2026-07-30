@@ -9,7 +9,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
-        /* ===== 完整样式（与之前一致） ===== */
+        /* ===== 完整样式（与之前一致，此处省略重复以缩短篇幅，但实际使用时请保留） ===== */
+        /* 由于篇幅限制，我在最终答案中会包含完整的样式，此处先占位 */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f5f7fb; color: #1e293b; padding: 12px 16px 80px; min-height: 100vh; font-size: 14px; }
         .container { max-width: 1000px; margin: 0 auto; }
@@ -427,7 +428,8 @@
     </div>
 
     <script>
-        (function() {
+        // 将所有代码包裹在 DOMContentLoaded 中，确保 DOM 完全加载
+        document.addEventListener('DOMContentLoaded', function() {
             "use strict";
 
             // ===================== 部门列表 =====================
@@ -453,69 +455,121 @@
             let borrowFilter = 'unreturned', recycleFilter = 'all';
             let filterDept = 'all', filterCategory = 'all', searchKeyword = '';
 
-            // DOM 引用
-            const $ = id => document.getElementById(id);
-            const configCard = $('configCard'), mainArea = $('mainArea');
-            const connectBtn = $('connectBtn'), resetConfigBtn = $('resetConfigBtn');
-            const fbApiKey = $('fbApiKey'), fbAuthDomain = $('fbAuthDomain'), fbDatabaseURL = $('fbDatabaseURL');
-            const fbProjectId = $('fbProjectId'), fbStorageBucket = $('fbStorageBucket'), fbAppId = $('fbAppId');
+            // ===================== 安全获取 DOM 元素 =====================
+            const $ = (id) => document.getElementById(id);
+            const configCard = $('configCard');
+            const mainArea = $('mainArea');
+            const connectBtn = $('connectBtn');
+            const resetConfigBtn = $('resetConfigBtn');
+            const fbApiKey = $('fbApiKey');
+            const fbAuthDomain = $('fbAuthDomain');
+            const fbDatabaseURL = $('fbDatabaseURL');
+            const fbProjectId = $('fbProjectId');
+            const fbStorageBucket = $('fbStorageBucket');
+            const fbAppId = $('fbAppId');
             const configHint = $('configHint');
-            const syncDot = $('syncDot'), syncLabel = $('syncLabel');
-            const totalCount = $('totalCount'), resolvedCount = $('resolvedCount'), pendingCount = $('pendingCount');
-            const pendingCard = $('pendingCard'), pendingModal = $('pendingModal'), pendingModalClose = $('pendingModalClose');
-            const pendingList = $('pendingList'), pendingCountTitle = $('pendingCountTitle');
-            const currentMonthLabel = $('currentMonthLabel'), prevMonthBtn = $('prevMonth'), nextMonthBtn = $('nextMonth');
-            const ticketList = $('ticketList'), borrowList = $('borrowList'), recycleList = $('recycleList');
-            const borrowItems = $('borrowItems'), recycleItems = $('recycleItems');
-            const openAddModal = $('openAddModal'), openBorrowModalBtn = $('openBorrowModal');
-            const openYearModalBtn = $('openYearModalBtn'), exportBtn = $('exportBtn');
+            const syncDot = $('syncDot');
+            const syncLabel = $('syncLabel');
+            const totalCount = $('totalCount');
+            const resolvedCount = $('resolvedCount');
+            const pendingCount = $('pendingCount');
+            const pendingCard = $('pendingCard');
+            const pendingModal = $('pendingModal');
+            const pendingModalClose = $('pendingModalClose');
+            const pendingList = $('pendingList');
+            const pendingCountTitle = $('pendingCountTitle');
+            const currentMonthLabel = $('currentMonthLabel');
+            const prevMonthBtn = $('prevMonth');
+            const nextMonthBtn = $('nextMonth');
+            const ticketList = $('ticketList');
+            const borrowList = $('borrowList');
+            const recycleList = $('recycleList');
+            const borrowItems = $('borrowItems');
+            const recycleItems = $('recycleItems');
+            const openAddModal = $('openAddModal');
+            const openBorrowModalBtn = $('openBorrowModal');
+            const openYearModalBtn = $('openYearModalBtn');
+            const exportBtn = $('exportBtn');
             const openImportModal = $('openImportModal');
-            const bottomAddModal = $('bottomAddModal'), bottomBorrowModal = $('bottomBorrowModal');
-            const bottomImportModal = $('bottomImportModal'), bottomExportBtn = $('bottomExportBtn');
-            const weeklyGrid = $('weeklyGrid'), weekRange = $('weekRange'), weekPrev = $('weekPrev'), weekNext = $('weekNext');
-            const filterDeptEl = $('filterDept'), searchInput = $('searchInput');
+            const bottomAddModal = $('bottomAddModal');
+            const bottomBorrowModal = $('bottomBorrowModal');
+            const bottomImportModal = $('bottomImportModal');
+            const bottomExportBtn = $('bottomExportBtn');
+            const weeklyGrid = $('weeklyGrid');
+            const weekRange = $('weekRange');
+            const weekPrev = $('weekPrev');
+            const weekNext = $('weekNext');
+            const filterDeptEl = $('filterDept');
+            const searchInput = $('searchInput');
             const clearFilterBtn = $('clearFilter');
-            const catSoftwareNum = $('catSoftwareNum'), catHardwareNum = $('catHardwareNum');
-            const catNetworkNum = $('catNetworkNum'), catOtherNum = $('catOtherNum');
+            const catSoftwareNum = $('catSoftwareNum');
+            const catHardwareNum = $('catHardwareNum');
+            const catNetworkNum = $('catNetworkNum');
+            const catOtherNum = $('catOtherNum');
 
             // 模态框
-            const modalOverlay = $('ticketModal'), modalTitle = $('modalTitle'), editId = $('editId');
-            const formDate = $('formDate'), formDept = $('formDept'), formName = $('formName'), formIssue = $('formIssue');
-            const formCategory = $('formCategory'), formResolved = $('formResolved'), modalCancel = $('modalCancel'), modalSave = $('modalSave');
+            const modalOverlay = $('ticketModal');
+            const modalTitle = $('modalTitle');
+            const editId = $('editId');
+            const formDate = $('formDate');
+            const formDept = $('formDept');
+            const formName = $('formName');
+            const formIssue = $('formIssue');
+            const formCategory = $('formCategory');
+            const formResolved = $('formResolved');
+            const modalCancel = $('modalCancel');
+            const modalSave = $('modalSave');
             const deptDropdown = $('deptDropdown');
-            const borrowModal = $('borrowModal'), borrowModalClose = $('borrowModalClose'), borrowEditId = $('borrowEditId');
-            const borrowDept = $('borrowDept'), borrowName = $('borrowName'), borrowDevice = $('borrowDevice');
-            const borrowDate = $('borrowDate'), borrowNote = $('borrowNote'), borrowModalCancel = $('borrowModalCancel'), borrowModalSave = $('borrowModalSave');
-
-            // 年度汇总
-            const yearModal = $('yearModal'), yearModalClose = $('yearModalClose'), yearSelect = $('yearSelect');
-            const yearTotal = $('yearTotal'), yearResolved = $('yearResolved'), yearPending = $('yearPending');
-            const yearSoftware = $('yearSoftware'), yearHardware = $('yearHardware'), yearNetwork = $('yearNetwork');
+            const borrowModal = $('borrowModal');
+            const borrowModalClose = $('borrowModalClose');
+            const borrowEditId = $('borrowEditId');
+            const borrowDept = $('borrowDept');
+            const borrowName = $('borrowName');
+            const borrowDevice = $('borrowDevice');
+            const borrowDate = $('borrowDate');
+            const borrowNote = $('borrowNote');
+            const borrowModalCancel = $('borrowModalCancel');
+            const borrowModalSave = $('borrowModalSave');
+            const yearModal = $('yearModal');
+            const yearModalClose = $('yearModalClose');
+            const yearSelect = $('yearSelect');
+            const yearTotal = $('yearTotal');
+            const yearResolved = $('yearResolved');
+            const yearPending = $('yearPending');
+            const yearSoftware = $('yearSoftware');
+            const yearHardware = $('yearHardware');
+            const yearNetwork = $('yearNetwork');
             const yearMonthList = $('yearMonthList');
-            const yearLineChartCanvas = $('yearLineChart'), yearPieChartCanvas = $('yearPieChart');
-
-            // 导入
-            const importModal = $('importModal'), importModalClose = $('importModalClose');
-            const importFileInput = $('importFileInput'), importType = $('importType');
-            const importPreviewBtn = $('importPreviewBtn'), importConfirmBtn = $('importConfirmBtn');
-            const importPreviewArea = $('importPreviewArea'), importStatus = $('importStatus'), importCancel = $('importCancel');
-
-            // 下拉菜单
-            const moreBtn = $('moreBtn'), dropdownContent = $('dropdownContent');
-            const dropdownImport = $('dropdownImport'), dropdownExport = $('dropdownExport');
+            const yearLineChartCanvas = $('yearLineChart');
+            const yearPieChartCanvas = $('yearPieChart');
+            const importModal = $('importModal');
+            const importModalClose = $('importModalClose');
+            const importFileInput = $('importFileInput');
+            const importType = $('importType');
+            const importPreviewBtn = $('importPreviewBtn');
+            const importConfirmBtn = $('importConfirmBtn');
+            const importPreviewArea = $('importPreviewArea');
+            const importStatus = $('importStatus');
+            const importCancel = $('importCancel');
+            const moreBtn = $('moreBtn');
+            const dropdownContent = $('dropdownContent');
+            const dropdownImport = $('dropdownImport');
+            const dropdownExport = $('dropdownExport');
 
             // ===================== 初始化下拉 =====================
             function populateSelects() {
-                borrowDept.innerHTML = '<option value="">请选择</option>';
-                const filterOpts = ['<option value="all">全部部门</option>'];
-                DEPARTMENTS.forEach(d => {
-                    let o1 = document.createElement('option');
-                    o1.value = d;
-                    o1.textContent = d;
-                    borrowDept.appendChild(o1);
-                    filterOpts.push(`<option value="${d}">${d}</option>`);
-                });
-                filterDeptEl.innerHTML = filterOpts.join('');
+                if (borrowDept) {
+                    borrowDept.innerHTML = '<option value="">请选择</option>';
+                    const filterOpts = ['<option value="all">全部部门</option>'];
+                    DEPARTMENTS.forEach(d => {
+                        let o1 = document.createElement('option');
+                        o1.value = d;
+                        o1.textContent = d;
+                        borrowDept.appendChild(o1);
+                        filterOpts.push(`<option value="${d}">${d}</option>`);
+                    });
+                    if (filterDeptEl) filterDeptEl.innerHTML = filterOpts.join('');
+                }
             }
             populateSelects();
 
@@ -523,12 +577,12 @@
             const CONFIG_KEY = 'firebase_ticket_config';
             function loadConfig(){ try{ let raw=localStorage.getItem(CONFIG_KEY); if(raw) return JSON.parse(raw); }catch(e){} return {}; }
             function saveConfig(cfg){ localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg)); }
-            function fillConfigForm(){ let cfg=loadConfig(); fbApiKey.value=cfg.apiKey||''; fbAuthDomain.value=cfg.authDomain||''; fbDatabaseURL.value=cfg.databaseURL||''; fbProjectId.value=cfg.projectId||''; fbStorageBucket.value=cfg.storageBucket||''; fbAppId.value=cfg.appId||''; }
+            function fillConfigForm(){ let cfg=loadConfig(); if(fbApiKey) fbApiKey.value=cfg.apiKey||''; if(fbAuthDomain) fbAuthDomain.value=cfg.authDomain||''; if(fbDatabaseURL) fbDatabaseURL.value=cfg.databaseURL||''; if(fbProjectId) fbProjectId.value=cfg.projectId||''; if(fbStorageBucket) fbStorageBucket.value=cfg.storageBucket||''; if(fbAppId) fbAppId.value=cfg.appId||''; }
             fillConfigForm();
 
             // ===================== Firebase =====================
             function initFirebase(){
-                let config={ apiKey:fbApiKey.value.trim(), authDomain:fbAuthDomain.value.trim(), databaseURL:fbDatabaseURL.value.trim(), projectId:fbProjectId.value.trim(), storageBucket:fbStorageBucket.value.trim(), appId:fbAppId.value.trim() };
+                let config={ apiKey:fbApiKey?fbApiKey.value.trim():'', authDomain:fbAuthDomain?fbAuthDomain.value.trim():'', databaseURL:fbDatabaseURL?fbDatabaseURL.value.trim():'', projectId:fbProjectId?fbProjectId.value.trim():'', storageBucket:fbStorageBucket?fbStorageBucket.value.trim():'', appId:fbAppId?fbAppId.value.trim():'' };
                 if(!config.apiKey||!config.databaseURL||!config.projectId) throw new Error('请至少填写 apiKey、databaseURL 和 projectId');
                 saveConfig(config);
                 if(!firebase.apps.length){ firebase.initializeApp(config); }else{ let existing=firebase.apps[0]; if(existing.options.databaseURL!==config.databaseURL){ firebase.apps[0].delete(); firebase.initializeApp(config); } }
@@ -575,17 +629,17 @@
             }
             function formatDateShort(d){ return (d.getMonth()+1)+'/'+d.getDate(); }
             function renderWeeklyStats(){
-                if(!allTickets || allTickets.length===0){ weeklyGrid.innerHTML='<span style="color:#94a3b8;font-size:13px;">暂无数据</span>'; weekRange.textContent='--'; return; }
+                if(!allTickets || allTickets.length===0){ if(weeklyGrid) weeklyGrid.innerHTML='<span style="color:#94a3b8;font-size:13px;">暂无数据</span>'; if(weekRange) weekRange.textContent='--'; return; }
                 let {start,end}=getWeekRange(currentWeekOffset);
                 let startStr=start.toISOString().slice(0,10), endStr=end.toISOString().slice(0,10);
-                weekRange.textContent=formatDateShort(start)+' - '+formatDateShort(end);
+                if(weekRange) weekRange.textContent=formatDateShort(start)+' - '+formatDateShort(end);
                 let weekTickets=allTickets.filter(t=>t.date&&t.date>=startStr&&t.date<=endStr&&!t.deleted);
                 let total=weekTickets.length, resolved=weekTickets.filter(t=>t.resolved==1).length, pending=total-resolved;
                 let software=weekTickets.filter(t=>t.category==='软件').length;
                 let hardware=weekTickets.filter(t=>t.category==='硬件').length;
                 let network=weekTickets.filter(t=>t.category==='网络').length;
                 let other=weekTickets.filter(t=>t.category==='其他').length;
-                weeklyGrid.innerHTML=`
+                if(weeklyGrid) weeklyGrid.innerHTML=`
                     <span class="weekly-item">总工单 <span class="num blue">${total}</span></span>
                     <span class="weekly-item">已解决 <span class="num green">${resolved}</span></span>
                     <span class="weekly-item">未解决 <span class="num red">${pending}</span></span>
@@ -610,12 +664,17 @@
             }
             function renderStats(tickets){
                 let total=tickets.length, resolved=tickets.filter(t=>t.resolved==1).length, pending=total-resolved;
-                totalCount.textContent=total; resolvedCount.textContent=resolved; pendingCount.textContent=pending;
+                if(totalCount) totalCount.textContent=total;
+                if(resolvedCount) resolvedCount.textContent=resolved;
+                if(pendingCount) pendingCount.textContent=pending;
                 let sw=tickets.filter(t=>t.category==='软件').length;
                 let hw=tickets.filter(t=>t.category==='硬件').length;
                 let nw=tickets.filter(t=>t.category==='网络').length;
                 let ot=tickets.filter(t=>t.category==='其他').length;
-                catSoftwareNum.textContent=sw; catHardwareNum.textContent=hw; catNetworkNum.textContent=nw; catOtherNum.textContent=ot;
+                if(catSoftwareNum) catSoftwareNum.textContent=sw;
+                if(catHardwareNum) catHardwareNum.textContent=hw;
+                if(catNetworkNum) catNetworkNum.textContent=nw;
+                if(catOtherNum) catOtherNum.textContent=ot;
             }
             function renderChart(tickets, year, month){
                 let daysInMonth=new Date(year, month, 0).getDate();
@@ -624,9 +683,11 @@
                 tickets.forEach(t=>{ if(t.date&&dayCounts[t.date]!==undefined) dayCounts[t.date]++; });
                 let labels=Object.keys(dayCounts).map(d=>d.slice(5));
                 let data=Object.values(dayCounts);
-                let ctx=document.getElementById('monthChart').getContext('2d');
-                if(chartInstance) chartInstance.destroy();
-                chartInstance=new Chart(ctx,{ type:'bar', data:{ labels, datasets:[{ label:'工单', data, backgroundColor:'rgba(59,130,246,0.6)', borderColor:'rgba(59,130,246,1)', borderWidth:1, borderRadius:3 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label:ctx=>`${ctx.parsed.y} 条` } } }, scales:{ y:{ beginAtZero:true, ticks:{ stepSize:1, font:{ size:9 } }, grid:{ color:'#f1f5f9' } }, x:{ ticks:{ maxRotation:30, font:{ size:8 } }, grid:{ display:false } } } } });
+                let ctx=document.getElementById('monthChart')?.getContext('2d');
+                if(ctx && chartInstance) chartInstance.destroy();
+                if(ctx) {
+                    chartInstance=new Chart(ctx,{ type:'bar', data:{ labels, datasets:[{ label:'工单', data, backgroundColor:'rgba(59,130,246,0.6)', borderColor:'rgba(59,130,246,1)', borderWidth:1, borderRadius:3 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label:ctx=>`${ctx.parsed.y} 条` } } }, scales:{ y:{ beginAtZero:true, ticks:{ stepSize:1, font:{ size:9 } }, grid:{ color:'#f1f5f9' } }, x:{ ticks:{ maxRotation:30, font:{ size:8 } }, grid:{ display:false } } } } });
+                }
             }
             function escapeHtml(text){ if(!text) return ''; let d=document.createElement('div'); d.textContent=text; return d.innerHTML; }
             function getCategoryEmoji(cat){ let map={'软件':'💻','硬件':'🖨️','网络':'🌐','其他':'📦'}; return map[cat]||''; }
@@ -638,57 +699,70 @@
                 if(!isFirebaseReady){ alert('系统未就绪'); return; }
                 if(!confirm('标记此工单为已解决？')) return;
                 try {
-                    syncDot.className='sync-dot syncing'; syncLabel.textContent='更新中...';
+                    if(syncDot) syncDot.className='sync-dot syncing';
+                    if(syncLabel) syncLabel.textContent='更新中...';
                     await updateTicketInFirebase(id, { resolved: 1 });
                     await refreshData();
-                    syncDot.className='sync-dot'; syncLabel.textContent='已同步';
+                    if(syncDot) syncDot.className='sync-dot';
+                    if(syncLabel) syncLabel.textContent='已同步';
                 } catch(err) {
                     alert('操作失败: '+err.message);
-                    syncDot.className='sync-dot error'; syncLabel.textContent='更新失败';
+                    if(syncDot) syncDot.className='sync-dot error';
+                    if(syncLabel) syncLabel.textContent='更新失败';
                 }
             }
             async function softDeleteTicket(id){
                 if(!confirm('确定删除此工单？可恢复')) return;
                 try {
-                    syncDot.className='sync-dot syncing'; syncLabel.textContent='删除中...';
+                    if(syncDot) syncDot.className='sync-dot syncing';
+                    if(syncLabel) syncLabel.textContent='删除中...';
                     await updateTicketInFirebase(id, { deleted: true });
                     await refreshData();
-                    syncDot.className='sync-dot'; syncLabel.textContent='已删除';
+                    if(syncDot) syncDot.className='sync-dot';
+                    if(syncLabel) syncLabel.textContent='已删除';
                 } catch(err) {
                     alert('删除失败: '+err.message);
-                    syncDot.className='sync-dot error'; syncLabel.textContent='删除失败';
+                    if(syncDot) syncDot.className='sync-dot error';
+                    if(syncLabel) syncLabel.textContent='删除失败';
                 }
             }
             async function softDeleteBorrow(id){
                 if(!confirm('确定删除此借出记录？可恢复')) return;
                 try {
-                    syncDot.className='sync-dot syncing'; syncLabel.textContent='删除中...';
+                    if(syncDot) syncDot.className='sync-dot syncing';
+                    if(syncLabel) syncLabel.textContent='删除中...';
                     await updateBorrowInFirebase(id, { deleted: true });
                     await refreshData();
-                    syncDot.className='sync-dot'; syncLabel.textContent='已删除';
+                    if(syncDot) syncDot.className='sync-dot';
+                    if(syncLabel) syncLabel.textContent='已删除';
                 } catch(err) {
                     alert('删除失败: '+err.message);
-                    syncDot.className='sync-dot error'; syncLabel.textContent='删除失败';
+                    if(syncDot) syncDot.className='sync-dot error';
+                    if(syncLabel) syncLabel.textContent='删除失败';
                 }
             }
             async function performReturnBorrow(id){
                 if(!isFirebaseReady) return;
                 try {
-                    syncDot.className='sync-dot syncing'; syncLabel.textContent='更新中...';
+                    if(syncDot) syncDot.className='sync-dot syncing';
+                    if(syncLabel) syncLabel.textContent='更新中...';
                     let today=new Date().toISOString().slice(0,10);
                     await updateBorrowInFirebase(id, { status:'已归还', returnDate:today });
                     await refreshData();
-                    syncDot.className='sync-dot'; syncLabel.textContent='已同步';
+                    if(syncDot) syncDot.className='sync-dot';
+                    if(syncLabel) syncLabel.textContent='已同步';
                 } catch(err) {
                     alert('操作失败: '+err.message);
-                    syncDot.className='sync-dot error'; syncLabel.textContent='更新失败';
+                    if(syncDot) syncDot.className='sync-dot error';
+                    if(syncLabel) syncLabel.textContent='更新失败';
                 }
             }
 
             // ===== 渲染工单列表 =====
             function renderTickets(){
+                if(!ticketList) return;
                 let year=currentMonth.getFullYear(), month=currentMonth.getMonth()+1;
-                currentMonthLabel.textContent=`${year}年${month}月`;
+                if(currentMonthLabel) currentMonthLabel.textContent=`${year}年${month}月`;
                 let monthTickets=getMonthTickets(allTickets, year, month);
                 let filtered=applyFilters(monthTickets);
                 renderStats(filtered);
@@ -783,6 +857,7 @@
 
             // ===== 渲染借出列表 =====
             function renderBorrows(){
+                if(!borrowItems) return;
                 let filtered=allBorrows.filter(b=>!b.deleted);
                 if(borrowFilter==='unreturned') filtered=filtered.filter(b=>b.status!=='已归还');
                 if(filtered.length===0){ borrowItems.innerHTML='<div class="empty-state">📦 暂无借出记录</div>'; return; }
@@ -818,6 +893,7 @@
 
             // ===== 渲染回收站 =====
             function renderRecycle(){
+                if(!recycleItems) return;
                 let tickets=allTickets.filter(t=>t.deleted===true);
                 let borrows=allBorrows.filter(b=>b.deleted===true);
                 let items=[];
@@ -851,39 +927,50 @@
             // ===== 恢复/永久删除 =====
             async function restoreItem(id, type){
                 try {
-                    syncDot.className='sync-dot syncing'; syncLabel.textContent='恢复中...';
+                    if(syncDot) syncDot.className='sync-dot syncing';
+                    if(syncLabel) syncLabel.textContent='恢复中...';
                     if(type==='ticket') await updateTicketInFirebase(id, { deleted: false });
                     else await updateBorrowInFirebase(id, { deleted: false });
                     await refreshData();
-                    syncDot.className='sync-dot'; syncLabel.textContent='已恢复';
+                    if(syncDot) syncDot.className='sync-dot';
+                    if(syncLabel) syncLabel.textContent='已恢复';
                 } catch(err) {
                     alert('恢复失败: '+err.message);
-                    syncDot.className='sync-dot error'; syncLabel.textContent='恢复失败';
+                    if(syncDot) syncDot.className='sync-dot error';
+                    if(syncLabel) syncLabel.textContent='恢复失败';
                 }
             }
             async function permanentDeleteItem(id, type){
                 if(!confirm('永久删除不可恢复，确定？')) return;
                 try {
-                    syncDot.className='sync-dot syncing'; syncLabel.textContent='删除中...';
+                    if(syncDot) syncDot.className='sync-dot syncing';
+                    if(syncLabel) syncLabel.textContent='删除中...';
                     if(type==='ticket') await deleteTicketPermanent(id);
                     else await deleteBorrowPermanent(id);
                     await refreshData();
-                    syncDot.className='sync-dot'; syncLabel.textContent='已永久删除';
+                    if(syncDot) syncDot.className='sync-dot';
+                    if(syncLabel) syncLabel.textContent='已永久删除';
                 } catch(err) {
                     alert('删除失败: '+err.message);
-                    syncDot.className='sync-dot error'; syncLabel.textContent='删除失败';
+                    if(syncDot) syncDot.className='sync-dot error';
+                    if(syncLabel) syncLabel.textContent='删除失败';
                 }
             }
 
             // ===================== 年度汇总 =====================
             function populateYearSelect(){
                 let currentYear=new Date().getFullYear();
-                yearSelect.innerHTML='';
+                if(yearSelect) yearSelect.innerHTML='';
                 let minYear=currentYear;
                 allTickets.forEach(t=>{ if(t.date&&!t.deleted){ let y=parseInt(t.date.substring(0,4)); if(!isNaN(y)&&y<minYear) minYear=y; } });
                 if(minYear>currentYear) minYear=currentYear;
-                for(let y=currentYear; y>=minYear; y--){ let opt=document.createElement('option'); opt.value=y; opt.textContent=y+'年'; yearSelect.appendChild(opt); }
-                yearSelect.value=currentYear;
+                for(let y=currentYear; y>=minYear; y--){
+                    let opt=document.createElement('option');
+                    opt.value=y;
+                    opt.textContent=y+'年';
+                    if(yearSelect) yearSelect.appendChild(opt);
+                }
+                if(yearSelect) yearSelect.value=currentYear;
             }
             function renderYearSummary(year){
                 let yearTickets=allTickets.filter(t=>t.date&&t.date.startsWith(String(year))&&!t.deleted);
@@ -891,8 +978,12 @@
                 let software=yearTickets.filter(t=>t.category==='软件').length;
                 let hardware=yearTickets.filter(t=>t.category==='硬件').length;
                 let network=yearTickets.filter(t=>t.category==='网络').length;
-                yearTotal.textContent=total; yearResolved.textContent=resolved; yearPending.textContent=pending;
-                yearSoftware.textContent=software; yearHardware.textContent=hardware; yearNetwork.textContent=network;
+                if(yearTotal) yearTotal.textContent=total;
+                if(yearResolved) yearResolved.textContent=resolved;
+                if(yearPending) yearPending.textContent=pending;
+                if(yearSoftware) yearSoftware.textContent=software;
+                if(yearHardware) yearHardware.textContent=hardware;
+                if(yearNetwork) yearNetwork.textContent=network;
 
                 // 折线图
                 let monthCounts={};
@@ -900,23 +991,27 @@
                 yearTickets.forEach(t=>{ if(t.date){ let prefix=t.date.substring(0,7); if(monthCounts[prefix]!==undefined) monthCounts[prefix]++; } });
                 let labels=Object.keys(monthCounts).map(k=>k.substring(5)+'月');
                 let data=Object.values(monthCounts);
-                let ctxLine=yearLineChartCanvas.getContext('2d');
-                if(yearLineChartInstance) yearLineChartInstance.destroy();
-                yearLineChartInstance=new Chart(ctxLine, { type:'line', data:{ labels, datasets:[{ label:'工单数', data, borderColor:'#8b5cf6', backgroundColor:'rgba(139,92,246,0.1)', fill:true, tension:0.3, pointBackgroundColor:'#8b5cf6' }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label:ctx=>`${ctx.parsed.y} 条` } } }, scales:{ y:{ beginAtZero:true, ticks:{ stepSize:1, font:{ size:9 } }, grid:{ color:'#f1f5f9' } }, x:{ ticks:{ font:{ size:9 } }, grid:{ display:false } } } } });
+                let ctxLine=yearLineChartCanvas?.getContext('2d');
+                if(ctxLine && yearLineChartInstance) yearLineChartInstance.destroy();
+                if(ctxLine) {
+                    yearLineChartInstance=new Chart(ctxLine, { type:'line', data:{ labels, datasets:[{ label:'工单数', data, borderColor:'#8b5cf6', backgroundColor:'rgba(139,92,246,0.1)', fill:true, tension:0.3, pointBackgroundColor:'#8b5cf6' }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label:ctx=>`${ctx.parsed.y} 条` } } }, scales:{ y:{ beginAtZero:true, ticks:{ stepSize:1, font:{ size:9 } }, grid:{ color:'#f1f5f9' } }, x:{ ticks:{ font:{ size:9 } }, grid:{ display:false } } } } });
+                }
                 // 饼图
                 let catData=[software, hardware, network];
                 let catLabels=['软件', '硬件', '网络'];
                 let colors=['#8b5cf6','#f59e0b','#4f46e5'];
                 let other=total-software-hardware-network;
                 if(other>0){ catData.push(other); catLabels.push('其他'); colors.push('#94a3b8'); }
-                let ctxPie=yearPieChartCanvas.getContext('2d');
-                if(yearPieChartInstance) yearPieChartInstance.destroy();
-                yearPieChartInstance=new Chart(ctxPie, { type:'doughnut', data:{ labels:catLabels, datasets:[{ data:catData, backgroundColor:colors, borderWidth:2, borderColor:'white' }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom', labels:{ font:{ size:10 } } }, tooltip:{ callbacks:{ label:ctx=>`${ctx.label}: ${ctx.parsed} 条 (${((ctx.parsed/total)*100).toFixed(1)}%)` } } } } });
+                let ctxPie=yearPieChartCanvas?.getContext('2d');
+                if(ctxPie && yearPieChartInstance) yearPieChartInstance.destroy();
+                if(ctxPie) {
+                    yearPieChartInstance=new Chart(ctxPie, { type:'doughnut', data:{ labels:catLabels, datasets:[{ data:catData, backgroundColor:colors, borderWidth:2, borderColor:'white' }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom', labels:{ font:{ size:10 } } }, tooltip:{ callbacks:{ label:ctx=>`${ctx.label}: ${ctx.parsed} 条 (${((ctx.parsed/total)*100).toFixed(1)}%)` } } } } });
+                }
                 // 明细
                 let groups={};
                 yearTickets.forEach(t=>{ let m=t.date?t.date.substring(0,7):'未知'; if(!groups[m]) groups[m]=[]; groups[m].push(t); });
                 let sortedMonths=Object.keys(groups).sort();
-                if(sortedMonths.length===0){ yearMonthList.innerHTML='<div class="empty-state">📭 该年度暂无工单</div>'; return; }
+                if(sortedMonths.length===0){ if(yearMonthList) yearMonthList.innerHTML='<div class="empty-state">📭 该年度暂无工单</div>'; return; }
                 let html='';
                 sortedMonths.forEach(monthKey => {
                     let items=groups[monthKey];
@@ -946,7 +1041,7 @@
                     });
                     html+=`</div></div>`;
                 });
-                yearMonthList.innerHTML=html;
+                if(yearMonthList) yearMonthList.innerHTML=html;
                 document.querySelectorAll('.year-month-header').forEach(h => {
                     h.onclick = function(){
                         let target=document.getElementById(this.dataset.target);
@@ -968,9 +1063,9 @@
             function switchTab(tab){
                 currentTab=tab;
                 document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab===tab));
-                ticketList.classList.toggle('hidden', tab!=='tickets');
-                borrowList.classList.toggle('hidden', tab!=='borrow');
-                recycleList.classList.toggle('hidden', tab!=='recycle');
+                if(ticketList) ticketList.classList.toggle('hidden', tab!=='tickets');
+                if(borrowList) borrowList.classList.toggle('hidden', tab!=='borrow');
+                if(recycleList) recycleList.classList.toggle('hidden', tab!=='recycle');
                 if(tab==='tickets') renderTickets();
                 else if(tab==='borrow') renderBorrows();
                 else renderRecycle();
@@ -980,25 +1075,28 @@
             async function refreshData(){
                 if(!isFirebaseReady) return;
                 try {
-                    syncDot.className='sync-dot syncing'; syncLabel.textContent='加载中...';
+                    if(syncDot) syncDot.className='sync-dot syncing';
+                    if(syncLabel) syncLabel.textContent='加载中...';
                     let [tickets, borrows] = await Promise.all([fetchAllTickets(), fetchAllBorrows()]);
                     allTickets=tickets; allBorrows=borrows;
                     if(currentTab==='tickets') renderTickets();
                     else if(currentTab==='borrow') renderBorrows();
                     else renderRecycle();
-                    syncDot.className='sync-dot'; syncLabel.textContent='已同步';
+                    if(syncDot) syncDot.className='sync-dot';
+                    if(syncLabel) syncLabel.textContent='已同步';
                 } catch(err) {
                     console.error(err);
-                    syncDot.className='sync-dot error'; syncLabel.textContent='加载失败';
+                    if(syncDot) syncDot.className='sync-dot error';
+                    if(syncLabel) syncLabel.textContent='加载失败';
                 }
             }
 
             // ===================== 导入功能 =====================
             let importData = [];
             async function handleImportPreview(){
-                let file=importFileInput.files[0];
+                let file=importFileInput?.files[0];
                 if(!file){ alert('请选择文件'); return; }
-                let type=importType.value;
+                let type=importType?importType.value:'tickets';
                 try {
                     let data;
                     if(file.name.endsWith('.csv')){
@@ -1024,23 +1122,26 @@
                     }
                     if(json.length>10) previewHtml+=`<tr><td colspan="${headers.length}" style="text-align:center;color:#94a3b8;">... 共 ${json.length} 行</td></tr>`;
                     previewHtml+='</tbody></table>';
-                    importPreviewArea.innerHTML=previewHtml;
-                    importPreviewArea.style.display='block';
-                    importConfirmBtn.disabled=false;
-                    importStatus.textContent=`预览成功，共 ${json.length} 条`;
+                    if(importPreviewArea) {
+                        importPreviewArea.innerHTML=previewHtml;
+                        importPreviewArea.style.display='block';
+                    }
+                    if(importConfirmBtn) importConfirmBtn.disabled=false;
+                    if(importStatus) importStatus.textContent=`预览成功，共 ${json.length} 条`;
                 } catch(err) {
                     alert('解析失败: '+err.message);
-                    importStatus.textContent='解析失败';
+                    if(importStatus) importStatus.textContent='解析失败';
                 }
             }
             async function handleImportConfirm(){
                 if(!importData || importData.length===0){ alert('请先预览'); return; }
-                let type=importType.value;
+                let type=importType?importType.value:'tickets';
                 if(!confirm(`确认导入 ${importData.length} 条${type==='tickets'?'工单':'借出'}？`)) return;
                 try {
-                    syncDot.className='sync-dot syncing'; syncLabel.textContent='导入中...';
-                    importConfirmBtn.disabled=true;
-                    importStatus.textContent='正在导入...';
+                    if(syncDot) syncDot.className='sync-dot syncing';
+                    if(syncLabel) syncLabel.textContent='导入中...';
+                    if(importConfirmBtn) importConfirmBtn.disabled=true;
+                    if(importStatus) importStatus.textContent='正在导入...';
                     let success=0, fail=0;
                     let batchSize=50;
                     for(let i=0;i<importData.length;i+=batchSize){
@@ -1063,14 +1164,16 @@
                         }));
                         await new Promise(r => setTimeout(r, 100));
                     }
-                    importStatus.textContent=`导入完成：成功 ${success} 条，失败 ${fail} 条`;
-                    importConfirmBtn.disabled=false;
+                    if(importStatus) importStatus.textContent=`导入完成：成功 ${success} 条，失败 ${fail} 条`;
+                    if(importConfirmBtn) importConfirmBtn.disabled=false;
                     await refreshData();
-                    syncDot.className='sync-dot'; syncLabel.textContent='已同步';
+                    if(syncDot) syncDot.className='sync-dot';
+                    if(syncLabel) syncLabel.textContent='已同步';
                 } catch(err) {
                     alert('导入失败: '+err.message);
-                    importConfirmBtn.disabled=false;
-                    syncDot.className='sync-dot error'; syncLabel.textContent='导入失败';
+                    if(importConfirmBtn) importConfirmBtn.disabled=false;
+                    if(syncDot) syncDot.className='sync-dot error';
+                    if(syncLabel) syncLabel.textContent='导入失败';
                 }
             }
 
@@ -1099,60 +1202,68 @@
             }
 
             // ===================== 模态框打开/关闭（修复版） =====================
-            function openModal(modal) { modal.classList.add('active'); }
-            function closeModal(modal) { modal.classList.remove('active'); }
+            function openModal(modal) { if(modal) modal.classList.add('active'); }
+            function closeModal(modal) { if(modal) modal.classList.remove('active'); }
+
+            // ===================== 安全绑定事件 =====================
+            function safeAddEventListener(element, event, handler) {
+                if (element) {
+                    element.addEventListener(event, handler);
+                } else {
+                    console.warn('元素不存在，无法绑定事件:', event);
+                }
+            }
 
             // --- 工单模态框 ---
-            openAddModal.addEventListener('click', function(){ resetTicketForm(); openModal(modalOverlay); });
-            modalCancel.addEventListener('click', function(){ closeModal(modalOverlay); });
-            modalOverlay.addEventListener('click', function(e){ if(e.target === modalOverlay) closeModal(modalOverlay); });
+            safeAddEventListener(openAddModal, 'click', function(){ resetTicketForm(); openModal(modalOverlay); });
+            safeAddEventListener(modalCancel, 'click', function(){ closeModal(modalOverlay); });
+            safeAddEventListener(modalOverlay, 'click', function(e){ if(e.target === modalOverlay) closeModal(modalOverlay); });
 
             // --- 借出模态框 ---
-            openBorrowModalBtn.addEventListener('click', function(){ resetBorrowForm(); openModal(borrowModal); });
-            borrowModalClose.addEventListener('click', function(){ closeModal(borrowModal); });
-            borrowModalCancel.addEventListener('click', function(){ closeModal(borrowModal); });
-            borrowModal.addEventListener('click', function(e){ if(e.target === borrowModal) closeModal(borrowModal); });
+            safeAddEventListener(openBorrowModalBtn, 'click', function(){ resetBorrowForm(); openModal(borrowModal); });
+            safeAddEventListener(borrowModalClose, 'click', function(){ closeModal(borrowModal); });
+            safeAddEventListener(borrowModalCancel, 'click', function(){ closeModal(borrowModal); });
+            safeAddEventListener(borrowModal, 'click', function(e){ if(e.target === borrowModal) closeModal(borrowModal); });
 
             // --- 未解决模态框 ---
-            pendingCard.addEventListener('click', function(){ openPendingModal(); });
-            pendingModalClose.addEventListener('click', function(){ closeModal(pendingModal); });
-            pendingModal.addEventListener('click', function(e){ if(e.target === pendingModal) closeModal(pendingModal); });
+            safeAddEventListener(pendingCard, 'click', function(){ openPendingModal(); });
+            safeAddEventListener(pendingModalClose, 'click', function(){ closeModal(pendingModal); });
+            safeAddEventListener(pendingModal, 'click', function(e){ if(e.target === pendingModal) closeModal(pendingModal); });
 
             // --- 年度汇总模态框 ---
-            openYearModalBtn.addEventListener('click', function(){ openYearModalFunc(); });
-            yearModalClose.addEventListener('click', function(){ closeModal(yearModal); });
-            yearModal.addEventListener('click', function(e){ if(e.target === yearModal) closeModal(yearModal); });
+            safeAddEventListener(openYearModalBtn, 'click', function(){ openYearModalFunc(); });
+            safeAddEventListener(yearModalClose, 'click', function(){ closeModal(yearModal); });
+            safeAddEventListener(yearModal, 'click', function(e){ if(e.target === yearModal) closeModal(yearModal); });
 
             // --- 导入模态框 ---
-            openImportModal.addEventListener('click', function(){ openModal(importModal); });
-            dropdownImport.addEventListener('click', function(e){ e.stopPropagation(); openModal(importModal); dropdownContent.classList.remove('show'); });
-            importModalClose.addEventListener('click', function(){ closeModal(importModal); });
-            importCancel.addEventListener('click', function(){ closeModal(importModal); });
-            importModal.addEventListener('click', function(e){ if(e.target === importModal) closeModal(importModal); });
+            safeAddEventListener(openImportModal, 'click', function(){ openModal(importModal); });
+            safeAddEventListener(dropdownImport, 'click', function(e){ e.stopPropagation(); openModal(importModal); if(dropdownContent) dropdownContent.classList.remove('show'); });
+            safeAddEventListener(importModalClose, 'click', function(){ closeModal(importModal); });
+            safeAddEventListener(importCancel, 'click', function(){ closeModal(importModal); });
+            safeAddEventListener(importModal, 'click', function(e){ if(e.target === importModal) closeModal(importModal); });
 
             // 底部按钮
-            bottomAddModal.addEventListener('click', function(){ resetTicketForm(); openModal(modalOverlay); });
-            bottomBorrowModal.addEventListener('click', function(){ resetBorrowForm(); openModal(borrowModal); });
-            bottomImportModal.addEventListener('click', function(){ openModal(importModal); });
-            bottomExportBtn.addEventListener('click', exportToCSV);
+            safeAddEventListener(bottomAddModal, 'click', function(){ resetTicketForm(); openModal(modalOverlay); });
+            safeAddEventListener(bottomBorrowModal, 'click', function(){ resetBorrowForm(); openModal(borrowModal); });
+            safeAddEventListener(bottomImportModal, 'click', function(){ openModal(importModal); });
+            safeAddEventListener(bottomExportBtn, 'click', exportToCSV);
 
-            // ===================== 连接按钮（稳定版） =====================
-            connectBtn.onclick = async function() {
+            // ===================== 连接按钮 =====================
+            safeAddEventListener(connectBtn, 'click', async function() {
                 console.log('连接按钮被点击');
-                const apiKey = fbApiKey.value.trim();
-                const authDomain = fbAuthDomain.value.trim();
-                const databaseURL = fbDatabaseURL.value.trim();
-                const projectId = fbProjectId.value.trim();
-                const storageBucket = fbStorageBucket.value.trim();
-                const appId = fbAppId.value.trim();
+                const apiKey = fbApiKey?fbApiKey.value.trim():'';
+                const authDomain = fbAuthDomain?fbAuthDomain.value.trim():'';
+                const databaseURL = fbDatabaseURL?fbDatabaseURL.value.trim():'';
+                const projectId = fbProjectId?fbProjectId.value.trim():'';
+                const storageBucket = fbStorageBucket?fbStorageBucket.value.trim():'';
+                const appId = fbAppId?fbAppId.value.trim():'';
 
                 if (!apiKey || !databaseURL || !projectId) {
                     alert('请至少填写 apiKey、databaseURL 和 projectId');
                     return;
                 }
 
-                connectBtn.disabled = true;
-                connectBtn.textContent = '连接中...';
+                if(connectBtn) { connectBtn.disabled = true; connectBtn.textContent = '连接中...'; }
 
                 try {
                     const config = { apiKey, authDomain, databaseURL, projectId, storageBucket, appId };
@@ -1165,7 +1276,6 @@
                             firebase.initializeApp(config);
                         }
                     }
-                    // 验证连接
                     const db = firebase.database();
                     await db.ref('.info/connected').once('value', snap => {
                         if (snap.val() !== true) {
@@ -1174,42 +1284,41 @@
                     });
                     isFirebaseReady = true;
                     saveConfig(config);
-                    configCard.style.display = 'none';
-                    mainArea.classList.remove('hidden');
-                    configHint.textContent = '✅ 连接成功！';
+                    if(configCard) configCard.style.display = 'none';
+                    if(mainArea) mainArea.classList.remove('hidden');
+                    if(configHint) configHint.textContent = '✅ 连接成功！';
                     await refreshData();
                 } catch (err) {
                     alert('连接失败：' + err.message);
                     console.error(err);
                 } finally {
-                    connectBtn.disabled = false;
-                    connectBtn.textContent = '✅ 连接';
+                    if(connectBtn) { connectBtn.disabled = false; connectBtn.textContent = '✅ 连接'; }
                 }
-            };
+            });
 
             // 重置配置
-            resetConfigBtn.onclick = function() {
+            safeAddEventListener(resetConfigBtn, 'click', function() {
                 if (confirm('清除本地配置？')) {
                     localStorage.removeItem(CONFIG_KEY);
                     fillConfigForm();
-                    configCard.style.display = 'block';
-                    mainArea.classList.add('hidden');
-                    configHint.textContent = '💡 配置已清除';
+                    if(configCard) configCard.style.display = 'block';
+                    if(mainArea) mainArea.classList.add('hidden');
+                    if(configHint) configHint.textContent = '💡 配置已清除';
                     isFirebaseReady = false;
                 }
-            };
+            });
 
             // 自动连接
             (async function autoConnect() {
                 const cfg = loadConfig();
                 if (cfg.apiKey && cfg.databaseURL && cfg.projectId) {
                     try {
-                        fbApiKey.value = cfg.apiKey;
-                        fbAuthDomain.value = cfg.authDomain || '';
-                        fbDatabaseURL.value = cfg.databaseURL;
-                        fbProjectId.value = cfg.projectId;
-                        fbStorageBucket.value = cfg.storageBucket || '';
-                        fbAppId.value = cfg.appId || '';
+                        if(fbApiKey) fbApiKey.value = cfg.apiKey;
+                        if(fbAuthDomain) fbAuthDomain.value = cfg.authDomain || '';
+                        if(fbDatabaseURL) fbDatabaseURL.value = cfg.databaseURL;
+                        if(fbProjectId) fbProjectId.value = cfg.projectId;
+                        if(fbStorageBucket) fbStorageBucket.value = cfg.storageBucket || '';
+                        if(fbAppId) fbAppId.value = cfg.appId || '';
                         const config = { apiKey: cfg.apiKey, authDomain: cfg.authDomain || '', databaseURL: cfg.databaseURL, projectId: cfg.projectId, storageBucket: cfg.storageBucket || '', appId: cfg.appId || '' };
                         if (!firebase.apps.length) {
                             firebase.initializeApp(config);
@@ -1225,32 +1334,32 @@
                             if (snap.val() !== true) throw new Error('无法连接');
                         });
                         isFirebaseReady = true;
-                        configCard.style.display = 'none';
-                        mainArea.classList.remove('hidden');
-                        configHint.textContent = '✅ 自动连接成功';
+                        if(configCard) configCard.style.display = 'none';
+                        if(mainArea) mainArea.classList.remove('hidden');
+                        if(configHint) configHint.textContent = '✅ 自动连接成功';
                         await refreshData();
                     } catch (e) {
                         console.warn('自动连接失败，请手动连接', e);
-                        configCard.style.display = 'block';
-                        configHint.textContent = '⚠️ 自动连接失败，请检查配置后手动点击连接';
+                        if(configCard) configCard.style.display = 'block';
+                        if(configHint) configHint.textContent = '⚠️ 自动连接失败，请检查配置后手动点击连接';
                     }
                 }
             })();
 
             // ===================== 其他事件绑定 =====================
             // 周切换
-            weekPrev.onclick = function(){ currentWeekOffset--; renderWeeklyStats(); };
-            weekNext.onclick = function(){ currentWeekOffset++; renderWeeklyStats(); };
+            safeAddEventListener(weekPrev, 'click', function(){ currentWeekOffset--; renderWeeklyStats(); });
+            safeAddEventListener(weekNext, 'click', function(){ currentWeekOffset++; renderWeeklyStats(); });
 
             // 月份切换
-            prevMonthBtn.onclick = function(){
+            safeAddEventListener(prevMonthBtn, 'click', function(){
                 currentMonth.setMonth(currentMonth.getMonth()-1);
                 if(currentTab==='tickets') renderTickets();
-            };
-            nextMonthBtn.onclick = function(){
+            });
+            safeAddEventListener(nextMonthBtn, 'click', function(){
                 currentMonth.setMonth(currentMonth.getMonth()+1);
                 if(currentTab==='tickets') renderTickets();
-            };
+            });
 
             // Tab切换
             document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -1270,37 +1379,37 @@
             });
 
             // 搜索/部门
-            filterDeptEl.onchange = function(){ filterDept=this.value; if(currentTab==='tickets') renderTickets(); };
-            searchInput.oninput = function(){ searchKeyword=this.value; if(currentTab==='tickets') renderTickets(); };
-            clearFilterBtn.onclick = function(){
-                filterDeptEl.value='all';
-                searchInput.value='';
+            safeAddEventListener(filterDeptEl, 'change', function(){ filterDept=this.value; if(currentTab==='tickets') renderTickets(); });
+            safeAddEventListener(searchInput, 'input', function(){ searchKeyword=this.value; if(currentTab==='tickets') renderTickets(); });
+            safeAddEventListener(clearFilterBtn, 'click', function(){
+                if(filterDeptEl) filterDeptEl.value='all';
+                if(searchInput) searchInput.value='';
                 filterDept='all';
                 searchKeyword='';
                 if(currentTab==='tickets') renderTickets();
-            };
+            });
 
             // 下拉菜单
-            moreBtn.onclick = function(e){ e.stopPropagation(); dropdownContent.classList.toggle('show'); };
-            document.addEventListener('click', function(){ dropdownContent.classList.remove('show'); });
-            dropdownContent.addEventListener('click', function(e){ e.stopPropagation(); });
-            dropdownExport.onclick = function(e){ e.stopPropagation(); exportToCSV(); dropdownContent.classList.remove('show'); };
+            safeAddEventListener(moreBtn, 'click', function(e){ e.stopPropagation(); if(dropdownContent) dropdownContent.classList.toggle('show'); });
+            document.addEventListener('click', function(){ if(dropdownContent) dropdownContent.classList.remove('show'); });
+            safeAddEventListener(dropdownContent, 'click', function(e){ e.stopPropagation(); });
+            safeAddEventListener(dropdownExport, 'click', function(e){ e.stopPropagation(); exportToCSV(); if(dropdownContent) dropdownContent.classList.remove('show'); });
 
             // 导出
-            exportBtn.onclick = exportToCSV;
+            safeAddEventListener(exportBtn, 'click', exportToCSV);
 
             // 工单保存
-            modalSave.onclick = async function(){
-                let date=formDate.value;
-                let dept=formDept.value.trim();
-                let name=formName.value.trim();
-                let issue=formIssue.value.trim();
-                let category=formCategory.value;
-                let resolved=parseInt(formResolved.value);
+            safeAddEventListener(modalSave, 'click', async function(){
+                let date=formDate?formDate.value:'';
+                let dept=formDept?formDept.value.trim():'';
+                let name=formName?formName.value.trim():'';
+                let issue=formIssue?formIssue.value.trim():'';
+                let category=formCategory?formCategory.value:'软件';
+                let resolved=formResolved?parseInt(formResolved.value):0;
                 if(!date){ alert('请选择日期'); return; }
                 if(!issue){ alert('请输入问题描述'); return; }
                 let data={ date, department:dept, name, issue, category, resolved, deleted:false };
-                let id=editId.value;
+                let id=editId?editId.value:'';
                 try {
                     if(id) await updateTicketInFirebase(id, data);
                     else await addTicketToFirebase(data);
@@ -1309,15 +1418,15 @@
                 } catch(err) {
                     alert('保存失败: '+err.message);
                 }
-            };
+            });
 
             // 借出保存
-            borrowModalSave.onclick = async function(){
-                let dept=borrowDept.value;
-                let name=borrowName.value.trim();
-                let device=borrowDevice.value.trim();
-                let date=borrowDate.value;
-                let note=borrowNote.value.trim();
+            safeAddEventListener(borrowModalSave, 'click', async function(){
+                let dept=borrowDept?borrowDept.value:'';
+                let name=borrowName?borrowName.value.trim():'';
+                let device=borrowDevice?borrowDevice.value.trim():'';
+                let date=borrowDate?borrowDate.value:'';
+                let note=borrowNote?borrowNote.value.trim():'';
                 if(!dept){ alert('请选择部门'); return; }
                 if(!name){ alert('请输入借用人'); return; }
                 if(!device){ alert('请输入借用设备'); return; }
@@ -1330,104 +1439,107 @@
                 } catch(err) {
                     alert('保存失败: '+err.message);
                 }
-            };
+            });
 
             // 年度汇总年份切换
-            yearSelect.onchange = function(){
+            safeAddEventListener(yearSelect, 'change', function(){
                 let year=parseInt(this.value);
                 if(!isNaN(year)) renderYearSummary(year);
-            };
+            });
 
             // 导入预览/确认
-            importPreviewBtn.onclick = handleImportPreview;
-            importConfirmBtn.onclick = handleImportConfirm;
+            safeAddEventListener(importPreviewBtn, 'click', handleImportPreview);
+            safeAddEventListener(importConfirmBtn, 'click', handleImportConfirm);
 
             // 部门搜索
-            formDept.oninput = function(){
-                let q=this.value||'';
-                let matched=[];
-                if(q.trim()==='') matched=DEPARTMENTS;
-                else matched=DEPARTMENTS.filter(d=>matchDepartment(q,d));
-                if(matched.length===0){
-                    deptDropdown.innerHTML='<div class="no-result">未找到，可自定义</div>';
-                    deptDropdown.classList.add('show');
-                    return;
-                }
-                let html='';
-                matched.forEach(dept => {
-                    let display=dept;
-                    if(q.trim()!==''){
-                        let idx=dept.indexOf(q.trim());
-                        if(idx!==-1){
-                            display=dept.substring(0,idx)+'<span class="highlight">'+dept.substring(idx,idx+q.trim().length)+'</span>'+dept.substring(idx+q.trim().length);
-                        }
+            if (formDept) {
+                formDept.oninput = function(){
+                    let q=this.value||'';
+                    let matched=[];
+                    if(q.trim()==='') matched=DEPARTMENTS;
+                    else matched=DEPARTMENTS.filter(d=>matchDepartment(q,d));
+                    if(matched.length===0){
+                        if(deptDropdown) { deptDropdown.innerHTML='<div class="no-result">未找到，可自定义</div>'; deptDropdown.classList.add('show'); }
+                        return;
                     }
-                    html+=`<div class="dept-item" data-dept="${dept}">${display}</div>`;
+                    let html='';
+                    matched.forEach(dept => {
+                        let display=dept;
+                        if(q.trim()!==''){
+                            let idx=dept.indexOf(q.trim());
+                            if(idx!==-1){
+                                display=dept.substring(0,idx)+'<span class="highlight">'+dept.substring(idx,idx+q.trim().length)+'</span>'+dept.substring(idx+q.trim().length);
+                            }
+                        }
+                        html+=`<div class="dept-item" data-dept="${dept}">${display}</div>`;
+                    });
+                    if(deptDropdown) {
+                        deptDropdown.innerHTML=html;
+                        deptDropdown.classList.add('show');
+                        deptDropdown.querySelectorAll('.dept-item').forEach(el => {
+                            el.onclick = function(){
+                                if(formDept) formDept.value=this.dataset.dept;
+                                if(deptDropdown) deptDropdown.classList.remove('show');
+                            };
+                        });
+                    }
+                };
+                formDept.onfocus = function(){ this.dispatchEvent(new Event('input')); };
+                formDept.onblur = function(){ setTimeout(()=>{ if(deptDropdown) deptDropdown.classList.remove('show'); }, 200); };
+                document.addEventListener('click', function(e){
+                    if(!e.target.closest('#formDept') && !e.target.closest('#deptDropdown')){
+                        if(deptDropdown) deptDropdown.classList.remove('show');
+                    }
                 });
-                deptDropdown.innerHTML=html;
-                deptDropdown.classList.add('show');
-                deptDropdown.querySelectorAll('.dept-item').forEach(el => {
-                    el.onclick = function(){
-                        formDept.value=this.dataset.dept;
-                        deptDropdown.classList.remove('show');
-                    };
-                });
-            };
-            formDept.onfocus = function(){ this.dispatchEvent(new Event('input')); };
-            formDept.onblur = function(){ setTimeout(()=>{ deptDropdown.classList.remove('show'); }, 200); };
-            document.addEventListener('click', function(e){
-                if(!e.target.closest('#formDept') && !e.target.closest('#deptDropdown')){
-                    deptDropdown.classList.remove('show');
-                }
-            });
+            }
 
             // 前台刷新
             document.addEventListener('visibilitychange', async () => {
-                if(document.visibilityState==='visible' && !mainArea.classList.contains('hidden') && isFirebaseReady){
+                if(document.visibilityState==='visible' && mainArea && !mainArea.classList.contains('hidden') && isFirebaseReady){
                     await refreshData();
                 }
             });
 
             // ===================== 辅助函数 =====================
             function resetTicketForm(){
-                editId.value='';
-                modalTitle.textContent='添加工单';
-                formDate.value=new Date().toISOString().slice(0,10);
-                formDept.value='';
-                formName.value='';
-                formIssue.value='';
-                formCategory.value='软件';
-                formResolved.value='0';
-                deptDropdown.classList.remove('show');
+                if(editId) editId.value='';
+                if(modalTitle) modalTitle.textContent='添加工单';
+                if(formDate) formDate.value=new Date().toISOString().slice(0,10);
+                if(formDept) formDept.value='';
+                if(formName) formName.value='';
+                if(formIssue) formIssue.value='';
+                if(formCategory) formCategory.value='软件';
+                if(formResolved) formResolved.value='0';
+                if(deptDropdown) deptDropdown.classList.remove('show');
             }
             function openEditTicketModal(id){
                 let ticket=allTickets.find(t=>t.id===id);
                 if(!ticket) return;
-                editId.value=ticket.id;
-                modalTitle.textContent='编辑工单';
-                formDate.value=ticket.date||'';
-                formDept.value=ticket.department||'';
-                formName.value=ticket.name||'';
-                formIssue.value=ticket.issue||'';
-                formCategory.value=ticket.category||'其他';
-                formResolved.value=ticket.resolved||0;
+                if(editId) editId.value=ticket.id;
+                if(modalTitle) modalTitle.textContent='编辑工单';
+                if(formDate) formDate.value=ticket.date||'';
+                if(formDept) formDept.value=ticket.department||'';
+                if(formName) formName.value=ticket.name||'';
+                if(formIssue) formIssue.value=ticket.issue||'';
+                if(formCategory) formCategory.value=ticket.category||'其他';
+                if(formResolved) formResolved.value=ticket.resolved||0;
                 openModal(modalOverlay);
-                deptDropdown.classList.remove('show');
+                if(deptDropdown) deptDropdown.classList.remove('show');
             }
             function resetBorrowForm(){
-                borrowEditId.value='';
-                borrowDept.value='';
-                borrowName.value='';
-                borrowDevice.value='';
-                borrowDate.value=new Date().toISOString().slice(0,10);
-                borrowNote.value='';
+                if(borrowEditId) borrowEditId.value='';
+                if(borrowDept) borrowDept.value='';
+                if(borrowName) borrowName.value='';
+                if(borrowDevice) borrowDevice.value='';
+                if(borrowDate) borrowDate.value=new Date().toISOString().slice(0,10);
+                if(borrowNote) borrowNote.value='';
             }
             function openPendingModal(){
                 if(!isFirebaseReady){ alert('数据未加载'); return; }
                 let pendingTickets=allTickets.filter(t=>t.resolved==0&&!t.deleted);
-                pendingCountTitle.textContent=pendingTickets.length;
+                if(pendingCountTitle) pendingCountTitle.textContent=pendingTickets.length;
                 if(pendingTickets.length===0){
-                    pendingList.innerHTML='<div class="empty-state">🎉 没有未解决工单</div>';
+                    if(pendingList) pendingList.innerHTML='<div class="empty-state">🎉 没有未解决工单</div>';
                     openModal(pendingModal);
                     return;
                 }
@@ -1448,21 +1560,21 @@
                         </div>
                     </div>`;
                 });
-                pendingList.innerHTML=html;
+                if(pendingList) pendingList.innerHTML=html;
                 openModal(pendingModal);
             }
             function openYearModalFunc(){
                 if(!isFirebaseReady || allTickets.length===0){ alert('暂无工单数据'); return; }
                 populateYearSelect();
-                let selectedYear=parseInt(yearSelect.value)||new Date().getFullYear();
+                let selectedYear=yearSelect?parseInt(yearSelect.value)||new Date().getFullYear():new Date().getFullYear();
                 renderYearSummary(selectedYear);
                 openModal(yearModal);
             }
 
             // 初始化
             resetTicketForm();
-            console.log('工单系统 (完整功能稳定版) 已加载');
-        })();
+            console.log('工单系统 (稳定健壮版) 已加载');
+        }); // DOMContentLoaded 结束
     </script>
 </body>
 </html>
