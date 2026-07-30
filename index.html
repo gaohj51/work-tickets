@@ -9,7 +9,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
-        /* ===== 样式代码与之前完全一致，省略重复，但实际部署时请保留完整样式 ===== */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f5f7fb; color: #1e293b; padding: 12px 16px 80px; min-height: 100vh; font-size: 14px; }
         .container { max-width: 1000px; margin: 0 auto; }
@@ -1098,194 +1097,188 @@
                 URL.revokeObjectURL(link.href);
             }
 
-            // ===================== 模态框打开/关闭（使用独立事件绑定） =====================
-            // 打开模态框的辅助函数
+            // ===================== 模态框打开/关闭（修复版） =====================
             function openModal(modal) { modal.classList.add('active'); }
             function closeModal(modal) { modal.classList.remove('active'); }
 
             // --- 工单模态框 ---
-            openAddModal.addEventListener('click', function(){
-                resetTicketForm();
-                openModal(modalOverlay);
-            });
-            modalCancel.addEventListener('click', function(){
-                closeModal(modalOverlay);
-            });
-            modalOverlay.addEventListener('click', function(e){
-                if(e.target === modalOverlay) closeModal(modalOverlay);
-            });
+            openAddModal.addEventListener('click', function(){ resetTicketForm(); openModal(modalOverlay); });
+            modalCancel.addEventListener('click', function(){ closeModal(modalOverlay); });
+            modalOverlay.addEventListener('click', function(e){ if(e.target === modalOverlay) closeModal(modalOverlay); });
 
             // --- 借出模态框 ---
-            openBorrowModalBtn.addEventListener('click', function(){
-                resetBorrowForm();
-                openModal(borrowModal);
-            });
-            borrowModalClose.addEventListener('click', function(){
-                closeModal(borrowModal);
-            });
-            borrowModalCancel.addEventListener('click', function(){
-                closeModal(borrowModal);
-            });
-            borrowModal.addEventListener('click', function(e){
-                if(e.target === borrowModal) closeModal(borrowModal);
-            });
+            openBorrowModalBtn.addEventListener('click', function(){ resetBorrowForm(); openModal(borrowModal); });
+            borrowModalClose.addEventListener('click', function(){ closeModal(borrowModal); });
+            borrowModalCancel.addEventListener('click', function(){ closeModal(borrowModal); });
+            borrowModal.addEventListener('click', function(e){ if(e.target === borrowModal) closeModal(borrowModal); });
 
             // --- 未解决模态框 ---
-            pendingCard.addEventListener('click', function(){
-                openPendingModal();
-            });
-            pendingModalClose.addEventListener('click', function(){
-                closeModal(pendingModal);
-            });
-            pendingModal.addEventListener('click', function(e){
-                if(e.target === pendingModal) closeModal(pendingModal);
-            });
+            pendingCard.addEventListener('click', function(){ openPendingModal(); });
+            pendingModalClose.addEventListener('click', function(){ closeModal(pendingModal); });
+            pendingModal.addEventListener('click', function(e){ if(e.target === pendingModal) closeModal(pendingModal); });
 
             // --- 年度汇总模态框 ---
-            openYearModalBtn.addEventListener('click', function(){
-                openYearModalFunc();
-            });
-            yearModalClose.addEventListener('click', function(){
-                closeModal(yearModal);
-            });
-            yearModal.addEventListener('click', function(e){
-                if(e.target === yearModal) closeModal(yearModal);
-            });
+            openYearModalBtn.addEventListener('click', function(){ openYearModalFunc(); });
+            yearModalClose.addEventListener('click', function(){ closeModal(yearModal); });
+            yearModal.addEventListener('click', function(e){ if(e.target === yearModal) closeModal(yearModal); });
 
             // --- 导入模态框 ---
-            openImportModal.addEventListener('click', function(){
-                openModal(importModal);
-            });
-            dropdownImport.addEventListener('click', function(e){
-                e.stopPropagation();
-                openModal(importModal);
-                dropdownContent.classList.remove('show');
-            });
-            importModalClose.addEventListener('click', function(){
-                closeModal(importModal);
-            });
-            importCancel.addEventListener('click', function(){
-                closeModal(importModal);
-            });
-            importModal.addEventListener('click', function(e){
-                if(e.target === importModal) closeModal(importModal);
-            });
+            openImportModal.addEventListener('click', function(){ openModal(importModal); });
+            dropdownImport.addEventListener('click', function(e){ e.stopPropagation(); openModal(importModal); dropdownContent.classList.remove('show'); });
+            importModalClose.addEventListener('click', function(){ closeModal(importModal); });
+            importCancel.addEventListener('click', function(){ closeModal(importModal); });
+            importModal.addEventListener('click', function(e){ if(e.target === importModal) closeModal(importModal); });
 
             // 底部按钮
-            bottomAddModal.addEventListener('click', function(){
-                resetTicketForm();
-                openModal(modalOverlay);
-            });
-            bottomBorrowModal.addEventListener('click', function(){
-                resetBorrowForm();
-                openModal(borrowModal);
-            });
-            bottomImportModal.addEventListener('click', function(){
-                openModal(importModal);
-            });
+            bottomAddModal.addEventListener('click', function(){ resetTicketForm(); openModal(modalOverlay); });
+            bottomBorrowModal.addEventListener('click', function(){ resetBorrowForm(); openModal(borrowModal); });
+            bottomImportModal.addEventListener('click', function(){ openModal(importModal); });
             bottomExportBtn.addEventListener('click', exportToCSV);
 
-            // ===================== 其他事件绑定 =====================
-            // 连接
-            connectBtn.addEventListener('click', async function(){
-                try {
-                    initFirebase();
-                    await refreshData();
-                    configCard.style.display='none';
-                    mainArea.classList.remove('hidden');
-                    $('configHint').textContent='✅ 连接成功！';
-                } catch(err) {
-                    alert('连接失败：'+err.message);
+            // ===================== 连接按钮（使用 onclick 直接绑定） =====================
+            connectBtn.onclick = async function() {
+                console.log('连接按钮被点击');
+                const apiKey = fbApiKey.value.trim();
+                const authDomain = fbAuthDomain.value.trim();
+                const databaseURL = fbDatabaseURL.value.trim();
+                const projectId = fbProjectId.value.trim();
+                const storageBucket = fbStorageBucket.value.trim();
+                const appId = fbAppId.value.trim();
+
+                if (!apiKey || !databaseURL || !projectId) {
+                    alert('请至少填写 apiKey、databaseURL 和 projectId');
+                    return;
                 }
-            });
-            resetConfigBtn.addEventListener('click', function(){
-                if(confirm('清除本地配置？')){
+
+                connectBtn.disabled = true;
+                connectBtn.textContent = '连接中...';
+
+                try {
+                    const config = { apiKey, authDomain, databaseURL, projectId, storageBucket, appId };
+                    if (!firebase.apps.length) {
+                        firebase.initializeApp(config);
+                    } else {
+                        const existing = firebase.apps[0];
+                        if (existing.options.databaseURL !== config.databaseURL) {
+                            firebase.apps[0].delete();
+                            firebase.initializeApp(config);
+                        }
+                    }
+                    isFirebaseReady = true;
+                    saveConfig(config);
+                    await refreshData();
+                    configCard.style.display = 'none';
+                    mainArea.classList.remove('hidden');
+                    configHint.textContent = '✅ 连接成功！';
+                } catch (err) {
+                    alert('连接失败：' + err.message);
+                    console.error(err);
+                } finally {
+                    connectBtn.disabled = false;
+                    connectBtn.textContent = '✅ 连接';
+                }
+            };
+
+            // 重置配置
+            resetConfigBtn.onclick = function() {
+                if (confirm('清除本地配置？')) {
                     localStorage.removeItem(CONFIG_KEY);
                     fillConfigForm();
-                    configCard.style.display='block';
+                    configCard.style.display = 'block';
                     mainArea.classList.add('hidden');
-                    $('configHint').textContent='💡 配置已清除';
-                    isFirebaseReady=false;
+                    configHint.textContent = '💡 配置已清除';
+                    isFirebaseReady = false;
                 }
-            });
+            };
 
             // 自动连接
-            (async function autoConnect(){
-                let cfg=loadConfig();
-                if(cfg.apiKey && cfg.databaseURL && cfg.projectId){
+            (async function autoConnect() {
+                const cfg = loadConfig();
+                if (cfg.apiKey && cfg.databaseURL && cfg.projectId) {
                     try {
-                        fbApiKey.value=cfg.apiKey;
-                        fbAuthDomain.value=cfg.authDomain||'';
-                        fbDatabaseURL.value=cfg.databaseURL;
-                        fbProjectId.value=cfg.projectId;
-                        fbStorageBucket.value=cfg.storageBucket||'';
-                        fbAppId.value=cfg.appId||'';
-                        initFirebase();
+                        fbApiKey.value = cfg.apiKey;
+                        fbAuthDomain.value = cfg.authDomain || '';
+                        fbDatabaseURL.value = cfg.databaseURL;
+                        fbProjectId.value = cfg.projectId;
+                        fbStorageBucket.value = cfg.storageBucket || '';
+                        fbAppId.value = cfg.appId || '';
+                        const config = { apiKey: cfg.apiKey, authDomain: cfg.authDomain || '', databaseURL: cfg.databaseURL, projectId: cfg.projectId, storageBucket: cfg.storageBucket || '', appId: cfg.appId || '' };
+                        if (!firebase.apps.length) {
+                            firebase.initializeApp(config);
+                        } else {
+                            const existing = firebase.apps[0];
+                            if (existing.options.databaseURL !== config.databaseURL) {
+                                firebase.apps[0].delete();
+                                firebase.initializeApp(config);
+                            }
+                        }
+                        isFirebaseReady = true;
                         await refreshData();
-                        configCard.style.display='none';
+                        configCard.style.display = 'none';
                         mainArea.classList.remove('hidden');
-                        $('configHint').textContent='✅ 自动连接成功';
-                    } catch(e) {
-                        console.warn('自动连接失败', e);
-                        configCard.style.display='block';
-                        $('configHint').textContent='⚠️ 自动连接失败，请手动点击连接';
+                        configHint.textContent = '✅ 自动连接成功';
+                    } catch (e) {
+                        console.warn('自动连接失败，请手动连接', e);
+                        configCard.style.display = 'block';
+                        configHint.textContent = '⚠️ 自动连接失败，请检查配置后手动点击连接';
                     }
                 }
             })();
 
+            // ===================== 其他事件绑定 =====================
             // 周切换
-            weekPrev.addEventListener('click', function(){ currentWeekOffset--; renderWeeklyStats(); });
-            weekNext.addEventListener('click', function(){ currentWeekOffset++; renderWeeklyStats(); });
+            weekPrev.onclick = function(){ currentWeekOffset--; renderWeeklyStats(); };
+            weekNext.onclick = function(){ currentWeekOffset++; renderWeeklyStats(); };
 
             // 月份切换
-            prevMonthBtn.addEventListener('click', function(){
+            prevMonthBtn.onclick = function(){
                 currentMonth.setMonth(currentMonth.getMonth()-1);
                 if(currentTab==='tickets') renderTickets();
-            });
-            nextMonthBtn.addEventListener('click', function(){
+            };
+            nextMonthBtn.onclick = function(){
                 currentMonth.setMonth(currentMonth.getMonth()+1);
                 if(currentTab==='tickets') renderTickets();
-            });
+            };
 
             // Tab切换
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.addEventListener('click', function(){ switchTab(this.dataset.tab); });
+                btn.onclick = function(){ switchTab(this.dataset.tab); };
             });
 
             // 借出/回收站筛选
             document.querySelectorAll('.borrow-filter .filter-btn').forEach(btn => {
-                btn.addEventListener('click', function(){
+                btn.onclick = function(){
                     document.querySelectorAll('.borrow-filter .filter-btn').forEach(b=>b.classList.remove('active'));
                     this.classList.add('active');
                     if(this.dataset.filter) borrowFilter=this.dataset.filter;
                     else if(this.dataset.recycle) recycleFilter=this.dataset.recycle;
                     if(currentTab==='borrow') renderBorrows();
                     else if(currentTab==='recycle') renderRecycle();
-                });
+                };
             });
 
             // 搜索/部门
-            filterDeptEl.addEventListener('change', function(){ filterDept=this.value; if(currentTab==='tickets') renderTickets(); });
-            searchInput.addEventListener('input', function(){ searchKeyword=this.value; if(currentTab==='tickets') renderTickets(); });
-            clearFilterBtn.addEventListener('click', function(){
+            filterDeptEl.onchange = function(){ filterDept=this.value; if(currentTab==='tickets') renderTickets(); };
+            searchInput.oninput = function(){ searchKeyword=this.value; if(currentTab==='tickets') renderTickets(); };
+            clearFilterBtn.onclick = function(){
                 filterDeptEl.value='all';
                 searchInput.value='';
                 filterDept='all';
                 searchKeyword='';
                 if(currentTab==='tickets') renderTickets();
-            });
+            };
 
             // 下拉菜单
-            moreBtn.addEventListener('click', function(e){ e.stopPropagation(); dropdownContent.classList.toggle('show'); });
+            moreBtn.onclick = function(e){ e.stopPropagation(); dropdownContent.classList.toggle('show'); };
             document.addEventListener('click', function(){ dropdownContent.classList.remove('show'); });
             dropdownContent.addEventListener('click', function(e){ e.stopPropagation(); });
-            dropdownExport.addEventListener('click', function(e){ e.stopPropagation(); exportToCSV(); dropdownContent.classList.remove('show'); });
+            dropdownExport.onclick = function(e){ e.stopPropagation(); exportToCSV(); dropdownContent.classList.remove('show'); };
 
             // 导出
-            exportBtn.addEventListener('click', exportToCSV);
+            exportBtn.onclick = exportToCSV;
 
             // 工单保存
-            modalSave.addEventListener('click', async function(){
+            modalSave.onclick = async function(){
                 let date=formDate.value;
                 let dept=formDept.value.trim();
                 let name=formName.value.trim();
@@ -1304,10 +1297,10 @@
                 } catch(err) {
                     alert('保存失败: '+err.message);
                 }
-            });
+            };
 
             // 借出保存
-            borrowModalSave.addEventListener('click', async function(){
+            borrowModalSave.onclick = async function(){
                 let dept=borrowDept.value;
                 let name=borrowName.value.trim();
                 let device=borrowDevice.value.trim();
@@ -1325,20 +1318,20 @@
                 } catch(err) {
                     alert('保存失败: '+err.message);
                 }
-            });
+            };
 
             // 年度汇总年份切换
-            yearSelect.addEventListener('change', function(){
+            yearSelect.onchange = function(){
                 let year=parseInt(this.value);
                 if(!isNaN(year)) renderYearSummary(year);
-            });
+            };
 
             // 导入预览/确认
-            importPreviewBtn.addEventListener('click', handleImportPreview);
-            importConfirmBtn.addEventListener('click', handleImportConfirm);
+            importPreviewBtn.onclick = handleImportPreview;
+            importConfirmBtn.onclick = handleImportConfirm;
 
             // 部门搜索
-            formDept.addEventListener('input', function(){
+            formDept.oninput = function(){
                 let q=this.value||'';
                 let matched=[];
                 if(q.trim()==='') matched=DEPARTMENTS;
@@ -1362,14 +1355,14 @@
                 deptDropdown.innerHTML=html;
                 deptDropdown.classList.add('show');
                 deptDropdown.querySelectorAll('.dept-item').forEach(el => {
-                    el.addEventListener('click', function(){
+                    el.onclick = function(){
                         formDept.value=this.dataset.dept;
                         deptDropdown.classList.remove('show');
-                    });
+                    };
                 });
-            });
-            formDept.addEventListener('focus', function(){ this.dispatchEvent(new Event('input')); });
-            formDept.addEventListener('blur', function(){ setTimeout(()=>{ deptDropdown.classList.remove('show'); }, 200); });
+            };
+            formDept.onfocus = function(){ this.dispatchEvent(new Event('input')); };
+            formDept.onblur = function(){ setTimeout(()=>{ deptDropdown.classList.remove('show'); }, 200); };
             document.addEventListener('click', function(e){
                 if(!e.target.closest('#formDept') && !e.target.closest('#deptDropdown')){
                     deptDropdown.classList.remove('show');
@@ -1456,7 +1449,7 @@
 
             // 初始化
             resetTicketForm();
-            console.log('工单系统 (弹窗全面修复) 已加载');
+            console.log('工单系统 (连接修复版) 已加载');
         })();
     </script>
 </body>
