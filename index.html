@@ -667,9 +667,13 @@
                     todayGrid.innerHTML='<span style="color:#94a3b8;font-size:14px;">该日暂无工单</span>';
                 } else {
                     todayGrid.innerHTML=`
+                        <!-- 第一行：总工单、已解决、未解决 -->
                         <span class="stat-item">总工单 <span class="num blue">${total}</span></span>
                         <span class="stat-item">已解决 <span class="num green">${resolved}</span></span>
                         <span class="stat-item">未解决 <span class="num red">${pending}</span></span>
+                        <!-- 强制换行 -->
+                        <span style="flex-basis:100%;height:0;"></span>
+                        <!-- 第二行：软件、硬件、网络、其他 -->
                         <span class="stat-item">软件 <span class="num purple">${sw}</span></span>
                         <span class="stat-item">硬件 <span class="num orange">${hw}</span></span>
                         <span class="stat-item">网络 <span class="num indigo">${nw}</span></span>
@@ -677,7 +681,7 @@
                     `;
                 }
             }
-            function renderWeeklyStats(){
+                       function renderWeeklyStats(){
                 if(!allTickets||allTickets.length===0){weeklyGrid.innerHTML='<span style="color:#94a3b8;font-size:14px;">暂无数据</span>';weekRange.textContent='--';} else {
                     let {start,end}=getWeekRange(currentWeekOffset);
                     let startStr=start.toISOString().slice(0,10), endStr=end.toISOString().slice(0,10);
@@ -689,9 +693,13 @@
                     let network=weekTickets.filter(t=>t.category==='网络').length;
                     let other=weekTickets.filter(t=>t.category==='其他').length;
                     weeklyGrid.innerHTML=`
+                        <!-- 第一行：总工单、已解决、未解决 -->
                         <span class="stat-item">总工单 <span class="num blue">${total}</span></span>
                         <span class="stat-item">已解决 <span class="num green">${resolved}</span></span>
                         <span class="stat-item">未解决 <span class="num red">${pending}</span></span>
+                        <!-- 强制换行 -->
+                        <span style="flex-basis:100%;height:0;"></span>
+                        <!-- 第二行：软件、硬件、网络、其他 -->
                         <span class="stat-item">软件 <span class="num purple">${software}</span></span>
                         <span class="stat-item">硬件 <span class="num orange">${hardware}</span></span>
                         <span class="stat-item">网络 <span class="num indigo">${network}</span></span>
@@ -699,7 +707,6 @@
                     `;
                 }
             }
-
             // ===================== 工单渲染（含搜索、筛选、按天分页） =====================
             function getMonthTickets(tickets,year,month){let m=`${year}-${String(month).padStart(2,'0')}`;return tickets.filter(t=>t.date&&t.date.startsWith(m)&&!t.deleted);}
             function applyFilters(tickets){
