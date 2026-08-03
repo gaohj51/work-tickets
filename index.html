@@ -12,7 +12,6 @@
     <!-- SheetJS (xlsx) for import -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
-        /* ===== 原有样式保留，新增部分按需添加 ===== */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -61,8 +60,13 @@
         .sync-dot.error { background: #ef4444; }
         .sync-dot.syncing { background: #f59e0b; animation: pulse 1s infinite; }
         @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 12px; margin-bottom: 12px; }
-        .stat-card { background: white; padding: 16px 12px; border-radius: 14px; border: 1px solid #e9eef3; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.02); cursor: default; transition: 0.15s; }
+
+        /* 统计卡片分两行 */
+        .stats-grid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+        .stats-row { display: grid; gap: 10px; }
+        .stats-row.row1 { grid-template-columns: repeat(3, 1fr); }
+        .stats-row.row2 { grid-template-columns: repeat(4, 1fr); }
+        .stat-card { background: white; padding: 12px 8px; border-radius: 14px; border: 1px solid #e9eef3; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.02); cursor: default; transition: 0.15s; }
         .stat-card.clickable { cursor: pointer; }
         .stat-card.clickable:hover { background: #f1f5f9; border-color: #cbd5e1; }
         .stat-card .num { font-size: 28px; font-weight: 700; line-height: 1.2; }
@@ -75,77 +79,23 @@
         .stat-card.indigo .num { color: #4f46e5; }
         .stat-card.gray .num { color: #6b7280; }
 
-        .weekly-stats {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-            background: white;
-            border-radius: 14px;
-            border: 1px solid #e9eef3;
-            padding: 14px 18px;
-            margin-bottom: 20px;
-        }
-        .weekly-stats .weekly-half {
-            flex: 1 1 40%;
-            min-width: 200px;
-        }
-        .weekly-stats .weekly-half .weekly-title {
-            font-weight: 600;
-            font-size: 15px;
-            color: #0f172a;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 6px;
-        }
-        .weekly-stats .weekly-half .weekly-nav {
-            display: flex;
-            gap: 4px;
-            align-items: center;
-        }
-        .weekly-stats .weekly-half .weekly-nav button {
-            background: none;
-            border: 1px solid #d1d9e6;
-            border-radius: 6px;
-            padding: 2px 10px;
-            font-size: 16px;
-            cursor: pointer;
-            line-height: 1.6;
-            color: #475569;
-        }
-        .weekly-stats .weekly-half .weekly-nav button:hover { background: #f1f5f9; }
-        .weekly-stats .weekly-half .weekly-nav .week-range {
-            font-size: 14px;
-            font-weight: 500;
-            color: #0f172a;
-            min-width: 100px;
-            text-align: center;
-        }
-        .weekly-stats .weekly-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px 16px;
-            align-items: center;
-        }
-        .weekly-stats .weekly-item {
-            display: flex;
-            align-items: baseline;
-            gap: 4px;
-            font-size: 14px;
-            color: #475569;
-        }
-        .weekly-stats .weekly-item .num {
-            font-weight: 700;
-            font-size: 18px;
-            color: #0f172a;
-        }
-        .weekly-stats .weekly-item .num.blue { color: #3b82f6; }
-        .weekly-stats .weekly-item .num.green { color: #22c55e; }
-        .weekly-stats .weekly-item .num.red { color: #ef4444; }
-        .weekly-stats .weekly-item .num.purple { color: #8b5cf6; }
-        .weekly-stats .weekly-item .num.orange { color: #f59e0b; }
-        .weekly-stats .weekly-item .num.indigo { color: #4f46e5; }
-        .weekly-stats .weekly-item .num.gray { color: #6b7280; }
+        /* 周统计、日统计独立 */
+        .stats-block { background: white; border-radius: 14px; border: 1px solid #e9eef3; padding: 14px 18px; margin-bottom: 14px; }
+        .stats-block .block-title { font-weight: 600; font-size: 15px; color: #0f172a; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+        .stats-block .block-nav { display: flex; gap: 4px; align-items: center; }
+        .stats-block .block-nav button { background: none; border: 1px solid #d1d9e6; border-radius: 6px; padding: 2px 10px; font-size: 16px; cursor: pointer; line-height: 1.6; color: #475569; }
+        .stats-block .block-nav button:hover { background: #f1f5f9; }
+        .stats-block .block-nav .range-label { font-size: 14px; font-weight: 500; color: #0f172a; min-width: 100px; text-align: center; }
+        .stats-block .stats-grid-inner { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+        .stats-block .stat-item { display: flex; align-items: baseline; gap: 4px; font-size: 14px; color: #475569; }
+        .stats-block .stat-item .num { font-weight: 700; font-size: 18px; color: #0f172a; }
+        .stats-block .stat-item .num.blue { color: #3b82f6; }
+        .stats-block .stat-item .num.green { color: #22c55e; }
+        .stats-block .stat-item .num.red { color: #ef4444; }
+        .stats-block .stat-item .num.purple { color: #8b5cf6; }
+        .stats-block .stat-item .num.orange { color: #f59e0b; }
+        .stats-block .stat-item .num.indigo { color: #4f46e5; }
+        .stats-block .stat-item .num.gray { color: #6b7280; }
 
         .chart-wrapper { background: white; border-radius: 16px; padding: 16px; border: 1px solid #e9eef3; margin-bottom: 20px; height: 180px; position: relative; }
         .chart-wrapper canvas { width: 100% !important; height: 100% !important; }
@@ -188,6 +138,7 @@
         .ticket-item { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px 16px; border-bottom: 1px solid #f1f5f9; }
         .ticket-item:last-child { border-bottom: none; }
         .ticket-item .info { flex: 1; min-width: 140px; }
+        .ticket-item .info .ticket-number { font-size: 12px; color: #94a3b8; font-weight: 500; }
         .ticket-item .info .dept-name { font-weight: 500; }
         .ticket-item .info .issue-text { color: #475569; font-size: 14px; display: block; margin-top: 2px; }
         .ticket-item .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
@@ -263,21 +214,31 @@
         .import-preview th, .import-preview td { border: 1px solid #e9eef3; padding: 6px 10px; text-align: left; }
         .import-preview th { background: #f8fafc; position: sticky; top: 0; }
         .highlight { background: #fef9c3; }
+
+        /* 分页 */
+        .pagination { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; margin-top: 16px; padding: 8px; background: white; border-radius: 12px; border: 1px solid #e9eef3; }
+        .pagination button { padding: 6px 14px; border: 1px solid #d1d9e6; border-radius: 8px; background: white; cursor: pointer; font-size: 14px; }
+        .pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+        .pagination button.active-page { background: #3b82f6; color: white; border-color: #3b82f6; }
+        .pagination .page-info { font-size: 14px; color: #475569; }
+
+        /* 日统计日期选择 */
+        .date-picker { padding: 4px 8px; border: 1px solid #d1d9e6; border-radius: 6px; font-size: 14px; }
+
         @media (max-width: 600px) {
             body { padding: 12px; padding-bottom: 90px; }
-            .stats-grid { grid-template-columns: repeat(3,1fr); }
+            .stats-row.row1 { grid-template-columns: repeat(3,1fr); }
+            .stats-row.row2 { grid-template-columns: repeat(4,1fr); }
             .stat-card .num { font-size: 22px; }
             .stat-card .label { font-size: 11px; }
             .config-row input { min-width: 120px; }
             .action-row { display: none !important; }
             .bottom-actions { display: flex; }
             .modal { padding: 16px; }
-            .weekly-stats { flex-direction: column; gap: 12px; }
-            .weekly-stats .weekly-half { flex: 1 1 100%; }
-            .weekly-stats .weekly-grid { gap: 6px 12px; }
-            .weekly-stats .weekly-item { font-size: 13px; }
-            .weekly-stats .weekly-item .num { font-size: 16px; }
-            .weekly-stats .weekly-nav .week-range { min-width: 80px; font-size: 12px; }
+            .stats-block .stats-grid-inner { gap: 6px 12px; }
+            .stats-block .stat-item { font-size: 13px; }
+            .stats-block .stat-item .num { font-size: 16px; }
+            .stats-block .block-nav .range-label { min-width: 80px; font-size: 12px; }
             .day-stats { gap: 8px 14px; font-size: 12px; padding: 4px 16px 8px 16px; }
             .borrow-filter { padding: 10px 14px; gap: 6px; }
             .borrow-filter .filter-btn { padding: 4px 12px; font-size: 12px; }
@@ -289,6 +250,7 @@
             .btn-resolve { font-size: 11px; padding: 3px 8px; }
             .year-chart-row { flex-direction: column; }
             .year-chart-row .year-chart-wrapper { height: 200px; }
+            .pagination button { font-size: 12px; padding: 4px 10px; }
         }
         @media (min-width: 601px) {
             .bottom-actions { display: none !important; }
@@ -327,42 +289,54 @@
                     <span id="syncLabel">已连接</span>
                 </div>
             </div>
-            <!-- 统计 -->
-            <div class="stats-grid" id="statsGrid">
-                <div class="stat-card blue"><div class="num" id="totalCount">0</div><div class="label">总工单</div></div>
-                <div class="stat-card green"><div class="num" id="resolvedCount">0</div><div class="label">已解决</div></div>
-                <div class="stat-card red clickable" id="pendingCard"><div class="num" id="pendingCount">0</div><div class="label">未解决 ⏎</div></div>
-                <div class="stat-card purple"><div class="num" id="softwareCount">0</div><div class="label">💻 软件</div></div>
-                <div class="stat-card orange"><div class="num" id="hardwareCount">0</div><div class="label">🖨️ 硬件</div></div>
-                <div class="stat-card indigo"><div class="num" id="networkCount">0</div><div class="label">🌐 网络</div></div>
-                <div class="stat-card gray"><div class="num" id="otherCount">0</div><div class="label">📦 其他</div></div>
-            </div>
-            <!-- 周统计 + 日统计 -->
-            <div class="weekly-stats" id="weeklyStats">
-                <div class="weekly-half" id="weekHalf">
-                    <div class="weekly-title">
-                        📅 周统计
-                        <span class="weekly-nav">
-                            <button id="weekPrev">◀</button>
-                            <span class="week-range" id="weekRange">加载中...</span>
-                            <button id="weekNext">▶</button>
-                        </span>
-                    </div>
-                    <div class="weekly-grid" id="weeklyGrid"></div>
+
+            <!-- 统计卡片：分两行 -->
+            <div class="stats-grid">
+                <div class="stats-row row1">
+                    <div class="stat-card blue"><div class="num" id="totalCount">0</div><div class="label">总工单</div></div>
+                    <div class="stat-card green"><div class="num" id="resolvedCount">0</div><div class="label">已解决</div></div>
+                    <div class="stat-card red clickable" id="pendingCard"><div class="num" id="pendingCount">0</div><div class="label">未解决 ⏎</div></div>
                 </div>
-                <div class="weekly-half" id="todayHalf">
-                    <div class="weekly-title">📌 今日统计</div>
-                    <div class="weekly-grid" id="todayGrid"></div>
+                <div class="stats-row row2">
+                    <div class="stat-card purple"><div class="num" id="softwareCount">0</div><div class="label">💻 软件</div></div>
+                    <div class="stat-card orange"><div class="num" id="hardwareCount">0</div><div class="label">🖨️ 硬件</div></div>
+                    <div class="stat-card indigo"><div class="num" id="networkCount">0</div><div class="label">🌐 网络</div></div>
+                    <div class="stat-card gray"><div class="num" id="otherCount">0</div><div class="label">📦 其他</div></div>
                 </div>
             </div>
+
+            <!-- 周统计独立块 -->
+            <div class="stats-block" id="weekBlock">
+                <div class="block-title">
+                    📅 周统计
+                    <span class="block-nav">
+                        <button id="weekPrev">◀</button>
+                        <span class="range-label" id="weekRange">加载中...</span>
+                        <button id="weekNext">▶</button>
+                    </span>
+                </div>
+                <div class="stats-grid-inner" id="weeklyGrid"></div>
+            </div>
+
+            <!-- 日统计独立块 -->
+            <div class="stats-block" id="dayBlock">
+                <div class="block-title">
+                    📌 日统计
+                    <input type="date" id="dayPicker" class="date-picker" value="">
+                </div>
+                <div class="stats-grid-inner" id="todayGrid"></div>
+            </div>
+
             <!-- 图表 -->
             <div class="chart-wrapper"><canvas id="monthChart"></canvas></div>
+
             <!-- 月份导航 -->
             <div class="month-nav">
                 <button class="nav-btn" id="prevMonth">‹</button>
                 <span class="month-label" id="currentMonthLabel">2026年7月</span>
                 <button class="nav-btn" id="nextMonth">›</button>
             </div>
+
             <!-- 顶部按钮行（电脑端） -->
             <div class="action-row" id="topActionRow">
                 <button class="btn btn-success" id="openAddModal">➕ 添加工单</button>
@@ -371,13 +345,15 @@
                 <button class="btn btn-import" id="openImportModal">📤 导入</button>
                 <button class="btn btn-export" id="exportBtn">📥 导出</button>
             </div>
-            <!-- Tab 切换（增加回收站） -->
+
+            <!-- Tab 切换 -->
             <div class="tab-row">
                 <button class="tab-btn active" data-tab="tickets">📋 工单</button>
                 <button class="tab-btn" data-tab="borrow">📦 借出</button>
                 <button class="tab-btn" data-tab="recycle">♻️ 回收站</button>
             </div>
-            <!-- ===== 筛选栏（含搜索） ===== -->
+
+            <!-- 筛选栏 -->
             <div class="filter-bar" id="filterBar">
                 <span class="filter-label">筛选：</span>
                 <select id="filterDept"><option value="all">全部部门</option></select>
@@ -385,8 +361,12 @@
                 <input type="text" id="searchInput" placeholder="🔍 搜索工单（关键词）" style="min-width:160px;">
                 <button class="clear-filter" id="clearFilter">清除筛选</button>
             </div>
+
             <!-- 工单列表 -->
             <div id="ticketList"></div>
+            <!-- 分页 -->
+            <div class="pagination" id="pagination"></div>
+
             <!-- 借出列表 -->
             <div id="borrowList" class="hidden">
                 <div class="borrow-filter">
@@ -396,6 +376,7 @@
                 </div>
                 <div id="borrowItems"></div>
             </div>
+
             <!-- 回收站列表 -->
             <div id="recycleList" class="hidden">
                 <div class="borrow-filter">
@@ -408,6 +389,7 @@
             </div>
         </div>
     </div>
+
     <!-- ===== 底部固定操作栏 ===== -->
     <div class="bottom-actions" id="bottomActions">
         <button class="btn btn-success" id="bottomAddModal"><span class="icon">➕</span><span class="label">工单</span></button>
@@ -416,6 +398,7 @@
         <button class="btn btn-import" id="bottomImportModal"><span class="icon">📤</span><span class="label">导入</span></button>
         <button class="btn btn-export" id="bottomExportBtn"><span class="icon">📥</span><span class="label">导出</span></button>
     </div>
+
     <!-- ===== 模态框：工单 ===== -->
     <div class="modal-overlay" id="ticketModal">
         <div class="modal">
@@ -431,9 +414,11 @@
                 <div><label>分类</label><select id="formCategory"><option value="软件">💻 软件</option><option value="硬件">🖨️ 硬件</option><option value="网络">🌐 网络</option><option value="其他">📦 其他</option></select></div>
                 <div><label>状态</label><select id="formResolved"><option value="0">未解决</option><option value="1">已解决</option></select></div>
             </div>
+            <!-- 工单编号自动生成，不显示在表单中 -->
             <div class="modal-actions"><button class="btn" id="modalCancel">取消</button><button class="btn btn-primary" id="modalSave">保存</button></div>
         </div>
     </div>
+
     <!-- ===== 模态框：借出 ===== -->
     <div class="modal-overlay" id="borrowModal">
         <div class="modal">
@@ -451,6 +436,7 @@
             <div class="modal-actions"><button class="btn" id="borrowModalCancel">取消</button><button class="btn btn-primary" id="borrowModalSave">保存</button></div>
         </div>
     </div>
+
     <!-- ===== 模态框：未解决 ===== -->
     <div class="modal-overlay" id="pendingModal">
         <div class="modal">
@@ -458,6 +444,7 @@
             <div id="pendingList"></div>
         </div>
     </div>
+
     <!-- ===== 模态框：年度汇总 ===== -->
     <div class="modal-overlay" id="yearModal">
         <div class="modal">
@@ -472,7 +459,6 @@
                 <div class="stat-card indigo"><div class="num" id="yearNetwork">0</div><div class="label">🌐 网络</div></div>
                 <div class="stat-card gray"><div class="num" id="yearOther">0</div><div class="label">📦 其他</div></div>
             </div>
-            <!-- 双图表：折线图 + 环形图 -->
             <div class="year-chart-row">
                 <div class="year-chart-wrapper"><canvas id="yearLineChart"></canvas></div>
                 <div class="year-chart-wrapper"><canvas id="yearPieChart"></canvas></div>
@@ -480,6 +466,7 @@
             <div id="yearMonthList"></div>
         </div>
     </div>
+
     <!-- ===== 模态框：导入数据 ===== -->
     <div class="modal-overlay" id="importModal">
         <div class="modal" style="max-width:950px;">
@@ -518,6 +505,9 @@
             let isFirebaseReady = false, currentWeekOffset = 0, currentTab = 'tickets';
             let borrowFilter = 'unreturned', recycleFilter = 'all';
             let filterDept = 'all', filterCategory = 'all', searchKeyword = '';
+            // 分页状态
+            let currentPage = 1;
+            const pageSize = 15;
 
             // DOM
             const $ = id => document.getElementById(id);
@@ -541,9 +531,10 @@
             const bottomYearModal = $('bottomYearModal'), bottomExportBtn = $('bottomExportBtn');
             const bottomImportModal = $('bottomImportModal');
             const weeklyGrid = $('weeklyGrid'), weekRange = $('weekRange'), weekPrev = $('weekPrev'), weekNext = $('weekNext');
-            const todayGrid = $('todayGrid');
+            const todayGrid = $('todayGrid'), dayPicker = $('dayPicker');
             const filterDeptEl = $('filterDept'), filterCategoryEl = $('filterCategory'), searchInput = $('searchInput');
             const clearFilterBtn = $('clearFilter');
+            const paginationEl = $('pagination');
             // 工单模态框
             const modalOverlay = $('ticketModal'), modalTitle = $('modalTitle'), editId = $('editId');
             const formDate = $('formDate'), formDept = $('formDept'), formName = $('formName'), formIssue = $('formIssue');
@@ -625,7 +616,7 @@
             function updateBorrowInFirebase(id,record){return new Promise((resolve,reject)=>{getBorrowRef().child(id).update(record,err=>err?reject(err):resolve());});}
             function deleteBorrowPermanent(id){return new Promise((resolve,reject)=>{getBorrowRef().child(id).remove(err=>err?reject(err):resolve());});}
 
-            // ===================== 周统计和今日统计 =====================
+            // ===================== 周统计和日统计 =====================
             function getWeekRange(offset){
                 let now=new Date(); let dayOfWeek=now.getDay(); let diff=(dayOfWeek===0)?6:dayOfWeek-1;
                 let monday=new Date(now); monday.setDate(now.getDate()-diff+offset*7); monday.setHours(0,0,0,0);
@@ -633,9 +624,28 @@
                 return {start:monday,end:sunday};
             }
             function formatDateShort(d){return (d.getMonth()+1)+'/'+d.getDate();}
-
+            function renderDailyStats(dateStr){
+                let dayTickets = allTickets.filter(t=>t.date===dateStr && !t.deleted);
+                let total = dayTickets.length;
+                let resolved = dayTickets.filter(t=>t.resolved==1).length;
+                let pending = total - resolved;
+                let sw = dayTickets.filter(t=>t.category==='软件').length;
+                let hw = dayTickets.filter(t=>t.category==='硬件').length;
+                let nw = dayTickets.filter(t=>t.category==='网络').length;
+                let ot = dayTickets.filter(t=>t.category==='其他').length;
+                if(total===0){
+                    todayGrid.innerHTML='<span style="color:#94a3b8;font-size:14px;">该日暂无工单</span>';
+                } else {
+                    todayGrid.innerHTML=`<span class="stat-item">总 <span class="num blue">${total}</span></span>
+                        <span class="stat-item">解决 <span class="num green">${resolved}</span></span>
+                        <span class="stat-item">未决 <span class="num red">${pending}</span></span>
+                        <span class="stat-item">💻 <span class="num purple">${sw}</span></span>
+                        <span class="stat-item">🖨️ <span class="num orange">${hw}</span></span>
+                        <span class="stat-item">🌐 <span class="num indigo">${nw}</span></span>
+                        <span class="stat-item">📦 <span class="num gray">${ot}</span></span>`;
+                }
+            }
             function renderWeeklyStats(){
-                // 周统计
                 if(!allTickets||allTickets.length===0){weeklyGrid.innerHTML='<span style="color:#94a3b8;font-size:14px;">暂无数据</span>';weekRange.textContent='--';} else {
                     let {start,end}=getWeekRange(currentWeekOffset);
                     let startStr=start.toISOString().slice(0,10), endStr=end.toISOString().slice(0,10);
@@ -646,39 +656,35 @@
                     let hardware=weekTickets.filter(t=>t.category==='硬件').length;
                     let network=weekTickets.filter(t=>t.category==='网络').length;
                     let other=weekTickets.filter(t=>t.category==='其他').length;
-                    weeklyGrid.innerHTML=`<span class="weekly-item">总 <span class="num blue">${total}</span></span>
-                        <span class="weekly-item">解决 <span class="num green">${resolved}</span></span>
-                        <span class="weekly-item">未决 <span class="num red">${pending}</span></span>
-                        <span class="weekly-item">💻 <span class="num purple">${software}</span></span>
-                        <span class="weekly-item">🖨️ <span class="num orange">${hardware}</span></span>
-                        <span class="weekly-item">🌐 <span class="num indigo">${network}</span></span>
-                        <span class="weekly-item">📦 <span class="num gray">${other}</span></span>`;
-                }
-
-                // 今日统计
-                let todayStr = new Date().toISOString().slice(0,10);
-                let todayTickets = allTickets.filter(t=>t.date===todayStr && !t.deleted);
-                let totalToday = todayTickets.length;
-                let resolvedToday = todayTickets.filter(t=>t.resolved==1).length;
-                let pendingToday = totalToday - resolvedToday;
-                let swToday = todayTickets.filter(t=>t.category==='软件').length;
-                let hwToday = todayTickets.filter(t=>t.category==='硬件').length;
-                let nwToday = todayTickets.filter(t=>t.category==='网络').length;
-                let otToday = todayTickets.filter(t=>t.category==='其他').length;
-                if(totalToday===0){
-                    todayGrid.innerHTML='<span style="color:#94a3b8;font-size:14px;">今日暂无工单</span>';
-                } else {
-                    todayGrid.innerHTML=`<span class="weekly-item">总 <span class="num blue">${totalToday}</span></span>
-                        <span class="weekly-item">解决 <span class="num green">${resolvedToday}</span></span>
-                        <span class="weekly-item">未决 <span class="num red">${pendingToday}</span></span>
-                        <span class="weekly-item">💻 <span class="num purple">${swToday}</span></span>
-                        <span class="weekly-item">🖨️ <span class="num orange">${hwToday}</span></span>
-                        <span class="weekly-item">🌐 <span class="num indigo">${nwToday}</span></span>
-                        <span class="weekly-item">📦 <span class="num gray">${otToday}</span></span>`;
+                    weeklyGrid.innerHTML=`<span class="stat-item">总 <span class="num blue">${total}</span></span>
+                        <span class="stat-item">解决 <span class="num green">${resolved}</span></span>
+                        <span class="stat-item">未决 <span class="num red">${pending}</span></span>
+                        <span class="stat-item">💻 <span class="num purple">${software}</span></span>
+                        <span class="stat-item">🖨️ <span class="num orange">${hardware}</span></span>
+                        <span class="stat-item">🌐 <span class="num indigo">${network}</span></span>
+                        <span class="stat-item">📦 <span class="num gray">${other}</span></span>`;
                 }
             }
 
-            // ===================== 工单渲染（含搜索、筛选） =====================
+            // ===================== 工单编号生成 =====================
+            function generateTicketNumber(dateStr, existingTickets) {
+                // 从现有工单中筛选出当天的工单，取最大编号后缀
+                const dayTickets = existingTickets.filter(t => t.date === dateStr && !t.deleted);
+                let maxSuffix = 0;
+                dayTickets.forEach(t => {
+                    if (t.ticketNumber) {
+                        const parts = t.ticketNumber.split('-');
+                        if (parts.length === 2 && parts[0] === dateStr.replace(/-/g, '')) {
+                            const num = parseInt(parts[1], 10);
+                            if (!isNaN(num) && num > maxSuffix) maxSuffix = num;
+                        }
+                    }
+                });
+                const newSuffix = String(maxSuffix + 1).padStart(3, '0');
+                return dateStr.replace(/-/g, '') + '-' + newSuffix;
+            }
+
+            // ===================== 工单渲染（含搜索、筛选、分页） =====================
             function getMonthTickets(tickets,year,month){let m=`${year}-${String(month).padStart(2,'0')}`;return tickets.filter(t=>t.date&&t.date.startsWith(m)&&!t.deleted);}
             function applyFilters(tickets){
                 let result=tickets;
@@ -686,7 +692,7 @@
                 if(filterCategory!=='all') result=result.filter(t=>t.category===filterCategory);
                 if(searchKeyword.trim()!==''){
                     let kw=searchKeyword.trim().toLowerCase();
-                    result=result.filter(t=>(t.department||'').toLowerCase().includes(kw)||(t.name||'').toLowerCase().includes(kw)||(t.issue||'').toLowerCase().includes(kw));
+                    result=result.filter(t=>(t.department||'').toLowerCase().includes(kw)||(t.name||'').toLowerCase().includes(kw)||(t.issue||'').toLowerCase().includes(kw)||(t.ticketNumber||'').toLowerCase().includes(kw));
                 }
                 return result;
             }
@@ -713,8 +719,10 @@
             function escapeHtml(text){if(!text)return'';let d=document.createElement('div');d.textContent=text;return d.innerHTML;}
             function getCategoryEmoji(cat){let map={'软件':'💻','硬件':'🖨️','网络':'🌐','其他':'📦'};return map[cat]||'';}
             function highlightText(text,keyword){if(!keyword||!text)return escapeHtml(text);let idx=text.toLowerCase().indexOf(keyword.toLowerCase());if(idx===-1)return escapeHtml(text);let before=text.substring(0,idx), match=text.substring(idx,idx+keyword.length), after=text.substring(idx+keyword.length);return escapeHtml(before)+'<span class="highlight">'+escapeHtml(match)+'</span>'+escapeHtml(after);}
+
             async function quickResolve(id){if(!isFirebaseReady){alert('系统未就绪');return;}if(!confirm('标记此工单为已解决？'))return;try{syncDot.className='sync-dot syncing';syncLabel.textContent='更新中...';await updateTicketInFirebase(id,{resolved:1});await refreshData();syncDot.className='sync-dot';syncLabel.textContent='已同步';}catch(err){alert('操作失败: '+err.message);syncDot.className='sync-dot error';syncLabel.textContent='更新失败';}}
             async function softDeleteTicket(id){if(!confirm('确定删除此工单吗？可进入回收站恢复。'))return;try{syncDot.className='sync-dot syncing';syncLabel.textContent='删除中...';await updateTicketInFirebase(id,{deleted:true});await refreshData();syncDot.className='sync-dot';syncLabel.textContent='已删除';}catch(err){alert('删除失败: '+err.message);syncDot.className='sync-dot error';syncLabel.textContent='删除失败';}}
+
             function renderTickets(){
                 let year=currentMonth.getFullYear(), month=currentMonth.getMonth()+1;
                 currentMonthLabel.textContent=`${year}年${month}月`;
@@ -723,47 +731,96 @@
                 renderStats(filtered);
                 renderChart(filtered,year,month);
                 renderWeeklyStats();
+                // 日统计：使用日期选择器的值
+                let dayStr = dayPicker.value || new Date().toISOString().slice(0,10);
+                renderDailyStats(dayStr);
+
+                // 分页处理
+                const total = filtered.length;
+                const totalPages = Math.ceil(total / pageSize) || 1;
+                if (currentPage > totalPages) currentPage = totalPages;
+                const start = (currentPage - 1) * pageSize;
+                const end = Math.min(start + pageSize, total);
+                const pageItems = filtered.slice(start, end);
 
                 let todayStr=new Date().toISOString().slice(0,10);
                 let groups={};
-                filtered.forEach(t=>{if(t.date){if(!groups[t.date])groups[t.date]=[];groups[t.date].push(t);}});
+                pageItems.forEach(t=>{if(t.date){if(!groups[t.date])groups[t.date]=[];groups[t.date].push(t);}});
                 let sortedDates=Object.keys(groups).sort((a,b)=>b.localeCompare(a));
                 if(sortedDates.length===0){
                     ticketList.innerHTML=`<div class="empty-state">📭 本月暂无工单记录${(filterDept!=='all'||filterCategory!=='all'||searchKeyword.trim()!=='')?'（已筛选）':''}</div>`;
+                } else {
+                    let html='';
+                    sortedDates.forEach(date=>{
+                        let items=groups[date];
+                        let sw=0,hw=0,nw=0,ot=0;
+                        items.forEach(t=>{let cat=t.category||'其他';if(cat==='软件')sw++;else if(cat==='硬件')hw++;else if(cat==='网络')nw++;else ot++;});
+                        let isToday=(date===todayStr);
+                        let contentHidden=isToday?'':' hidden';
+                        let icon=isToday?'▼':'▶';
+                        let statsHtml='';
+                        if(sw>0||hw>0||nw>0||ot>0){
+                            statsHtml='<div class="day-stats">';
+                            if(sw>0)statsHtml+=`<span class="stat-item">💻 软件 <span class="num purple">${sw}</span></span>`;
+                            if(hw>0)statsHtml+=`<span class="stat-item">🖨️ 硬件 <span class="num orange">${hw}</span></span>`;
+                            if(nw>0)statsHtml+=`<span class="stat-item">🌐 网络 <span class="num indigo">${nw}</span></span>`;
+                            if(ot>0)statsHtml+=`<span class="stat-item">📦 其他 <span class="num gray">${ot}</span></span>`;
+                            statsHtml+='</div>';
+                        }
+                        html+=`<div class="day-group"><div class="day-header" data-date="${date}"><span>📅 ${date}</span><span class="day-count">${items.length} 条 <span class="toggle-icon">${icon}</span></span></div>${statsHtml}<div class="day-content${contentHidden}">`;
+                        items.forEach(t=>{
+                            let resolvedText=t.resolved==1?'已解决':'未解决';
+                            let badgeCls=t.resolved==1?'resolved':'pending';
+                            let catCls=(t.category||'其他').toLowerCase();
+                            let emoji=getCategoryEmoji(t.category);
+                            let isResolved=t.resolved==1;
+                            let deptDisplay=searchKeyword.trim()?highlightText(t.department||'',searchKeyword.trim()):escapeHtml(t.department||'');
+                            let nameDisplay=searchKeyword.trim()?highlightText(t.name||'',searchKeyword.trim()):escapeHtml(t.name||'');
+                            let issueDisplay=searchKeyword.trim()?highlightText(t.issue||'',searchKeyword.trim()):escapeHtml(t.issue||'');
+                            let numberDisplay = t.ticketNumber ? `<span class="ticket-number">#${escapeHtml(t.ticketNumber)}</span> ` : '';
+                            html+=`<div class="ticket-item" data-id="${t.id}"><div class="info">${numberDisplay}<span class="dept-name">${deptDisplay} ${nameDisplay}</span><span class="issue-text">${issueDisplay}</span></div><div class="meta"><span class="tag ${catCls}">${emoji} ${escapeHtml(t.category||'其他')}</span><span class="status-badge ${badgeCls}">${resolvedText}</span></div><div class="actions">${!isResolved?`<button class="btn btn-resolve resolve-ticket" data-id="${t.id}">✅ 解决</button>`:''}<button class="btn btn-sm btn-primary edit-ticket" data-id="${t.id}">✏️</button><button class="btn btn-sm btn-danger delete-ticket" data-id="${t.id}">🗑️</button></div></div>`;
+                        });
+                        html+=`</div></div>`;
+                    });
+                    ticketList.innerHTML=html;
+                }
+
+                // 渲染分页控件
+                renderPagination(total, totalPages);
+            }
+
+            // ===================== 分页 =====================
+            function renderPagination(total, totalPages) {
+                if (total === 0) {
+                    paginationEl.innerHTML = '';
                     return;
                 }
-                let html='';
-                sortedDates.forEach(date=>{
-                    let items=groups[date];
-                    let sw=0,hw=0,nw=0,ot=0;
-                    items.forEach(t=>{let cat=t.category||'其他';if(cat==='软件')sw++;else if(cat==='硬件')hw++;else if(cat==='网络')nw++;else ot++;});
-                    let isToday=(date===todayStr);
-                    let contentHidden=isToday?'':' hidden';
-                    let icon=isToday?'▼':'▶';
-                    let statsHtml='';
-                    if(sw>0||hw>0||nw>0||ot>0){
-                        statsHtml='<div class="day-stats">';
-                        if(sw>0)statsHtml+=`<span class="stat-item">💻 软件 <span class="num purple">${sw}</span></span>`;
-                        if(hw>0)statsHtml+=`<span class="stat-item">🖨️ 硬件 <span class="num orange">${hw}</span></span>`;
-                        if(nw>0)statsHtml+=`<span class="stat-item">🌐 网络 <span class="num indigo">${nw}</span></span>`;
-                        if(ot>0)statsHtml+=`<span class="stat-item">📦 其他 <span class="num gray">${ot}</span></span>`;
-                        statsHtml+='</div>';
+                let html = `<button class="page-prev" ${currentPage<=1?'disabled':''}>上一页</button>`;
+                for (let i=1; i<=totalPages; i++) {
+                    if (i===currentPage) {
+                        html += `<button class="active-page">${i}</button>`;
+                    } else {
+                        html += `<button data-page="${i}">${i}</button>`;
                     }
-                    html+=`<div class="day-group"><div class="day-header" data-date="${date}"><span>📅 ${date}</span><span class="day-count">${items.length} 条 <span class="toggle-icon">${icon}</span></span></div>${statsHtml}<div class="day-content${contentHidden}">`;
-                    items.forEach(t=>{
-                        let resolvedText=t.resolved==1?'已解决':'未解决';
-                        let badgeCls=t.resolved==1?'resolved':'pending';
-                        let catCls=(t.category||'其他').toLowerCase();
-                        let emoji=getCategoryEmoji(t.category);
-                        let isResolved=t.resolved==1;
-                        let deptDisplay=searchKeyword.trim()?highlightText(t.department||'',searchKeyword.trim()):escapeHtml(t.department||'');
-                        let nameDisplay=searchKeyword.trim()?highlightText(t.name||'',searchKeyword.trim()):escapeHtml(t.name||'');
-                        let issueDisplay=searchKeyword.trim()?highlightText(t.issue||'',searchKeyword.trim()):escapeHtml(t.issue||'');
-                        html+=`<div class="ticket-item" data-id="${t.id}"><div class="info"><span class="dept-name">${deptDisplay} ${nameDisplay}</span><span class="issue-text">${issueDisplay}</span></div><div class="meta"><span class="tag ${catCls}">${emoji} ${escapeHtml(t.category||'其他')}</span><span class="status-badge ${badgeCls}">${resolvedText}</span></div><div class="actions">${!isResolved?`<button class="btn btn-resolve resolve-ticket" data-id="${t.id}">✅ 解决</button>`:''}<button class="btn btn-sm btn-primary edit-ticket" data-id="${t.id}">✏️</button><button class="btn btn-sm btn-danger delete-ticket" data-id="${t.id}">🗑️</button></div></div>`;
+                }
+                html += `<button class="page-next" ${currentPage>=totalPages?'disabled':''}>下一页</button>`;
+                html += `<span class="page-info">共 ${total} 条，第 ${currentPage}/${totalPages} 页</span>`;
+                paginationEl.innerHTML = html;
+                // 绑定事件
+                paginationEl.querySelectorAll('button[data-page]').forEach(btn => {
+                    btn.addEventListener('click', function(e){
+                        currentPage = parseInt(this.dataset.page);
+                        renderTickets();
                     });
-                    html+=`</div></div>`;
                 });
-                ticketList.innerHTML=html;
+                const prevBtn = paginationEl.querySelector('.page-prev');
+                const nextBtn = paginationEl.querySelector('.page-next');
+                if (prevBtn && !prevBtn.disabled) {
+                    prevBtn.addEventListener('click', function(){ if(currentPage>1){currentPage--; renderTickets();} });
+                }
+                if (nextBtn && !nextBtn.disabled) {
+                    nextBtn.addEventListener('click', function(){ if(currentPage<totalPages){currentPage++; renderTickets();} });
+                }
             }
 
             // ===================== 借出渲染 =====================
@@ -816,7 +873,7 @@
                 await refreshData();syncDot.className='sync-dot';syncLabel.textContent='已永久删除';}catch(err){alert('删除失败: '+err.message);syncDot.className='sync-dot error';syncLabel.textContent='删除失败';}
             }
 
-            // ===================== 年度汇总（含折线图+饼图） =====================
+            // ===================== 年度汇总 =====================
             function populateYearSelect(){
                 let currentYear=new Date().getFullYear();
                 yearSelect.innerHTML='';
@@ -837,7 +894,6 @@
                 yearSoftware.textContent=software; yearHardware.textContent=hardware; yearNetwork.textContent=network;
                 yearOther.textContent=other;
 
-                // 折线图 - 月度趋势
                 let monthCounts={}; for(let m=1;m<=12;m++){let ms=`${year}-${String(m).padStart(2,'0')}`;monthCounts[ms]=0;}
                 yearTickets.forEach(t=>{if(t.date){let prefix=t.date.substring(0,7);if(monthCounts[prefix]!==undefined)monthCounts[prefix]++;}});
                 let labels=Object.keys(monthCounts).map(k=>k.substring(5)+'月');
@@ -846,30 +902,16 @@
                 if(yearLineChartInstance)yearLineChartInstance.destroy();
                 yearLineChartInstance=new Chart(ctxLine,{type:'line',data:{labels,datasets:[{label:'工单数',data,borderColor:'#8b5cf6',backgroundColor:'rgba(139,92,246,0.1)',fill:true,tension:0.3,pointBackgroundColor:'#8b5cf6'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.parsed.y} 条`}}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}},grid:{color:'#f1f5f9'}},x:{ticks:{font:{size:10}},grid:{display:false}}}}});
 
-                // 饼图 - 分类占比
                 let catData=[software,hardware,network,other];
                 let catLabels=['💻 软件','🖨️ 硬件','🌐 网络','📦 其他'];
                 let colors=['#8b5cf6','#f59e0b','#4f46e5','#6b7280'];
-                // 去掉值为0的分类
                 let filteredCatData=[], filteredLabels=[], filteredColors=[];
-                for(let i=0;i<catData.length;i++){
-                    if(catData[i]>0){
-                        filteredCatData.push(catData[i]);
-                        filteredLabels.push(catLabels[i]);
-                        filteredColors.push(colors[i]);
-                    }
-                }
-                if(filteredCatData.length===0){
-                    // 如果没有数据，显示占位
-                    filteredCatData=[1];
-                    filteredLabels=['无数据'];
-                    filteredColors=['#e5e7eb'];
-                }
+                for(let i=0;i<catData.length;i++){ if(catData[i]>0){ filteredCatData.push(catData[i]); filteredLabels.push(catLabels[i]); filteredColors.push(colors[i]); } }
+                if(filteredCatData.length===0){ filteredCatData=[1]; filteredLabels=['无数据']; filteredColors=['#e5e7eb']; }
                 let ctxPie=yearPieChartCanvas.getContext('2d');
                 if(yearPieChartInstance)yearPieChartInstance.destroy();
                 yearPieChartInstance=new Chart(ctxPie,{type:'doughnut',data:{labels:filteredLabels,datasets:[{data:filteredCatData,backgroundColor:filteredColors,borderWidth:2,borderColor:'white'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11}}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed} 条 (${total>0?((ctx.parsed/total)*100).toFixed(1):0}%)`}}}}});
 
-                // 月度明细
                 let groups={}; yearTickets.forEach(t=>{let m=t.date?t.date.substring(0,7):'未知';if(!groups[m])groups[m]=[];groups[m].push(t);});
                 let sortedMonths=Object.keys(groups).sort();
                 if(sortedMonths.length===0){yearMonthList.innerHTML='<div class="empty-state">📭 该年度暂无工单记录</div>';return;}
@@ -901,7 +943,7 @@
                 ticketList.classList.toggle('hidden',tab!=='tickets');
                 borrowList.classList.toggle('hidden',tab!=='borrow');
                 recycleList.classList.toggle('hidden',tab!=='recycle');
-                if(tab==='tickets') renderTickets();
+                if(tab==='tickets') { currentPage = 1; renderTickets(); }
                 else if(tab==='borrow') renderBorrows();
                 else if(tab==='recycle') renderRecycle();
             }
@@ -912,7 +954,7 @@
                 try{syncDot.className='sync-dot syncing';syncLabel.textContent='加载中...';
                 let [tickets,borrows]=await Promise.all([fetchAllTickets(),fetchAllBorrows()]);
                 allTickets=tickets; allBorrows=borrows;
-                if(currentTab==='tickets') renderTickets();
+                if(currentTab==='tickets') { currentPage = 1; renderTickets(); }
                 else if(currentTab==='borrow') renderBorrows();
                 else renderRecycle();
                 syncDot.className='sync-dot';syncLabel.textContent='已同步';}catch(err){console.error(err);syncDot.className='sync-dot error';syncLabel.textContent='加载失败';}
@@ -936,7 +978,6 @@
                     let json=XLSX.utils.sheet_to_json(sheet);
                     if(!json||json.length===0){alert('文件为空或格式不正确');return;}
                     importData=json;
-                    // 自动识别列名
                     let headers=Object.keys(json[0]);
                     let previewHtml='<table><thead><tr>';
                     headers.forEach(h=>previewHtml+=`<th>${escapeHtml(h)}</th>`);
@@ -998,17 +1039,20 @@
             (async function autoConnect(){let cfg=loadConfig();if(cfg.apiKey&&cfg.databaseURL&&cfg.projectId){try{fbApiKey.value=cfg.apiKey;fbAuthDomain.value=cfg.authDomain||'';fbDatabaseURL.value=cfg.databaseURL;fbProjectId.value=cfg.projectId;fbStorageBucket.value=cfg.storageBucket||'';fbAppId.value=cfg.appId||'';initFirebase();await refreshData();configCard.style.display='none';mainArea.classList.remove('hidden');$('configHint').textContent='✅ 自动连接成功';}catch(e){console.warn('自动连接失败，请手动连接',e);configCard.style.display='block';$('configHint').textContent='⚠️ 自动连接失败，请检查配置后手动点击连接';}}})();
             weekPrev.addEventListener('click',()=>{currentWeekOffset-=1;renderWeeklyStats();});
             weekNext.addEventListener('click',()=>{currentWeekOffset+=1;renderWeeklyStats();});
-            prevMonthBtn.addEventListener('click',()=>{currentMonth.setMonth(currentMonth.getMonth()-1);if(currentTab==='tickets')renderTickets();});
-            nextMonthBtn.addEventListener('click',()=>{currentMonth.setMonth(currentMonth.getMonth()+1);if(currentTab==='tickets')renderTickets();});
+            dayPicker.addEventListener('change', function(){ renderDailyStats(this.value); });
+            // 初始化日期选择器为今天
+            dayPicker.value = new Date().toISOString().slice(0,10);
+
+            prevMonthBtn.addEventListener('click',()=>{currentMonth.setMonth(currentMonth.getMonth()-1);if(currentTab==='tickets'){currentPage=1;renderTickets();}});
+            nextMonthBtn.addEventListener('click',()=>{currentMonth.setMonth(currentMonth.getMonth()+1);if(currentTab==='tickets'){currentPage=1;renderTickets();}});
             document.querySelectorAll('.tab-btn').forEach(btn=>{btn.addEventListener('click',function(){switchTab(this.dataset.tab);});});
             document.querySelectorAll('.borrow-filter .filter-btn').forEach(btn=>{btn.addEventListener('click',function(){document.querySelectorAll('.borrow-filter .filter-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');borrowFilter=this.dataset.filter;renderBorrows();});});
             document.querySelectorAll('.borrow-filter .filter-btn[data-recycle]').forEach(btn=>{btn.addEventListener('click',function(){document.querySelectorAll('.borrow-filter .filter-btn[data-recycle]').forEach(b=>b.classList.remove('active'));this.classList.add('active');recycleFilter=this.dataset.recycle;renderRecycle();});});
 
-            // 筛选和搜索
-            filterDeptEl.addEventListener('change',function(){filterDept=this.value;if(currentTab==='tickets')renderTickets();});
-            filterCategoryEl.addEventListener('change',function(){filterCategory=this.value;if(currentTab==='tickets')renderTickets();});
-            searchInput.addEventListener('input',function(){searchKeyword=this.value;if(currentTab==='tickets')renderTickets();});
-            clearFilterBtn.addEventListener('click',function(){filterDeptEl.value='all';filterCategoryEl.value='all';searchInput.value='';filterDept='all';filterCategory='all';searchKeyword='';if(currentTab==='tickets')renderTickets();});
+            filterDeptEl.addEventListener('change',function(){filterDept=this.value;if(currentTab==='tickets'){currentPage=1;renderTickets();}});
+            filterCategoryEl.addEventListener('change',function(){filterCategory=this.value;if(currentTab==='tickets'){currentPage=1;renderTickets();}});
+            searchInput.addEventListener('input',function(){searchKeyword=this.value;if(currentTab==='tickets'){currentPage=1;renderTickets();}});
+            clearFilterBtn.addEventListener('click',function(){filterDeptEl.value='all';filterCategoryEl.value='all';searchInput.value='';filterDept='all';filterCategory='all';searchKeyword='';if(currentTab==='tickets'){currentPage=1;renderTickets();}});
 
             // 按钮
             openAddModal.addEventListener('click',()=>{resetTicketForm();modalOverlay.classList.add('active');});
@@ -1029,9 +1073,26 @@
                 let date=formDate.value, dept=formDept.value.trim(), name=formName.value.trim(), issue=formIssue.value.trim();
                 let category=formCategory.value, resolved=parseInt(formResolved.value);
                 if(!date){alert('请选择日期');return;} if(!issue){alert('请输入问题描述');return;}
-                let data={date,department:dept,name,issue,category,resolved,deleted:false};
+                // 自动生成工单编号
+                let ticketNumber = generateTicketNumber(date, allTickets);
+                let data={date, department:dept, name, issue, category, resolved, deleted:false, ticketNumber};
                 let id=editId.value;
-                try{if(id){await updateTicketInFirebase(id,data);}else{await addTicketToFirebase(data);}modalOverlay.classList.remove('active');await refreshData();}catch(err){alert('保存失败: '+err.message);}
+                try{
+                    if(id){
+                        // 编辑时保留原有编号（如果已经存在）
+                        if(!data.ticketNumber) {
+                            // 如果编辑时没有编号，可能是旧数据，我们可以保留或生成，这里保留原有
+                            const oldTicket = allTickets.find(t=>t.id===id);
+                            if(oldTicket && oldTicket.ticketNumber) data.ticketNumber = oldTicket.ticketNumber;
+                            else data.ticketNumber = generateTicketNumber(date, allTickets);
+                        }
+                        await updateTicketInFirebase(id,data);
+                    } else {
+                        await addTicketToFirebase(data);
+                    }
+                    modalOverlay.classList.remove('active');
+                    await refreshData();
+                }catch(err){alert('保存失败: '+err.message);}
             });
             // 借出模态框
             borrowModalClose.addEventListener('click',()=>{borrowModal.classList.remove('active');});
@@ -1086,8 +1147,8 @@
             async function performReturnBorrow(id){if(!isFirebaseReady)return;try{syncDot.className='sync-dot syncing';syncLabel.textContent='更新中...';let today=new Date().toISOString().slice(0,10);await updateBorrowInFirebase(id,{status:'已归还',returnDate:today});await refreshData();syncDot.className='sync-dot';syncLabel.textContent='已同步';}catch(err){alert('操作失败: '+err.message);syncDot.className='sync-dot error';syncLabel.textContent='更新失败';}}
             function exportToCSV(){
                 if(!allTickets&&!allBorrows){alert('没有数据可导出。');return;}
-                let csv='=== 工单记录 ===\n日期,部门,姓名,问题描述,分类,状态\n';
-                allTickets.filter(t=>!t.deleted).forEach(t=>{let status=t.resolved==1?'已解决':'未解决';csv+=`${t.date||''},${t.department||''},${t.name||''},${t.issue||''},${t.category||'其他'},${status}\n`;});
+                let csv='=== 工单记录 ===\n日期,部门,姓名,问题描述,分类,状态,工单编号\n';
+                allTickets.filter(t=>!t.deleted).forEach(t=>{let status=t.resolved==1?'已解决':'未解决';csv+=`${t.date||''},${t.department||''},${t.name||''},${t.issue||''},${t.category||'其他'},${status},${t.ticketNumber||''}\n`;});
                 csv+='\n=== 设备借出记录 ===\n部门,姓名,设备,借出日期,状态,归还日期,备注\n';
                 allBorrows.filter(b=>!b.deleted).forEach(b=>{csv+=`${b.department||''},${b.name||''},${b.device||''},${b.borrowDate||''},${b.status||'未归还'},${b.returnDate||''},${b.note||''}\n`;});
                 let blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
@@ -1096,13 +1157,26 @@
                 document.body.appendChild(link);link.click();document.body.removeChild(link);URL.revokeObjectURL(link.href);
             }
 
+            // 动态适配底部安全区
+            function adjustBottomPadding() {
+                const bottomBar = document.getElementById('bottomActions');
+                if (bottomBar) {
+                    const barHeight = bottomBar.offsetHeight;
+                    document.body.style.paddingBottom = Math.max(barHeight + 16, 90) + 'px';
+                }
+            }
+            // 窗口变化时重新计算
+            window.addEventListener('resize', adjustBottomPadding);
+            // 初始调用
+            setTimeout(adjustBottomPadding, 100);
+
             // 前台刷新
             document.addEventListener('visibilitychange', async ()=>{
                 if(document.visibilityState==='visible'&&!mainArea.classList.contains('hidden')&&isFirebaseReady)await refreshData();
             });
 
             resetTicketForm();
-            console.log('运维管理系统 (新增“其他”分类 + 今日统计) 已加载。');
+            console.log('运维管理系统 (完整功能版：分页+编号+双统计) 已加载。');
         })();
     </script>
 </body>
