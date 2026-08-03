@@ -277,6 +277,11 @@
             .year-chart-row .year-chart-wrapper { height: 200px; }
             .pagination button { font-size: 12px; padding: 4px 10px; }
             .header .left h1 { font-size: 20px; }
+            /* 手机端隐藏顶部按钮（年度汇总、导入、导出） */
+            .header .left .btn { display: none; }
+            .header .right .btn { display: none; }
+            /* 调整右侧布局，只保留同步状态 */
+            .header .right { gap: 6px; }
         }
         @media (min-width: 601px) {
             .bottom-actions { display: none !important; }
