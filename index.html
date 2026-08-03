@@ -54,12 +54,23 @@
         .status-badge.returned { background: #dcfce7; color: #166534; }
         .status-badge.deleted { background: #e5e7eb; color: #6b7280; }
         .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
-        .header h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.3px; }
+        .header .left { display: flex; align-items: center; gap: 12px; }
+        .header .left h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.3px; }
+        .header .right { display: flex; align-items: center; gap: 12px; }
         .sync-status { font-size: 13px; background: white; padding: 6px 14px; border-radius: 30px; border: 1px solid #e9eef3; display: flex; align-items: center; gap: 6px; }
         .sync-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: #22c55e; }
         .sync-dot.error { background: #ef4444; }
         .sync-dot.syncing { background: #f59e0b; animation: pulse 1s infinite; }
         @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+
+        /* 下拉菜单 */
+        .dropdown { position: relative; display: inline-block; }
+        .dropbtn { background: white; border: 1px solid #e9eef3; border-radius: 10px; padding: 6px 14px; font-size: 14px; font-weight: 600; cursor: pointer; color: #1e293b; display: flex; align-items: center; gap: 4px; }
+        .dropbtn:hover { background: #f1f5f9; }
+        .dropdown-content { display: none; position: absolute; right: 0; top: 100%; margin-top: 4px; background: white; min-width: 140px; border-radius: 12px; border: 1px solid #e9eef3; box-shadow: 0 8px 24px rgba(0,0,0,0.08); z-index: 100; overflow: hidden; }
+        .dropdown-content.show { display: block; }
+        .dropdown-content .item { padding: 10px 16px; font-size: 14px; cursor: pointer; border: none; background: none; width: 100%; text-align: left; display: flex; align-items: center; gap: 8px; color: #1e293b; }
+        .dropdown-content .item:hover { background: #f1f5f9; }
 
         /* 统计卡片分两行 */
         .stats-grid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
@@ -79,8 +90,8 @@
         .stat-card.indigo .num { color: #4f46e5; }
         .stat-card.gray .num { color: #6b7280; }
 
-        /* 周统计、日统计独立 */
-        .stats-block { background: white; border-radius: 14px; border: 1px solid #e9eef3; padding: 14px 18px; margin-bottom: 14px; }
+        /* 周统计、日统计独立块 */
+        .stats-block { background: white; border-radius: 14px; border: 1px solid #e9eef3; padding: 12px 16px; margin-bottom: 12px; }
         .stats-block .block-title { font-weight: 600; font-size: 15px; color: #0f172a; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
         .stats-block .block-nav { display: flex; gap: 4px; align-items: center; }
         .stats-block .block-nav button { background: none; border: 1px solid #d1d9e6; border-radius: 6px; padding: 2px 10px; font-size: 16px; cursor: pointer; line-height: 1.6; color: #475569; }
@@ -99,26 +110,35 @@
 
         .chart-wrapper { background: white; border-radius: 16px; padding: 16px; border: 1px solid #e9eef3; margin-bottom: 20px; height: 180px; position: relative; }
         .chart-wrapper canvas { width: 100% !important; height: 100% !important; }
-        .month-nav { display: flex; align-items: center; justify-content: space-between; background: white; padding: 12px 16px; border-radius: 14px; border: 1px solid #e9eef3; margin-bottom: 20px; }
+
+        /* 月份导航 */
+        .month-nav { display: flex; align-items: center; justify-content: space-between; background: white; padding: 12px 16px; border-radius: 14px; border: 1px solid #e9eef3; margin-bottom: 14px; }
         .month-nav .month-label { font-weight: 600; font-size: 18px; }
         .month-nav .nav-btn { background: none; border: 1px solid #d1d9e6; border-radius: 8px; padding: 4px 14px; font-size: 20px; cursor: pointer; line-height: 1.4; }
         .month-nav .nav-btn:hover { background: #f1f5f9; }
-        .action-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
-        .action-row .btn { flex: 1; min-width: 100px; padding: 14px; font-size: 16px; border-radius: 14px; text-align: center; }
+
+        /* 添加工单和借出按钮行 */
+        .action-row-main { display: flex; gap: 12px; margin-bottom: 20px; }
+        .action-row-main .btn { flex: 1; padding: 14px; font-size: 16px; border-radius: 14px; text-align: center; }
+
+        /* 底部固定栏 */
         .bottom-actions { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 10px 16px; padding-bottom: max(10px, env(safe-area-inset-bottom)); border-top: 1px solid #e9eef3; box-shadow: 0 -4px 12px rgba(0,0,0,0.06); z-index: 100; gap: 6px; justify-content: space-around; }
         .bottom-actions .btn { flex: 1; padding: 8px 4px; font-size: 12px; border-radius: 12px; text-align: center; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; line-height: 1.2; }
         .bottom-actions .btn .icon { font-size: 20px; }
         .bottom-actions .btn .label { font-size: 10px; }
+
         .tab-row { display: flex; gap: 4px; background: #e9eef3; border-radius: 12px; padding: 4px; margin-bottom: 20px; }
         .tab-row .tab-btn { flex: 1; padding: 10px 16px; border: none; border-radius: 10px; font-weight: 600; font-size: 15px; cursor: pointer; background: transparent; color: #64748b; transition: 0.2s; }
         .tab-row .tab-btn.active { background: white; color: #0f172a; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
         .tab-row .tab-btn:hover:not(.active) { color: #0f172a; }
+
         .filter-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: white; padding: 12px 16px; border-radius: 14px; border: 1px solid #e9eef3; margin-bottom: 20px; }
         .filter-bar .filter-label { font-weight: 500; font-size: 14px; color: #475569; }
         .filter-bar select, .filter-bar input { padding: 6px 12px; border: 1px solid #d1d9e6; border-radius: 8px; font-size: 14px; background: white; min-width: 100px; }
         .filter-bar input { min-width: 160px; }
         .filter-bar .clear-filter { color: #3b82f6; font-size: 13px; cursor: pointer; background: none; border: none; font-weight: 500; }
         .filter-bar .clear-filter:hover { text-decoration: underline; }
+
         .day-group { background: white; border-radius: 16px; border: 1px solid #e9eef3; margin-bottom: 16px; overflow: hidden; }
         .day-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #f8fafc; border-bottom: 1px solid #e9eef3; font-weight: 600; font-size: 15px; cursor: pointer; user-select: none; }
         .day-header:hover { background: #f1f5f9; }
@@ -135,6 +155,7 @@
         .day-stats .stat-item .num.indigo { color: #4f46e5; }
         .day-stats .stat-item .num.gray { color: #6b7280; }
         .day-content.hidden { display: none !important; }
+
         .ticket-item { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px 16px; border-bottom: 1px solid #f1f5f9; }
         .ticket-item:last-child { border-bottom: none; }
         .ticket-item .info { flex: 1; min-width: 140px; }
@@ -148,6 +169,7 @@
         .tag.network { background: #e0e7ff; color: #3730a3; }
         .tag.other { background: #f1f5f9; color: #475569; }
         .ticket-item .actions { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+
         .borrow-item { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px 16px; border-bottom: 1px solid #f1f5f9; background: white; }
         .borrow-item:last-child { border-bottom: none; }
         .borrow-item .info { flex: 1; min-width: 150px; }
@@ -160,6 +182,7 @@
         .borrow-filter .filter-btn { padding: 6px 16px; border: 1px solid #d1d9e6; border-radius: 20px; background: white; font-size: 13px; cursor: pointer; transition: 0.2s; color: #475569; }
         .borrow-filter .filter-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
         .borrow-filter .filter-btn:hover:not(.active) { background: #f1f5f9; }
+
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.4); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 999; padding: 20px; }
         .modal-overlay.active { display: flex; }
         .modal { background: white; border-radius: 20px; padding: 24px; max-width: 850px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
@@ -215,14 +238,13 @@
         .import-preview th { background: #f8fafc; position: sticky; top: 0; }
         .highlight { background: #fef9c3; }
 
-        /* 分页 */
+        /* 分页（按天分页） */
         .pagination { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; margin-top: 16px; padding: 8px; background: white; border-radius: 12px; border: 1px solid #e9eef3; }
         .pagination button { padding: 6px 14px; border: 1px solid #d1d9e6; border-radius: 8px; background: white; cursor: pointer; font-size: 14px; }
         .pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
         .pagination button.active-page { background: #3b82f6; color: white; border-color: #3b82f6; }
         .pagination .page-info { font-size: 14px; color: #475569; }
 
-        /* 日统计日期选择 */
         .date-picker { padding: 4px 8px; border: 1px solid #d1d9e6; border-radius: 6px; font-size: 14px; }
 
         @media (max-width: 600px) {
@@ -232,7 +254,7 @@
             .stat-card .num { font-size: 22px; }
             .stat-card .label { font-size: 11px; }
             .config-row input { min-width: 120px; }
-            .action-row { display: none !important; }
+            .action-row-main { display: none !important; }
             .bottom-actions { display: flex; }
             .modal { padding: 16px; }
             .stats-block .stats-grid-inner { gap: 6px 12px; }
@@ -251,10 +273,11 @@
             .year-chart-row { flex-direction: column; }
             .year-chart-row .year-chart-wrapper { height: 200px; }
             .pagination button { font-size: 12px; padding: 4px 10px; }
+            .header .left h1 { font-size: 20px; }
         }
         @media (min-width: 601px) {
             .bottom-actions { display: none !important; }
-            .action-row { display: flex !important; }
+            .action-row-main { display: flex !important; }
         }
     </style>
 </head>
@@ -282,15 +305,29 @@
         </div>
         <!-- ===== 主界面 ===== -->
         <div id="mainArea" class="hidden">
+            <!-- 顶部栏 -->
             <div class="header">
-                <h1>📋 运维管理系统</h1>
-                <div class="sync-status">
-                    <span class="sync-dot" id="syncDot"></span>
-                    <span id="syncLabel">已连接</span>
+                <div class="left">
+                    <h1>📋 工单系统</h1>
+                    <button class="btn btn-purple" id="openYearModal" style="font-size:14px;padding:6px 16px;">📊 汇总</button>
+                </div>
+                <div class="right">
+                    <!-- 其他功能下拉 -->
+                    <div class="dropdown" id="moreDropdown">
+                        <button class="dropbtn" id="moreBtn">☰ 其他功能</button>
+                        <div class="dropdown-content" id="dropdownContent">
+                            <button class="item" id="dropdownImport">📤 导入数据</button>
+                            <button class="item" id="dropdownExport">📥 导出数据</button>
+                        </div>
+                    </div>
+                    <div class="sync-status">
+                        <span class="sync-dot" id="syncDot"></span>
+                        <span id="syncLabel">已连接</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- 统计卡片：分两行 -->
+            <!-- 统计卡片 -->
             <div class="stats-grid">
                 <div class="stats-row row1">
                     <div class="stat-card blue"><div class="num" id="totalCount">0</div><div class="label">总工单</div></div>
@@ -305,7 +342,17 @@
                 </div>
             </div>
 
-            <!-- 周统计独立块 -->
+            <!-- 图表 -->
+            <div class="chart-wrapper"><canvas id="monthChart"></canvas></div>
+
+            <!-- 月份导航 -->
+            <div class="month-nav">
+                <button class="nav-btn" id="prevMonth">‹</button>
+                <span class="month-label" id="currentMonthLabel">2026年7月</span>
+                <button class="nav-btn" id="nextMonth">›</button>
+            </div>
+
+            <!-- ===== 周统计和日统计（移到月份下方） ===== -->
             <div class="stats-block" id="weekBlock">
                 <div class="block-title">
                     📅 周统计
@@ -318,7 +365,6 @@
                 <div class="stats-grid-inner" id="weeklyGrid"></div>
             </div>
 
-            <!-- 日统计独立块 -->
             <div class="stats-block" id="dayBlock">
                 <div class="block-title">
                     📌 日统计
@@ -327,23 +373,10 @@
                 <div class="stats-grid-inner" id="todayGrid"></div>
             </div>
 
-            <!-- 图表 -->
-            <div class="chart-wrapper"><canvas id="monthChart"></canvas></div>
-
-            <!-- 月份导航 -->
-            <div class="month-nav">
-                <button class="nav-btn" id="prevMonth">‹</button>
-                <span class="month-label" id="currentMonthLabel">2026年7月</span>
-                <button class="nav-btn" id="nextMonth">›</button>
-            </div>
-
-            <!-- 顶部按钮行（电脑端） -->
-            <div class="action-row" id="topActionRow">
+            <!-- 添加工单和借出按钮行 -->
+            <div class="action-row-main" id="actionRowMain">
                 <button class="btn btn-success" id="openAddModal">➕ 添加工单</button>
-                <button class="btn btn-borrow" id="openBorrowModal">📦 借出</button>
-                <button class="btn btn-purple" id="openYearModal">📊 汇总</button>
-                <button class="btn btn-import" id="openImportModal">📤 导入</button>
-                <button class="btn btn-export" id="exportBtn">📥 导出</button>
+                <button class="btn btn-borrow" id="openBorrowModal">📦 设备借出</button>
             </div>
 
             <!-- Tab 切换 -->
@@ -414,7 +447,6 @@
                 <div><label>分类</label><select id="formCategory"><option value="软件">💻 软件</option><option value="硬件">🖨️ 硬件</option><option value="网络">🌐 网络</option><option value="其他">📦 其他</option></select></div>
                 <div><label>状态</label><select id="formResolved"><option value="0">未解决</option><option value="1">已解决</option></select></div>
             </div>
-            <!-- 工单编号自动生成，不显示在表单中 -->
             <div class="modal-actions"><button class="btn" id="modalCancel">取消</button><button class="btn btn-primary" id="modalSave">保存</button></div>
         </div>
     </div>
@@ -505,9 +537,9 @@
             let isFirebaseReady = false, currentWeekOffset = 0, currentTab = 'tickets';
             let borrowFilter = 'unreturned', recycleFilter = 'all';
             let filterDept = 'all', filterCategory = 'all', searchKeyword = '';
-            // 分页状态
+            // 分页状态：按天分页，每页5天
             let currentPage = 1;
-            const pageSize = 15;
+            const daysPerPage = 5;
 
             // DOM
             const $ = id => document.getElementById(id);
@@ -556,6 +588,9 @@
             const importFileInput = $('importFileInput'), importType = $('importType');
             const importPreviewBtn = $('importPreviewBtn'), importConfirmBtn = $('importConfirmBtn');
             const importPreviewArea = $('importPreviewArea'), importStatus = $('importStatus'), importCancel = $('importCancel');
+            // 下拉菜单
+            const moreBtn = $('moreBtn'), dropdownContent = $('dropdownContent');
+            const dropdownImport = $('dropdownImport'), dropdownExport = $('dropdownExport');
 
             // ===================== 初始化下拉 =====================
             function populateSelects() {
@@ -636,13 +671,15 @@
                 if(total===0){
                     todayGrid.innerHTML='<span style="color:#94a3b8;font-size:14px;">该日暂无工单</span>';
                 } else {
-                    todayGrid.innerHTML=`<span class="stat-item">总 <span class="num blue">${total}</span></span>
-                        <span class="stat-item">解决 <span class="num green">${resolved}</span></span>
-                        <span class="stat-item">未决 <span class="num red">${pending}</span></span>
-                        <span class="stat-item">💻 <span class="num purple">${sw}</span></span>
-                        <span class="stat-item">🖨️ <span class="num orange">${hw}</span></span>
-                        <span class="stat-item">🌐 <span class="num indigo">${nw}</span></span>
-                        <span class="stat-item">📦 <span class="num gray">${ot}</span></span>`;
+                    todayGrid.innerHTML=`
+                        <span class="stat-item">总工单 <span class="num blue">${total}</span></span>
+                        <span class="stat-item">已解决 <span class="num green">${resolved}</span></span>
+                        <span class="stat-item">未解决 <span class="num red">${pending}</span></span>
+                        <span class="stat-item">软件 <span class="num purple">${sw}</span></span>
+                        <span class="stat-item">硬件 <span class="num orange">${hw}</span></span>
+                        <span class="stat-item">网络 <span class="num indigo">${nw}</span></span>
+                        <span class="stat-item">其他 <span class="num gray">${ot}</span></span>
+                    `;
                 }
             }
             function renderWeeklyStats(){
@@ -656,19 +693,20 @@
                     let hardware=weekTickets.filter(t=>t.category==='硬件').length;
                     let network=weekTickets.filter(t=>t.category==='网络').length;
                     let other=weekTickets.filter(t=>t.category==='其他').length;
-                    weeklyGrid.innerHTML=`<span class="stat-item">总 <span class="num blue">${total}</span></span>
-                        <span class="stat-item">解决 <span class="num green">${resolved}</span></span>
-                        <span class="stat-item">未决 <span class="num red">${pending}</span></span>
-                        <span class="stat-item">💻 <span class="num purple">${software}</span></span>
-                        <span class="stat-item">🖨️ <span class="num orange">${hardware}</span></span>
-                        <span class="stat-item">🌐 <span class="num indigo">${network}</span></span>
-                        <span class="stat-item">📦 <span class="num gray">${other}</span></span>`;
+                    weeklyGrid.innerHTML=`
+                        <span class="stat-item">总工单 <span class="num blue">${total}</span></span>
+                        <span class="stat-item">已解决 <span class="num green">${resolved}</span></span>
+                        <span class="stat-item">未解决 <span class="num red">${pending}</span></span>
+                        <span class="stat-item">软件 <span class="num purple">${software}</span></span>
+                        <span class="stat-item">硬件 <span class="num orange">${hardware}</span></span>
+                        <span class="stat-item">网络 <span class="num indigo">${network}</span></span>
+                        <span class="stat-item">其他 <span class="num gray">${other}</span></span>
+                    `;
                 }
             }
 
             // ===================== 工单编号生成 =====================
             function generateTicketNumber(dateStr, existingTickets) {
-                // 从现有工单中筛选出当天的工单，取最大编号后缀
                 const dayTickets = existingTickets.filter(t => t.date === dateStr && !t.deleted);
                 let maxSuffix = 0;
                 dayTickets.forEach(t => {
@@ -684,7 +722,7 @@
                 return dateStr.replace(/-/g, '') + '-' + newSuffix;
             }
 
-            // ===================== 工单渲染（含搜索、筛选、分页） =====================
+            // ===================== 工单渲染（含搜索、筛选、按天分页） =====================
             function getMonthTickets(tickets,year,month){let m=`${year}-${String(month).padStart(2,'0')}`;return tickets.filter(t=>t.date&&t.date.startsWith(m)&&!t.deleted);}
             function applyFilters(tickets){
                 let result=tickets;
@@ -731,67 +769,68 @@
                 renderStats(filtered);
                 renderChart(filtered,year,month);
                 renderWeeklyStats();
-                // 日统计：使用日期选择器的值
+                // 日统计
                 let dayStr = dayPicker.value || new Date().toISOString().slice(0,10);
                 renderDailyStats(dayStr);
 
-                // 分页处理
-                const total = filtered.length;
-                const totalPages = Math.ceil(total / pageSize) || 1;
+                // ===== 按天分页：每页5天 =====
+                // 获取所有日期并排序（降序）
+                let dateGroups = {};
+                filtered.forEach(t=>{ if(t.date){ if(!dateGroups[t.date]) dateGroups[t.date]=[]; dateGroups[t.date].push(t); } });
+                let sortedDates = Object.keys(dateGroups).sort((a,b)=>b.localeCompare(a)); // 最新日期在前
+                const totalDays = sortedDates.length;
+                const totalPages = Math.ceil(totalDays / daysPerPage) || 1;
                 if (currentPage > totalPages) currentPage = totalPages;
-                const start = (currentPage - 1) * pageSize;
-                const end = Math.min(start + pageSize, total);
-                const pageItems = filtered.slice(start, end);
+                const startIdx = (currentPage - 1) * daysPerPage;
+                const endIdx = Math.min(startIdx + daysPerPage, totalDays);
+                const pageDates = sortedDates.slice(startIdx, endIdx);
 
-                let todayStr=new Date().toISOString().slice(0,10);
-                let groups={};
-                pageItems.forEach(t=>{if(t.date){if(!groups[t.date])groups[t.date]=[];groups[t.date].push(t);}});
-                let sortedDates=Object.keys(groups).sort((a,b)=>b.localeCompare(a));
-                if(sortedDates.length===0){
-                    ticketList.innerHTML=`<div class="empty-state">📭 本月暂无工单记录${(filterDept!=='all'||filterCategory!=='all'||searchKeyword.trim()!=='')?'（已筛选）':''}</div>`;
+                if (pageDates.length === 0) {
+                    ticketList.innerHTML = `<div class="empty-state">📭 本月暂无工单记录${(filterDept!=='all'||filterCategory!=='all'||searchKeyword.trim()!=='')?'（已筛选）':''}</div>`;
                 } else {
-                    let html='';
-                    sortedDates.forEach(date=>{
-                        let items=groups[date];
+                    let html = '';
+                    pageDates.forEach(date => {
+                        let items = dateGroups[date];
                         let sw=0,hw=0,nw=0,ot=0;
                         items.forEach(t=>{let cat=t.category||'其他';if(cat==='软件')sw++;else if(cat==='硬件')hw++;else if(cat==='网络')nw++;else ot++;});
-                        let isToday=(date===todayStr);
-                        let contentHidden=isToday?'':' hidden';
-                        let icon=isToday?'▼':'▶';
-                        let statsHtml='';
+                        let todayStr = new Date().toISOString().slice(0,10);
+                        let isToday = (date===todayStr);
+                        let contentHidden = isToday ? '' : ' hidden';
+                        let icon = isToday ? '▼' : '▶';
+                        let statsHtml = '';
                         if(sw>0||hw>0||nw>0||ot>0){
-                            statsHtml='<div class="day-stats">';
-                            if(sw>0)statsHtml+=`<span class="stat-item">💻 软件 <span class="num purple">${sw}</span></span>`;
-                            if(hw>0)statsHtml+=`<span class="stat-item">🖨️ 硬件 <span class="num orange">${hw}</span></span>`;
-                            if(nw>0)statsHtml+=`<span class="stat-item">🌐 网络 <span class="num indigo">${nw}</span></span>`;
-                            if(ot>0)statsHtml+=`<span class="stat-item">📦 其他 <span class="num gray">${ot}</span></span>`;
-                            statsHtml+='</div>';
+                            statsHtml = '<div class="day-stats">';
+                            if(sw>0)statsHtml += `<span class="stat-item">软件 <span class="num purple">${sw}</span></span>`;
+                            if(hw>0)statsHtml += `<span class="stat-item">硬件 <span class="num orange">${hw}</span></span>`;
+                            if(nw>0)statsHtml += `<span class="stat-item">网络 <span class="num indigo">${nw}</span></span>`;
+                            if(ot>0)statsHtml += `<span class="stat-item">其他 <span class="num gray">${ot}</span></span>`;
+                            statsHtml += '</div>';
                         }
-                        html+=`<div class="day-group"><div class="day-header" data-date="${date}"><span>📅 ${date}</span><span class="day-count">${items.length} 条 <span class="toggle-icon">${icon}</span></span></div>${statsHtml}<div class="day-content${contentHidden}">`;
+                        html += `<div class="day-group"><div class="day-header" data-date="${date}"><span>📅 ${date}</span><span class="day-count">${items.length} 条 <span class="toggle-icon">${icon}</span></span></div>${statsHtml}<div class="day-content${contentHidden}">`;
                         items.forEach(t=>{
-                            let resolvedText=t.resolved==1?'已解决':'未解决';
-                            let badgeCls=t.resolved==1?'resolved':'pending';
-                            let catCls=(t.category||'其他').toLowerCase();
-                            let emoji=getCategoryEmoji(t.category);
-                            let isResolved=t.resolved==1;
-                            let deptDisplay=searchKeyword.trim()?highlightText(t.department||'',searchKeyword.trim()):escapeHtml(t.department||'');
-                            let nameDisplay=searchKeyword.trim()?highlightText(t.name||'',searchKeyword.trim()):escapeHtml(t.name||'');
-                            let issueDisplay=searchKeyword.trim()?highlightText(t.issue||'',searchKeyword.trim()):escapeHtml(t.issue||'');
+                            let resolvedText = t.resolved==1?'已解决':'未解决';
+                            let badgeCls = t.resolved==1?'resolved':'pending';
+                            let catCls = (t.category||'其他').toLowerCase();
+                            let emoji = getCategoryEmoji(t.category);
+                            let isResolved = t.resolved==1;
+                            let deptDisplay = searchKeyword.trim()?highlightText(t.department||'',searchKeyword.trim()):escapeHtml(t.department||'');
+                            let nameDisplay = searchKeyword.trim()?highlightText(t.name||'',searchKeyword.trim()):escapeHtml(t.name||'');
+                            let issueDisplay = searchKeyword.trim()?highlightText(t.issue||'',searchKeyword.trim()):escapeHtml(t.issue||'');
                             let numberDisplay = t.ticketNumber ? `<span class="ticket-number">#${escapeHtml(t.ticketNumber)}</span> ` : '';
-                            html+=`<div class="ticket-item" data-id="${t.id}"><div class="info">${numberDisplay}<span class="dept-name">${deptDisplay} ${nameDisplay}</span><span class="issue-text">${issueDisplay}</span></div><div class="meta"><span class="tag ${catCls}">${emoji} ${escapeHtml(t.category||'其他')}</span><span class="status-badge ${badgeCls}">${resolvedText}</span></div><div class="actions">${!isResolved?`<button class="btn btn-resolve resolve-ticket" data-id="${t.id}">✅ 解决</button>`:''}<button class="btn btn-sm btn-primary edit-ticket" data-id="${t.id}">✏️</button><button class="btn btn-sm btn-danger delete-ticket" data-id="${t.id}">🗑️</button></div></div>`;
+                            html += `<div class="ticket-item" data-id="${t.id}"><div class="info">${numberDisplay}<span class="dept-name">${deptDisplay} ${nameDisplay}</span><span class="issue-text">${issueDisplay}</span></div><div class="meta"><span class="tag ${catCls}">${emoji} ${escapeHtml(t.category||'其他')}</span><span class="status-badge ${badgeCls}">${resolvedText}</span></div><div class="actions">${!isResolved?`<button class="btn btn-resolve resolve-ticket" data-id="${t.id}">✅ 解决</button>`:''}<button class="btn btn-sm btn-primary edit-ticket" data-id="${t.id}">✏️</button><button class="btn btn-sm btn-danger delete-ticket" data-id="${t.id}">🗑️</button></div></div>`;
                         });
-                        html+=`</div></div>`;
+                        html += `</div></div>`;
                     });
-                    ticketList.innerHTML=html;
+                    ticketList.innerHTML = html;
                 }
 
-                // 渲染分页控件
-                renderPagination(total, totalPages);
+                // 渲染分页控件（按天）
+                renderPagination(totalDays, totalPages);
             }
 
-            // ===================== 分页 =====================
-            function renderPagination(total, totalPages) {
-                if (total === 0) {
+            // ===================== 分页（按天） =====================
+            function renderPagination(totalDays, totalPages) {
+                if (totalDays === 0) {
                     paginationEl.innerHTML = '';
                     return;
                 }
@@ -804,7 +843,7 @@
                     }
                 }
                 html += `<button class="page-next" ${currentPage>=totalPages?'disabled':''}>下一页</button>`;
-                html += `<span class="page-info">共 ${total} 条，第 ${currentPage}/${totalPages} 页</span>`;
+                html += `<span class="page-info">共 ${totalDays} 天，第 ${currentPage}/${totalPages} 页</span>`;
                 paginationEl.innerHTML = html;
                 // 绑定事件
                 paginationEl.querySelectorAll('button[data-page]').forEach(btn => {
@@ -903,7 +942,7 @@
                 yearLineChartInstance=new Chart(ctxLine,{type:'line',data:{labels,datasets:[{label:'工单数',data,borderColor:'#8b5cf6',backgroundColor:'rgba(139,92,246,0.1)',fill:true,tension:0.3,pointBackgroundColor:'#8b5cf6'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.parsed.y} 条`}}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}},grid:{color:'#f1f5f9'}},x:{ticks:{font:{size:10}},grid:{display:false}}}}});
 
                 let catData=[software,hardware,network,other];
-                let catLabels=['💻 软件','🖨️ 硬件','🌐 网络','📦 其他'];
+                let catLabels=['软件','硬件','网络','其他'];
                 let colors=['#8b5cf6','#f59e0b','#4f46e5','#6b7280'];
                 let filteredCatData=[], filteredLabels=[], filteredColors=[];
                 for(let i=0;i<catData.length;i++){ if(catData[i]>0){ filteredCatData.push(catData[i]); filteredLabels.push(catLabels[i]); filteredColors.push(colors[i]); } }
@@ -1040,7 +1079,6 @@
             weekPrev.addEventListener('click',()=>{currentWeekOffset-=1;renderWeeklyStats();});
             weekNext.addEventListener('click',()=>{currentWeekOffset+=1;renderWeeklyStats();});
             dayPicker.addEventListener('change', function(){ renderDailyStats(this.value); });
-            // 初始化日期选择器为今天
             dayPicker.value = new Date().toISOString().slice(0,10);
 
             prevMonthBtn.addEventListener('click',()=>{currentMonth.setMonth(currentMonth.getMonth()-1);if(currentTab==='tickets'){currentPage=1;renderTickets();}});
@@ -1066,6 +1104,13 @@
             bottomExportBtn.addEventListener('click',exportToCSV);
             bottomImportModal.addEventListener('click',()=>{importModal.classList.add('active');});
 
+            // 下拉菜单
+            moreBtn.addEventListener('click', function(e){ e.stopPropagation(); dropdownContent.classList.toggle('show'); });
+            document.addEventListener('click', function(){ dropdownContent.classList.remove('show'); });
+            dropdownContent.addEventListener('click', function(e){ e.stopPropagation(); });
+            dropdownImport.addEventListener('click', function(e){ e.stopPropagation(); importModal.classList.add('active'); dropdownContent.classList.remove('show'); });
+            dropdownExport.addEventListener('click', function(e){ e.stopPropagation(); exportToCSV(); dropdownContent.classList.remove('show'); });
+
             // 工单模态框
             modalCancel.addEventListener('click',()=>{modalOverlay.classList.remove('active');});
             modalOverlay.addEventListener('click',(e)=>{if(e.target===modalOverlay)modalOverlay.classList.remove('active');});
@@ -1073,19 +1118,14 @@
                 let date=formDate.value, dept=formDept.value.trim(), name=formName.value.trim(), issue=formIssue.value.trim();
                 let category=formCategory.value, resolved=parseInt(formResolved.value);
                 if(!date){alert('请选择日期');return;} if(!issue){alert('请输入问题描述');return;}
-                // 自动生成工单编号
                 let ticketNumber = generateTicketNumber(date, allTickets);
                 let data={date, department:dept, name, issue, category, resolved, deleted:false, ticketNumber};
                 let id=editId.value;
                 try{
                     if(id){
-                        // 编辑时保留原有编号（如果已经存在）
-                        if(!data.ticketNumber) {
-                            // 如果编辑时没有编号，可能是旧数据，我们可以保留或生成，这里保留原有
-                            const oldTicket = allTickets.find(t=>t.id===id);
-                            if(oldTicket && oldTicket.ticketNumber) data.ticketNumber = oldTicket.ticketNumber;
-                            else data.ticketNumber = generateTicketNumber(date, allTickets);
-                        }
+                        const oldTicket = allTickets.find(t=>t.id===id);
+                        if(oldTicket && oldTicket.ticketNumber) data.ticketNumber = oldTicket.ticketNumber;
+                        else data.ticketNumber = generateTicketNumber(date, allTickets);
                         await updateTicketInFirebase(id,data);
                     } else {
                         await addTicketToFirebase(data);
@@ -1165,9 +1205,7 @@
                     document.body.style.paddingBottom = Math.max(barHeight + 16, 90) + 'px';
                 }
             }
-            // 窗口变化时重新计算
             window.addEventListener('resize', adjustBottomPadding);
-            // 初始调用
             setTimeout(adjustBottomPadding, 100);
 
             // 前台刷新
@@ -1176,7 +1214,7 @@
             });
 
             resetTicketForm();
-            console.log('运维管理系统 (完整功能版：分页+编号+双统计) 已加载。');
+            console.log('运维管理系统 (布局优化：分页5天+完整文字+位置调整) 已加载。');
         })();
     </script>
 </body>
